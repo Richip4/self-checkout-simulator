@@ -9,6 +9,8 @@ import org.junit.Test;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
+import org.lsmr.selfcheckout.devices.EmptyException;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -43,7 +45,8 @@ public class ReceiptTest {
     FakeItem item = new FakeItem(5.0);
 
     @Test
-    public void printReceiptTest() {
+    public void printReceiptTest() throws EmptyException, OverloadException
+    {
         Customer customer = new Customer();
         Inventory inventory = new Inventory();
         inventory.addToInventory(barcode, product, item);
@@ -56,14 +59,16 @@ public class ReceiptTest {
 
 
     @Test
-    public void outOfPaperTest() {
+    public void outOfPaperTest() throws OverloadException
+    {
         Receipt receipt = new Receipt(selfCheckoutStation, new Customer(), new Inventory());
         receipt.outOfPaper(selfCheckoutStation.printer);
         assertTrue(selfCheckoutStation.printer.isDisabled());
     }
 
     @Test
-    public void outOfInkTest() {
+    public void outOfInkTest() throws OverloadException
+    {
         Receipt receipt = new Receipt(selfCheckoutStation, new Customer(), new Inventory());
         receipt.outOfInk(selfCheckoutStation.printer);
         assertTrue(selfCheckoutStation.printer.isDisabled());
