@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.junit.Test;
 import org.junit.Assert.*;
 import org.lsmr.selfcheckout.Banknote;
+import org.lsmr.selfcheckout.NullPointerSimulationException;
 import org.lsmr.selfcheckout.devices.BanknoteDispenser;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BanknoteStorageUnit;
@@ -71,8 +72,8 @@ public class BanknoteHandlerTest {
         // Remove any left banknotes dangling at the output
         while (true) {
             try{
-                selfCheckoutStation.banknoteOutput.removeDanglingBanknote();
-            }catch(SimulationException e){
+                selfCheckoutStation.banknoteOutput.removeDanglingBanknotes();
+            }catch(NullPointerSimulationException e){
                 break;
             }
         }
@@ -211,7 +212,7 @@ public class BanknoteHandlerTest {
         Customer customer = new Customer();
         BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutStation);
         banknoteHandler.setCustomer(customer);
-        banknoteHandler.banknoteEjected(banknoteSlot);
+        banknoteHandler.banknotesEjected(banknoteSlot);
         
     	// TODO the implementation calls a stubbed method for future GUI implementation
         // 		implement test when stubbed method has a body
@@ -221,7 +222,7 @@ public class BanknoteHandlerTest {
     @Test
     public void banknoteEjectedTest_nullCustomer() {
         BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutStation);
-        banknoteHandler.banknoteEjected(banknoteSlot);
+        banknoteHandler.banknotesEjected(banknoteSlot);
         
     	// TODO the implementation calls a stubbed method for future GUI implementation
         // 		implement test when stubbed method has a body
