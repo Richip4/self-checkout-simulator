@@ -4,10 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.devices.AbstractDevice;
-import org.lsmr.selfcheckout.devices.ReceiptPrinter;
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
-import org.lsmr.selfcheckout.devices.SimulationException;
+import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -35,7 +32,8 @@ public class Receipt implements ReceiptPrinterObserver{
 	private Customer customer;
 	private Inventory inventory;
 	
-	public Receipt(SelfCheckoutStation scs, Customer customer, Inventory inventory) {
+	public Receipt(SelfCheckoutStation scs, Customer customer, Inventory inventory) throws OverloadException
+    {
 		this.scs = scs;
 		this.customer = customer;
 		this.inventory = inventory;
@@ -52,7 +50,8 @@ public class Receipt implements ReceiptPrinterObserver{
 	 * Method that iterates through each item in the customer's cart, printing out a receipt
 	 * including the description and price of each item, as well as a subtotal at the bottom.
 	 */
-	public void printReceipt() {
+	public void printReceipt() throws EmptyException, OverloadException
+    {
 		// st is used to print out the Subtotal header at the bottom of the receipt
 		String st = "Subtotal:";
 		// i is used simply as a counter variable for multiple for loops through the method
