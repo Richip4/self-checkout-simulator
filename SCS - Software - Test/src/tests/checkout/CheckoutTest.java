@@ -236,7 +236,7 @@ public class CheckoutTest {
 
     private BigDecimal getSumOfBanknotesInBanknoteOutput() {
         BigDecimal sum = BigDecimal.ZERO;
-        Banknote[] danglingBanknotes = new Banknote[] {new Banknote(currency, 0)};
+        Banknote[] danglingBanknotes = new Banknote[0];
 
         // Take all the banknotes until there is no more
         try
