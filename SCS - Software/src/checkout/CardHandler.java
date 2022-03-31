@@ -3,9 +3,7 @@ package checkout;
 import java.math.BigDecimal;
 
 import org.lsmr.selfcheckout.Card.CardData;
-import org.lsmr.selfcheckout.devices.AbstractDevice;
-import org.lsmr.selfcheckout.devices.CardReader;
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
@@ -112,7 +110,18 @@ public class CardHandler implements CardReaderObserver {
 			isMember = members.checkMember(memberID);
 			if (isMember) {
 				for (char s : memberID.toCharArray())
-					scs.printer.print(s);										//assuming that the printer has ink and paper
+                {
+                    try
+                    {
+                        scs.printer.print(s);										//assuming that the printer has ink and paper
+                    } catch (EmptyException e)
+                    {
+                        e.printStackTrace();
+                    } catch (OverloadException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
 			}else
 				customer.notifyCustomerToTryCardAgain();
 		}else if (type.equals("debit") || type.equals("credit")) {
