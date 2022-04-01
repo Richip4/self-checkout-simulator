@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 
 public class CredentialsSystem {
-
+	
 	/**
 	 * Class for creating an account in the credentials system
 	 * @author Tyler Chen

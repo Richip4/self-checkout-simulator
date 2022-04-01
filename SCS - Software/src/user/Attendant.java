@@ -1,32 +1,38 @@
 package user;
 
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 public class Attendant {
 	
+
+
 	
-	public class LoginInfo{
-		String username;
-		String password;
-		
-		public LoginInfo(String username, String password) {
-			this.username = username;
-			this.password = password;
-		}
+	private String username;
+	private String password;
+	
+	
+
+	public void promptLogin() {
+		//call gui
 	}
 	
-	
-	public LoginInfo promptLogin(String username, String password) {
-		return new LoginInfo(username, password);
+	public void promptLogout() {
+		//call gui
 	}
 	
-	
-	public boolean startUpStation(SelfCheckoutStation scs) {
-		
-		
-		
-		return false;
+	public void setLogin(String username, String password) {
+		this.username = username;
+		this.password = password;
 	}
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+	
+
 	
 	
 	
