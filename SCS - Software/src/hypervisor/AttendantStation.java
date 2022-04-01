@@ -68,6 +68,11 @@ public class AttendantStation {
 	}
 	
 	
+	public void login() {
+		
+	}
+	
+	
 	/**
 	 * Given the hardware, we need to start up the station for use.
 	 * @param scs - SelfCheckoutStation that it wants to boot up.
