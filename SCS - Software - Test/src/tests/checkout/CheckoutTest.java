@@ -1,6 +1,13 @@
 package tests.checkout;
 
-import static org.junit.Assert.*;
+import checkout.Checkout;
+import org.junit.Test;
+import org.lsmr.selfcheckout.*;
+import org.lsmr.selfcheckout.devices.SimulationException;
+import org.lsmr.selfcheckout.devices.*;
+import org.lsmr.selfcheckout.products.Product;
+import store.Inventory;
+import user.Customer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,26 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Test;
-import org.junit.Assert.*;
-
-import checkout.Checkout;
-import interrupt.BanknoteHandler;
-import store.Inventory;
-
-import org.lsmr.selfcheckout.Banknote;
-import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.Coin;
-import org.lsmr.selfcheckout.Item;
-import org.lsmr.selfcheckout.Numeral;
-import org.lsmr.selfcheckout.devices.BanknoteDispenser;
-import org.lsmr.selfcheckout.devices.CoinDispenser;
-import org.lsmr.selfcheckout.devices.OverloadException;
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
-import org.lsmr.selfcheckout.devices.SimulationException;
-import org.lsmr.selfcheckout.products.Product;
-
-import user.Customer;
+import static org.junit.Assert.*;
 
 /**
  * The JUnit test class for the Checkout class in SCS - Software.
@@ -220,8 +208,8 @@ public class CheckoutTest {
         // Remove any left banknotes dangling at the output
         while (true) {
             try {
-                selfCheckoutStation.banknoteOutput.removeDanglingBanknote();
-            } catch (SimulationException e) {
+                selfCheckoutStation.banknoteOutput.removeDanglingBanknotes();
+            } catch (NullPointerSimulationException e) {
                 break;
             }
         }
@@ -248,22 +236,25 @@ public class CheckoutTest {
 
     private BigDecimal getSumOfBanknotesInBanknoteOutput() {
         BigDecimal sum = BigDecimal.ZERO;
-        Banknote next;
+        Banknote[] danglingBanknotes = new Banknote[0];
 
-        // Keep taking banknotes until there is no more
-        while (true) {
-            try {
-                next = selfCheckoutStation.banknoteOutput.removeDanglingBanknote();
-            } catch (SimulationException e) {
-                // No more banknotes
-                System.out.println("no more banknote");
-                break;
-            }
+        // Take all the banknotes until there is no more
+        try
+        {
+            danglingBanknotes = selfCheckoutStation.banknoteOutput.removeDanglingBanknotes();
+        } catch (NullPointerSimulationException e)
+        {
+            // No more banknotes
+            System.out.println("no more banknote");
+        }
 
+        // Sum of all the banknotes
+        for (Banknote next : danglingBanknotes)
+        {
             sum = sum.add(new BigDecimal(next.getValue()));
             System.out.println("add " + sum);
         }
-
+        
         return sum;
     }
 

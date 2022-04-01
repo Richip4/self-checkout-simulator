@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.ChipFailureException;
 import org.lsmr.selfcheckout.MagneticStripeFailureException;
+import org.lsmr.selfcheckout.devices.OverloadException;
+import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import store.Membership;
 import user.Customer;
@@ -57,12 +59,12 @@ public class CardHandlerTest
 
     // Setup that is run before each test case
     @Before
-    public void setup()
+    public void setup() throws OverloadException
     {
         // Initialize all relevant implementations
         selfCheckoutStation = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
-        selfCheckoutStation.printer.addInk(1000);
-        selfCheckoutStation.printer.addPaper(1000);
+        selfCheckoutStation.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
+        selfCheckoutStation.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
         bank = new Bank(totalBankAccountsCapacity);
         membershipProvider = new Membership();
         customer1 = new Customer();

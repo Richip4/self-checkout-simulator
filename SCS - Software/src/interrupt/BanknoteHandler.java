@@ -172,13 +172,18 @@ public class BanknoteHandler implements BanknoteDispenserObserver,
 	}
 
 	/**
-	 * Sends the customer a banknote ejected notification.
+	 * An event announcing that one or more banknotes have been returned to the user, dangling
+	 * from the slot.
+	 *
+	 * @param slot The device on which the event occurred.
 	 */
 	@Override
-	public void banknoteEjected(BanknoteSlot slot) {
+	public void banknotesEjected(BanknoteSlot slot)
+	{
 		if (customer != null) customer.notifyBanknoteEjected();
-		
+
 	}
+
 
 	/**
 	 * Removes the banknote ejected notification from the customer.
