@@ -10,13 +10,13 @@ import org.junit.Test;
 import org.junit.Assert.*;
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.NullPointerSimulationException;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.BanknoteDispenser;
 import org.lsmr.selfcheckout.devices.BanknoteSlot;
 import org.lsmr.selfcheckout.devices.BanknoteStorageUnit;
 import org.lsmr.selfcheckout.devices.BanknoteValidator;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
-import org.lsmr.selfcheckout.devices.SimulationException;
 
 import checkout.Checkout;
 import interrupt.BanknoteHandler;

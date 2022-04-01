@@ -3,7 +3,6 @@ package tests.checkout;
 import checkout.Checkout;
 import org.junit.Test;
 import org.lsmr.selfcheckout.*;
-import org.lsmr.selfcheckout.devices.SimulationException;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.products.Product;
 import store.Inventory;
