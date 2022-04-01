@@ -32,6 +32,8 @@ public class Receipt implements ReceiptPrinterObserver{
 	private Customer customer;
 	private Inventory inventory;
 	
+	private boolean hardwareState;
+	
 	public Receipt(SelfCheckoutStation scs, Customer customer, Inventory inventory) throws OverloadException
     {
 		this.scs = scs;
@@ -114,12 +116,16 @@ public class Receipt implements ReceiptPrinterObserver{
 	
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		// we don't currently handle any events when the receipt printer is enabled
+		hardwareState = true;
 	}
 	
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		// we don't currently handle any events when the receipt printer is disabled	
+		hardwareState = false;	
+	}
+	
+	public boolean getHardwareState() {
+		return hardwareState;
 	}
 	
 	/**

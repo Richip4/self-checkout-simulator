@@ -37,6 +37,8 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	private boolean ownBagsUsed = false;
 	private double ownBagWeight = 0;
 	
+	private boolean hardwareState;
+	
 	public ProcessItemHandler(SelfCheckoutStation scs, Inventory inv) {
 		this.scs = scs;
 		this.inv = inv;
@@ -61,14 +63,18 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		// do nothing when barcode scanner or electronic scale is enabled
+		hardwareState = true;
 		
 	}
 
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		// do nothing when barcode scanner or electronic scale is disabled
+		hardwareState = false;	
 		
+	}
+	
+	public boolean getHardwareState() {
+		return hardwareState;
 	}
 
 	/**

@@ -37,6 +37,8 @@ public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, Coi
 	private boolean coinDetectedIsValid = false;
 	private boolean coinDispenserFull = false;
 	private BigDecimal coinValue;
+	
+	private boolean hardwareState;
 
 	public CoinHandler(SelfCheckoutStation scs) {
 		this.scs = scs;
@@ -63,10 +65,18 @@ public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, Coi
 	}
 
 	@Override
-	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {}
+	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		hardwareState = true;
+	}
 		
 	@Override
-	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {}
+	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		hardwareState = false;
+	}
+	
+	public boolean getHardwareState() {
+		return hardwareState;
+	}
 	
 	// when a coin is inserted, we set coin detected flag to True 
 	@Override

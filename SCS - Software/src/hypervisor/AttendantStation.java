@@ -70,10 +70,12 @@ public class AttendantStation {
 	
 	/**
 	 * Given the hardware, we need to start up the station for use.
-	 * TODO: Should I catch OverloadException?
 	 * @param scs - SelfCheckoutStation that it wants to boot up.
 	 * @return T/F - Whether the software has been booted.
 	 * @throws OverloadException
+	 * TODO: Disable hardware? Boot up GUI? Should I catch OverloadException? 
+	 * If it enables hardware, should it before or after? I don't think we do
+	 * because the hardware team should have it enabled?
 	 */
 	public boolean startUpStation(SelfCheckoutStation scs) throws OverloadException {
 		try {
@@ -84,9 +86,32 @@ public class AttendantStation {
 			BanknoteHandler banknoteHandler = new BanknoteHandler(scs);
 			CoinHandler coinHandler = new CoinHandler(scs);
 			ProcessItemHandler procItemHandler = new ProcessItemHandler(scs, inv);
-	
+			
+//			boolean a = cardHandler.getHardwareState();
+//			boolean b = receiptHandler.getHardwareState();
+//			boolean c = banknoteHandler.getHardwareState();
+//			boolean d = coinHandler.getHardwareState();
+//			boolean e = procItemHandler.getHardwareState();
+//			
+//			if (a && b ...) {
+//				int id = generateStationID();
+//				checkoutStations.put(id, new StationSoftware(	//Add the newly created
+//						customer,
+//						cardHandler,
+//						checkoutHandler,
+//						receiptHandler,
+//						banknoteHandler,
+//						coinHandler,
+//						procItemHandler
+//				));
+//				
+//				return true;
+//			} else {
+//				return false;
+//			}
+			
 			int id = generateStationID();
-			checkoutStations.put(id, new StationSoftware(
+			checkoutStations.put(id, new StationSoftware(	//Add the newly created
 					customer,
 					cardHandler,
 					checkoutHandler,
@@ -101,6 +126,23 @@ public class AttendantStation {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	/**
+	 * Shuts down the software simply by removing it from the HashMap of checkoutStations
+	 * 
+	 * @param id - Each station should be identified by an id (could use scs but not easily
+	 * identifiable.
+	 * @return T/F - whether the checkoutStation has been removed. (If false
+	 * the station most likely is not in the HashMap not exist)
+	 */
+	public boolean shutDownStation(int id) {
+		if (checkoutStations.containsKey(id)) {
+			checkoutStations.remove(id);
+			return true;
+		}else 
+			return false;
+
 	}
 	
 	/**

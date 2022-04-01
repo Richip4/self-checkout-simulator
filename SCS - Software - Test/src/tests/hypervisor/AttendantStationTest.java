@@ -27,6 +27,26 @@ public class AttendantStationTest {
 	    
 	    SelfCheckoutStation scs = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
 		
+//	    scs.cardReader.enable();
+//	    
+//	    //scales
+//	    scs.baggingArea.enable();
+//	    scs.scanningArea.enable();
+//	    
+//	    //scanners
+//	    scs.mainScanner.enable();
+//	    scs.handheldScanner.enable();
+//	    
+//	    
+//	    //only need to enable one?
+//	    scs.banknoteStorage.enable();
+//	    scs.coinSlot.enable();
+	    
+
+	    
+	    
+	    
+	    
 	    boolean startedUp = false;;
 		try {
 			startedUp = attendantStation.startUpStation(scs);

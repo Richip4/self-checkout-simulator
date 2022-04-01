@@ -27,6 +27,7 @@ public class CardHandler implements CardReaderObserver {
     private Customer customer;
 
     private boolean isMember;
+    private boolean hardwareState;
 
     /*
      * Constructor for creating a CardHandler. Attaches itself to the cardReader.
@@ -43,14 +44,20 @@ public class CardHandler implements CardReaderObserver {
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		hardwareState = true;
 		// we don't have to do anything when the device is enabled
 
 	}
 
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		hardwareState = false;
 		// we don't have to do anything when the device is disabled
 		// TODO: Future implementations we may need to warn the customer that this device does not work.
+	}
+	
+	public boolean getHardwareState() {
+		return hardwareState;
 	}
 
 	

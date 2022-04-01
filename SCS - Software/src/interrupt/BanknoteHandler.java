@@ -41,6 +41,8 @@ public class BanknoteHandler implements BanknoteDispenserObserver,
 	private boolean 	bnDetected = false;
 	private BigDecimal	bnValue = BigDecimal.ZERO;
 	
+	private boolean hardwareState;
+	
 	public BanknoteHandler(SelfCheckoutStation scs) {
 		this.scs = scs;
 		// attaches itself as an observer to all related hardware
@@ -95,6 +97,7 @@ public class BanknoteHandler implements BanknoteDispenserObserver,
 		if (device.equals(scs.banknoteValidator)) 	/* Nothing happens when banknote validator is enabled*/ ;
 		scs.banknoteDispensers.forEach((k, d) -> { 
 			if ( device.equals(d))					/* Nothing happens when banknote dispenser is enabled*/ ;});
+		hardwareState = true;
 	}
 
 	/**
@@ -112,8 +115,13 @@ public class BanknoteHandler implements BanknoteDispenserObserver,
 		if (device.equals(scs.banknoteValidator)) 	/* Nothing happens when banknote validator is disabled*/ ;
 		scs.banknoteDispensers.forEach((k, d) -> { 
 			if ( device.equals(d))					/* Nothing happens when banknote dispenser is disabled*/ ;});
+		hardwareState = false;
 	}
 
+	public boolean getHardwareState() {
+		return hardwareState;
+	}
+	
 	/**
 	 * Sets flag to acknowledge received banknote and updates the current banknotes value.
 	 */
