@@ -70,7 +70,10 @@ public class Bank {
 	private Set<Integer> cardNums;
 	private Set<Integer> cardCVVs;
 	
-	
+	/**
+	 * 
+	 * @param maxNumOfAccounts
+	 */
 	public Bank(int maxNumOfAccounts) {
 		cardNums = new HashSet<Integer>(maxNumOfAccounts);
 		cardCVVs = new HashSet<Integer>(maxNumOfAccounts);
