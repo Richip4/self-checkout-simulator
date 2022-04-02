@@ -11,6 +11,8 @@ import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.OverloadException;
+import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -114,6 +116,21 @@ public final class Main {
         for (int t = 0; t < 6; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
                     coinDenominations, 1000, 2);
+            
+            // Add ink to the station
+            try {
+                station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
+            } catch (OverloadException e) {
+                e.printStackTrace();
+            }
+
+            // Add paper to the station
+            try {
+                station.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
+            } catch (OverloadException e) {
+                e.printStackTrace();
+            }
+
             Store.SUPERVISION_STATION.add(station);
         }
     }
@@ -152,7 +169,7 @@ public final class Main {
      * When this item is scanned, software will be notified via observers.
      * 
      * This is necessary, because software should never deal with tangibles, namely,
-     * Cards and Items.
+     * Cards, Items, Cash, etc.
      * For items, simulation should use barcode scanner or touch screen to input,
      * via Hardware. Once hardware has these events happened, software will be
      * notified via attached observers. At this point, software should only know
@@ -164,6 +181,7 @@ public final class Main {
      * point, software would only deal with CardData instead of tangible Card.
      * (Therefore, previous implementation of Inventory class which contains dealing
      * with Item is incorrect)
+     * TODO: Banknote and Coin
      * 
      * As mentioned in Membership class, it is also a type of Card. To distinguish
      * membership cards and bank payment cards, two copntants are provided.
