@@ -27,6 +27,9 @@ public class Inventory {
 	public static final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE = ProductDatabases.BARCODED_PRODUCT_DATABASE;
 	public static final Map<Product, Integer> INVENTORY = ProductDatabases.INVENTORY;
 
+	private Inventory() {
+	}
+
 	/**
 	 * Used to add barcoded products to the stores inventory (Overloaded method)
 	 * 
