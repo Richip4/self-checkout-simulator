@@ -11,6 +11,7 @@ import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
+import bank.Bank;
 import store.Membership;
 import store.Store;
 
@@ -29,7 +30,6 @@ import store.Store;
  */
 
 public final class Main {
-    private static List<CardIssuer> cardIssuers;
     private static Store store;
 
     public static void main(String[] args) {
@@ -40,7 +40,7 @@ public final class Main {
     }
     
     private static void initializeCardIssuers() {
-        Main.cardIssuers = new ArrayList<CardIssuer>();
+        Bank.issuers.clear();
         
         CardIssuer rbc = new CardIssuer("RBC");
         CardIssuer scotia = new CardIssuer("Scotiabank");
@@ -57,8 +57,8 @@ public final class Main {
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
         scotia.addCardData("4511220329440683", "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
 
-        Main.cardIssuers.add(rbc);
-        Main.cardIssuers.add(scotia);
+        Bank.issuers.add(rbc);
+        Bank.issuers.add(scotia);
     }
 
     private static void initializeProductDatabase() {
