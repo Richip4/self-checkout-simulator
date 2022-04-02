@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.external.CardIssuer;
@@ -86,8 +87,8 @@ public final class Main {
     private static void initializeMembership() {
         Membership.members.clear();
 
-        Membership.members.add("12345");
-        Membership.members.add("49606");
+        Membership.createMembership("12345", "Gagan");
+        Membership.createMembership("49555", "Justin");
     }
 
     public static Store getStore() {
