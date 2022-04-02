@@ -51,7 +51,7 @@ public final class Main {
     }
 
     private static void initializeCardIssuers() {
-        Bank.issuers.clear();
+        Bank.ISSUERS.clear();
 
         CardIssuer rbc = new CardIssuer("RBC");
         CardIssuer scotia = new CardIssuer("Scotiabank");
@@ -68,8 +68,8 @@ public final class Main {
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
         scotia.addCardData("4511220329440683", "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
 
-        Bank.issuers.add(rbc);
-        Bank.issuers.add(scotia);
+        Bank.ISSUERS.add(rbc);
+        Bank.ISSUERS.add(scotia);
     }
 
     private static void initializeProductDatabase() {

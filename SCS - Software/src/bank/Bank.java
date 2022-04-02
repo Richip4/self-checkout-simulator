@@ -21,7 +21,7 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  *
  */
 public class Bank {
-	public static final List<CardIssuer> issuers = new ArrayList<CardIssuer>();
+	public static final List<CardIssuer> ISSUERS = new ArrayList<CardIssuer>();
 
 	/**
 	 * Instances of this class are not needed, so the constructor is private.
