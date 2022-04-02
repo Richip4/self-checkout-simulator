@@ -1,8 +1,14 @@
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Card;
+import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
+import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -17,7 +23,8 @@ import store.Inventory;
  * This class represents the entry point of entire software.
  * 
  * This class has a singleton Store instance.
- * This class initializes both the store and any external parties.
+ * This class initializes both the store, external parties, and tangibles.
+ * This class initialize everything to set up a simulation world.
  * 
  * The singleton initializes the following for simulation:
  * - the bank (CardIssuer)
@@ -75,8 +82,16 @@ public final class Main {
 
         Inventory.addProduct(p1);
         Inventory.addProduct(p2);
-        Inventory.setQuantity(p1, 10);
-        Inventory.setQuantity(p2, 10);
+
+        // Add 10 items for each product
+        for (int t = 0; t < 10; t++) {
+            PLUCodedItem i1 = new PLUCodedItem(plu, 4);
+            BarcodedItem i2 = new BarcodedItem(bar, 15.0);
+            Tangibles.ITEMS.add(i1);
+            Tangibles.ITEMS.add(i2);
+            Inventory.setQuantity(p1, 1);
+            Inventory.setQuantity(p2, 1);
+        }
     }
 
     private static void initializeStore() {
@@ -84,10 +99,20 @@ public final class Main {
     }
 
     private static void initializeMembership() {
-        Membership.members.clear();
+        Membership.MEMBERS.clear();
 
-        Membership.createMembership("12345", "Gagan");
-        Membership.createMembership("49555", "Justin");
+        String card1No = "12345";
+        String card2No = "49555";
+        String card1Holder = "Gagan";
+        String card2Holder = "Justin";
+
+        Card card1 = new Card("membership", card1No, card1Holder, null, null, true, true);
+        Card card2 = new Card("membership", card2No, card2Holder, null, null, true, true);
+        Tangibles.CARDS.add(card1);
+        Tangibles.CARDS.add(card2);
+
+        Membership.createMembership(card1No, card1Holder);
+        Membership.createMembership(card2No, card2Holder);
     }
 
     public static Store getStore() {
@@ -96,5 +121,19 @@ public final class Main {
         }
 
         return Main.store;
+    }
+
+    /**
+     * This class is to keep track of all the tangibles in the simulation world.
+     * 
+     * GUI can grab tangibles and interact them with hardware, in order to trigger softwares.
+     * Eg, GUI can grab an item and use Barcode scanner to scan it.
+     * When this item is scanned, software will be notified via observers.
+     * 
+     * @author Yunfan Yang
+     */
+    public class Tangibles {
+        public static final List<Item> ITEMS = new ArrayList<Item>();
+        public static final List<Card> CARDS = new ArrayList<Card>();
     }
 }
