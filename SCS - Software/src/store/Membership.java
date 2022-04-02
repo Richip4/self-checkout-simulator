@@ -27,8 +27,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  * @author Yunfan Yang
  */
 public class Membership {
-	public static final Set<String> members = new HashSet<String>();
-	public static final CardIssuer membershipIssuer = new CardIssuer("Membership");
+	public static final Set<String> MEMBERS = new HashSet<String>();
+	public static final CardIssuer MEMBERSHIP_ISSUER = new CardIssuer("Membership");
 
 	/**
 	 * Instances of this class are not needed, so the constructor is private.
@@ -37,7 +37,7 @@ public class Membership {
 	}
 
 	public static boolean isMember(String memberID) {
-		if (Membership.members.contains(memberID))
+		if (Membership.MEMBERS.contains(memberID))
 			return true;
 		return false;
 	}
@@ -50,10 +50,10 @@ public class Membership {
 	}
 
 	public static void createMembership(String memberID, String holder) {
-		Membership.members.add(memberID);
+		Membership.MEMBERS.add(memberID);
 
 		Calendar expiry = Calendar.getInstance();
 		expiry.add(Calendar.YEAR, 10);
-		Membership.membershipIssuer.addCardData(memberID, holder, expiry, "", BigDecimal.ZERO);
+		Membership.MEMBERSHIP_ISSUER.addCardData(memberID, holder, expiry, "", BigDecimal.ZERO);
 	}
 }
