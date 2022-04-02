@@ -192,5 +192,11 @@ public final class Main {
         public static final List<Item> ITEMS = new ArrayList<Item>();
         public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
         public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
+        
+        /**
+         * This class is not to be instantiated.
+         */
+        private Tangibles() {
+        }
     }
 }
