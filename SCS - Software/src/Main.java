@@ -1,6 +1,7 @@
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.List;
 
 import org.lsmr.selfcheckout.Barcode;
@@ -10,6 +11,7 @@ import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -95,7 +97,23 @@ public final class Main {
     }
 
     private static void initializeStore() {
-        Main.store = new Store();
+        Currency currency = Currency.getInstance("CAD");
+        int[] banknoteDenominations = { 1, 5, 10, 20, 100 };
+        BigDecimal[] coinDenominations = {
+                new BigDecimal("0.01"),
+                new BigDecimal("0.05"),
+                new BigDecimal("0.1"),
+                new BigDecimal("0.25"),
+                new BigDecimal("1.00")
+        };
+
+        // Initialize 6 self-checkout stations
+        // and add them to the supervision station to be supervised
+        for (int t = 0; t < 6; t++) {
+            SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
+                    coinDenominations, 1000, 2);
+            Store.SUPERVISION_STATION.add(station);
+        }
     }
 
     private static void initializeMembership() {
@@ -114,6 +132,7 @@ public final class Main {
         Membership.createMembership(card1No, card1Holder);
         Membership.createMembership(card2No, card2Holder);
     }
+
 
     public static Store getStore() {
         if (Main.store == null) {
