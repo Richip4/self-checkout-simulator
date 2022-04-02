@@ -13,27 +13,17 @@ public class MembershipTest
     final String membership1ID = "1";
     final String membership2ID = "2";
 
-    // Declare the membership provider
-    Membership membershipProvider;
-
-    // Setup that is run before each test case
-    @Before
-    public void setup()
-    {
-        // Initialize the membership provider
-        membershipProvider = new Membership();
-    }
 
     @Test
     public void membershipSignupTest()
     {
-        assertFalse(membershipProvider.isMember(membership1ID));
-        assertFalse(membershipProvider.isMember(membership2ID));
+        assertFalse(Membership.isMember(membership1ID));
+        assertFalse(Membership.isMember(membership2ID));
 
-        membershipProvider.addMember(membership1ID);
-        membershipProvider.addMember(membership2ID);
+        Membership.createMembership(membership1ID, "Joshua");
+        Membership.createMembership(membership2ID, "Gagan");
 
-        assertTrue(membershipProvider.isMember(membership1ID));
-        assertTrue(membershipProvider.isMember(membership2ID));
+        assertTrue(Membership.isMember(membership1ID));
+        assertTrue(Membership.isMember(membership2ID));
     }
 }
