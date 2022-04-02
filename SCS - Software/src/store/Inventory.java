@@ -96,4 +96,10 @@ public class Inventory {
 	public static Product getProduct(PriceLookupCode plu) {
 		return PLU_PRODUCT_DATABASE.get(plu);
 	}
+
+	public static void clear() {
+		PLU_PRODUCT_DATABASE.clear();
+		BARCODED_PRODUCT_DATABASE.clear();
+		INVENTORY.clear();
+	}
 }

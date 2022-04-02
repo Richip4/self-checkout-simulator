@@ -51,7 +51,7 @@ public final class Main {
     }
 
     private static void initializeCardIssuers() {
-        Bank.ISSUERS.clear();
+        Bank.clearIssuers();
 
         CardIssuer rbc = new CardIssuer("RBC");
         CardIssuer scotia = new CardIssuer("Scotiabank");
@@ -68,23 +68,21 @@ public final class Main {
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
         scotia.addCardData("4511220329440683", "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
 
-        Bank.ISSUERS.add(rbc);
-        Bank.ISSUERS.add(scotia);
+        Bank.addIssuer(rbc);
+        Bank.addIssuer(scotia);
     }
 
     private static void initializeProductDatabase() {
-        Inventory.BARCODED_PRODUCT_DATABASE.clear();
-        Inventory.PLU_PRODUCT_DATABASE.clear();
-        Inventory.INVENTORY.clear();
+        Inventory.clear();
 
         PriceLookupCode plu = new PriceLookupCode("PLU");
         PLUCodedProduct p1 = new PLUCodedProduct(plu, "Corn", new BigDecimal("2.00"));
-        Inventory.PLU_PRODUCT_DATABASE.put(plu, p1);
+        Inventory.addProduct(p1);
 
         Numeral[] nums = new Numeral[10];
         Barcode bar = new Barcode(nums);
         BarcodedProduct p2 = new BarcodedProduct(bar, "Coffee", new BigDecimal("6.20"), 15.0);
-        Inventory.BARCODED_PRODUCT_DATABASE.put(bar, p2);
+        Inventory.addProduct(p2);
 
         Inventory.addProduct(p1);
         Inventory.addProduct(p2);
@@ -131,12 +129,12 @@ public final class Main {
                 e.printStackTrace();
             }
 
-            Store.SUPERVISION_STATION.add(station);
+            Store.addSelfCheckoutStation(station);
         }
     }
 
     private static void initializeMembership() {
-        Membership.MEMBERS.clear();
+        Membership.clear();
 
         String card1No = "12345";
         String card2No = "49555";

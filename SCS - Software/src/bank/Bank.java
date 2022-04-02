@@ -30,7 +30,19 @@ public class Bank {
 	private Bank() {
 	}
 
-	public List<CardIssuer> getIssuers() {
+	public static List<CardIssuer> getIssuers() {
 		return Collections.unmodifiableList(Bank.ISSUERS);
+	}
+
+	public static void addIssuer(CardIssuer issuer) {
+		Bank.ISSUERS.add(issuer);
+	}
+
+	public static void removeIssuer(CardIssuer issuer) {
+		Bank.ISSUERS.remove(issuer);
+	}
+
+	public static void clearIssuers() {
+		Bank.ISSUERS.clear();
 	}
 }

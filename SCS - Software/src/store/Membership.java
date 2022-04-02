@@ -56,4 +56,8 @@ public class Membership {
 		expiry.add(Calendar.YEAR, 10);
 		Membership.MEMBERSHIP_ISSUER.addCardData(memberID, holder, expiry, "", BigDecimal.ZERO);
 	}
+
+	public static void clear() {
+		Membership.MEMBERS.clear();
+	}
 }
