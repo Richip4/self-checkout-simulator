@@ -599,7 +599,7 @@ public class CheckoutTest {
      */
     @Test
     public void inventorySumUpTotal() {
-        inv.addToInventory(barcode, product, item);
+        inv.addProduct(barcode, product, item);
 
         Item item_test = inv.getItem(barcode);
         assertEquals("item should be the same", item, item_test);
