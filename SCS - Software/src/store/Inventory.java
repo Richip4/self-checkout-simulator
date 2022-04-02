@@ -1,101 +1,96 @@
 package store;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.Item;
+import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.external.ProductDatabases;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 /**
- * Represents the stores inventory.  
+ * Represents the stores inventory.
+ * 
+ * This is a delegation class for ProductDatabases.
+ * The implementation is for software's own use.
+ * 
+ * This class contains useful helper methods for operating product database.
+ * That is, intead of directly access ProductDatabases, use methods in this class.
+ * 
  * @author joshuaplosz
- *
+ * @author Michelle Cheung
+ * @author Yunfan Yang
  */
 public class Inventory {
+	public static final Map<PriceLookupCode, PLUCodedProduct> PLU_PRODUCT_DATABASE = ProductDatabases.PLU_PRODUCT_DATABASE;
+	public static final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE = ProductDatabases.BARCODED_PRODUCT_DATABASE;
+	public static final Map<Product, Integer> INVENTORY = ProductDatabases.INVENTORY;
 
 	/**
-	 * Combines the Product and Item classes to represent a 
-	 * purchasable product from the store.  Also stores the
-	 * quantity of products available for purchase.
-	 * @author joshuaplosz
-	 * @author Michelle Cheung
+	 * Used to add barcoded products to the stores inventory (Overloaded method)
+	 * 
+	 * @param p the product to be added
 	 */
-	private class Purchasable {
-		public Product product;
-		public Item item;
-		public int quantity;
-		
-		public Purchasable(Product p, Item i) {
-			product = p;
-			item = i;
-			quantity = 1;
+	public static void addProduct(BarcodedProduct p) {
+		Barcode barcode = p.getBarcode();
+		BARCODED_PRODUCT_DATABASE.put(barcode, p);
+		INVENTORY.put(p, 0);
+	}
+
+	/**
+	 * Used to add PLU products to the stores inventory (Overloaded method)
+	 * 
+	 * @param p the product to be added
+	 */
+	public static void addProduct(PLUCodedProduct p) {
+		PriceLookupCode plu = p.getPLUCode();
+		PLU_PRODUCT_DATABASE.put(plu, p);
+		INVENTORY.put(p, 0);
+	}
+
+	/**
+	 * Change the quantity of inventory of a product
+	 * 
+	 * @param p        the product
+	 * @param quantity the quantity to be changed. Positive to add, negative to
+	 *                 remove
+	 */
+	public static void setQuantity(Product p, int quantity) {
+		if (p == null) {
+			throw new IllegalArgumentException("Product cannot be null");
 		}
-	}
-	
-	// data structure used to map Barcode's to Purchasable products
-	private HashMap<Barcode, Purchasable> availableProducts = new HashMap<Barcode, Purchasable>();
-	
-	/**
-	 * Used to add products to the stores inventory
-	 * @param barcode
-	 * @param p - Product that matches the barcode
-	 * @param i - Item that matches the barcode
-	 */
-	public void addToInventory(Barcode barcode, Product p, Item i) {
-		if (availableProducts.containsKey(barcode)) {
-			availableProducts.get(barcode).quantity += 1;
-		} else {
-			availableProducts.put(barcode, new Purchasable(p, i));
+
+		int currentQuantity = INVENTORY.get(p);
+
+		if (currentQuantity + quantity < 0) {
+			throw new IllegalArgumentException("Cannot remove more than the current quantity");
 		}
+
+		INVENTORY.put(p, currentQuantity + quantity);
 	}
-	
+
 	/**
-	 * Used to remove products from the stores inventory
-	 * @param barcode
-	 * @return true if product has been successfully removed, false otherwise
+	 * Retrieve the quantity of items that matches the barcode
+	 * 
+	 * @param p the product
+	 * @return quantity if the barcode exists, 0 otherwise
 	 */
-	public boolean removeFromInventory(Barcode barcode) {
-		if (availableProducts.containsKey(barcode) && availableProducts.get(barcode).quantity >= 1) {
-			availableProducts.get(barcode).quantity -= 1;
-			return true;
-		} else {
-			return false;
-		}
+	public static int getQuantity(Product p) {
+		return INVENTORY.get(p);
 	}
-	
-	/**
-	 * Check if barcode represents an item in the stores inventory
-	 * @param barcode
-	 * @return true if item exist, false otherwise
-	 */
-	public boolean checkForItem(Barcode barcode) {
-		return availableProducts.containsKey(barcode) ? true : false;
-	}
-	
-	/**
-	 * Retrieve the Item that matches the barcode
-	 * @param barcode
-	 * @return Item if the barcode exists, null otherwise
-	 */
-	public Item getItem(Barcode barcode) {
-		return availableProducts.get(barcode).item;
-	}
-	
+
 	/**
 	 * Retrieve the Product that matches the barcode
+	 * 
 	 * @param barcode
 	 * @return Product if the barcode exists, null otherwise
 	 */
-	public Product getProduct(Barcode barcode) {
-		return availableProducts.get(barcode).product;
+	public static Product getProduct(Barcode barcode) {
+		return BARCODED_PRODUCT_DATABASE.get(barcode);
 	}
-	
-	/**
-	 * Retrieve the quantity of items that matches the barcode
-	 * @param barcode
-	 * @return quantity if the barcode exists, 0 otherwise
-	 */
-	public int getQuantity(Barcode barcode) {
-		return availableProducts.get(barcode).quantity;
+
+	public static Product getProduct(PriceLookupCode plu) {
+		return PLU_PRODUCT_DATABASE.get(plu);
 	}
 }

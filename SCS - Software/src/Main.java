@@ -1,20 +1,17 @@
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.external.CardIssuer;
-import org.lsmr.selfcheckout.external.ProductDatabases;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 import bank.Bank;
 import store.Membership;
 import store.Store;
+import store.Inventory;
 
 /**
  * This class represents the entry point of entire software.
@@ -24,7 +21,7 @@ import store.Store;
  * 
  * The singleton initializes the following for simulation:
  * - the bank (CardIssuer)
- * - the inventory (ProductDatabases)
+ * - the inventory (Inventory)
  * - the store (Store)
  * 
  * @author Yunfan Yang
@@ -63,21 +60,23 @@ public final class Main {
     }
 
     private static void initializeProductDatabase() {
-        ProductDatabases.BARCODED_PRODUCT_DATABASE.clear();
-        ProductDatabases.PLU_PRODUCT_DATABASE.clear();
-        ProductDatabases.INVENTORY.clear();
+        Inventory.BARCODED_PRODUCT_DATABASE.clear();
+        Inventory.PLU_PRODUCT_DATABASE.clear();
+        Inventory.INVENTORY.clear();
 
         PriceLookupCode plu = new PriceLookupCode("PLU");
         PLUCodedProduct p1 = new PLUCodedProduct(plu, "Corn", new BigDecimal("2.00"));
-        ProductDatabases.PLU_PRODUCT_DATABASE.put(plu, p1);
+        Inventory.PLU_PRODUCT_DATABASE.put(plu, p1);
 
         Numeral[] nums = new Numeral[10];
         Barcode bar = new Barcode(nums);
         BarcodedProduct p2 = new BarcodedProduct(bar, "Coffee", new BigDecimal("6.20"), 15.0);
-        ProductDatabases.BARCODED_PRODUCT_DATABASE.put(bar, p2);
+        Inventory.BARCODED_PRODUCT_DATABASE.put(bar, p2);
 
-        ProductDatabases.INVENTORY.put(p1, 23);
-        ProductDatabases.INVENTORY.put(p2, 60);
+        Inventory.addProduct(p1);
+        Inventory.addProduct(p2);
+        Inventory.setQuantity(p1, 10);
+        Inventory.setQuantity(p2, 10);
     }
 
     private static void initializeStore() {
@@ -92,7 +91,7 @@ public final class Main {
     }
 
     public static Store getStore() {
-        if(Main.store == null) {
+        if (Main.store == null) {
             Main.main(null);
         }
 
