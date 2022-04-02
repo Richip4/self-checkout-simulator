@@ -24,9 +24,11 @@ import store.Inventory;
 /**
  * This class represents the entry point of entire software.
  * 
+ * This class is to set up everything for simulation. This is not a part of the
+ * software.
+ * 
  * This class has a singleton Store instance.
  * This class initializes both the store, external parties, and tangibles.
- * This class initialize everything to set up a simulation world.
  * 
  * The singleton initializes the following for simulation:
  * - the bank (CardIssuer)
@@ -45,10 +47,10 @@ public final class Main {
         Main.initializeStore();
         Main.initializeMembership();
     }
-    
+
     private static void initializeCardIssuers() {
         Bank.issuers.clear();
-        
+
         CardIssuer rbc = new CardIssuer("RBC");
         CardIssuer scotia = new CardIssuer("Scotiabank");
 
@@ -126,13 +128,12 @@ public final class Main {
 
         Card card1 = new Card("membership", card1No, card1Holder, null, null, true, true);
         Card card2 = new Card("membership", card2No, card2Holder, null, null, true, true);
-        Tangibles.CARDS.add(card1);
-        Tangibles.CARDS.add(card2);
+        Tangibles.MEMBER_CARDS.add(card1);
+        Tangibles.MEMBER_CARDS.add(card2);
 
         Membership.createMembership(card1No, card1Holder);
         Membership.createMembership(card2No, card2Holder);
     }
-
 
     public static Store getStore() {
         if (Main.store == null) {
@@ -145,14 +146,35 @@ public final class Main {
     /**
      * This class is to keep track of all the tangibles in the simulation world.
      * 
-     * GUI can grab tangibles and interact them with hardware, in order to trigger softwares.
+     * GUI can grab tangibles and interact them with hardware, in order to trigger
+     * softwares.
      * Eg, GUI can grab an item and use Barcode scanner to scan it.
      * When this item is scanned, software will be notified via observers.
+     * 
+     * This is necessary, because software should never deal with tangibles, namely,
+     * Cards and Items.
+     * For items, simulation should use barcode scanner or touch screen to input,
+     * via Hardware. Once hardware has these events happened, software will be
+     * notified via attached observers. At this point, software should only know
+     * about Barcode or PLU code (from observer arguments), and software finds the
+     * corresponding product information.
+     * For cards, simulation should use, eg, CardReader to read the card
+     * information. Once card information is read by hardware, CardData will be
+     * passed into the attached observers, and software will be notified. At this
+     * point, software would only deal with CardData instead of tangible Card.
+     * (Therefore, previous implementation of Inventory class which contains dealing
+     * with Item is incorrect)
+     * 
+     * As mentioned in Membership class, it is also a type of Card. To distinguish
+     * membership cards and bank payment cards, two copntants are provided.
+     * 
+     * This clas is for simulation and not a part of the software.
      * 
      * @author Yunfan Yang
      */
     public class Tangibles {
         public static final List<Item> ITEMS = new ArrayList<Item>();
-        public static final List<Card> CARDS = new ArrayList<Card>();
+        public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
+        public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
     }
 }
