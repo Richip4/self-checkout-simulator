@@ -1,6 +1,7 @@
 package bank;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.lsmr.selfcheckout.external.CardIssuer;
@@ -21,11 +22,15 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  *
  */
 public class Bank {
-	public static final List<CardIssuer> ISSUERS = new ArrayList<CardIssuer>();
+	private static final List<CardIssuer> ISSUERS = new ArrayList<CardIssuer>();
 
 	/**
 	 * Instances of this class are not needed, so the constructor is private.
 	 */
 	private Bank() {
+	}
+
+	public List<CardIssuer> getIssuers() {
+		return Collections.unmodifiableList(Bank.ISSUERS);
 	}
 }

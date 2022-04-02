@@ -23,9 +23,9 @@ import org.lsmr.selfcheckout.products.Product;
  * @author Yunfan Yang
  */
 public class Inventory {
-	public static final Map<PriceLookupCode, PLUCodedProduct> PLU_PRODUCT_DATABASE = ProductDatabases.PLU_PRODUCT_DATABASE;
-	public static final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE = ProductDatabases.BARCODED_PRODUCT_DATABASE;
-	public static final Map<Product, Integer> INVENTORY = ProductDatabases.INVENTORY;
+	private static final Map<PriceLookupCode, PLUCodedProduct> PLU_PRODUCT_DATABASE = ProductDatabases.PLU_PRODUCT_DATABASE;
+	private static final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE = ProductDatabases.BARCODED_PRODUCT_DATABASE;
+	private static final Map<Product, Integer> INVENTORY = ProductDatabases.INVENTORY;
 
 	private Inventory() {
 	}

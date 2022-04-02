@@ -27,8 +27,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  * @author Yunfan Yang
  */
 public class Membership {
-	public static final Set<String> MEMBERS = new HashSet<String>();
-	public static final CardIssuer MEMBERSHIP_ISSUER = new CardIssuer("Membership");
+	private static final Set<String> MEMBERS = new HashSet<String>();
+	private static final CardIssuer MEMBERSHIP_ISSUER = new CardIssuer("Membership");
 
 	/**
 	 * Instances of this class are not needed, so the constructor is private.
