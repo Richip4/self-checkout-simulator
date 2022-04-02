@@ -27,13 +27,13 @@ public class MembershipTest
     @Test
     public void membershipSignupTest()
     {
-        assertFalse(membershipProvider.checkMember(membership1ID));
-        assertFalse(membershipProvider.checkMember(membership2ID));
+        assertFalse(membershipProvider.isMember(membership1ID));
+        assertFalse(membershipProvider.isMember(membership2ID));
 
         membershipProvider.addMember(membership1ID);
         membershipProvider.addMember(membership2ID);
 
-        assertTrue(membershipProvider.checkMember(membership1ID));
-        assertTrue(membershipProvider.checkMember(membership2ID));
+        assertTrue(membershipProvider.isMember(membership1ID));
+        assertTrue(membershipProvider.isMember(membership2ID));
     }
 }
