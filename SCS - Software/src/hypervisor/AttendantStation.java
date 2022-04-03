@@ -24,6 +24,7 @@ public class AttendantStation {
 	
 	public class StationSoftware{
 		Customer customer;
+		CardHandler cardHandler;
 		Checkout checkoutHandler;
 		Receipt receiptHandler;
 		BanknoteHandler banknoteHandler;
@@ -92,14 +93,14 @@ public class AttendantStation {
 	 * @return T/F whether we've logged in successfully
 	 */
 	public boolean login() {
-		attendant.promptLogin();	//hopefully calls the GUI to enter login
+		this.attendant.promptLogin();	//hopefully calls the GUI to enter login
 		
 		//the above has to be completed.
 		String username = attendant.getUsername();
 		String password = attendant.getPassword();
 		
 		if(creds.checkLogin(username, password)) {
-			loggedIn = true;
+			this.loggedIn = true;
 			return true;
 		}
 		else 
@@ -111,8 +112,8 @@ public class AttendantStation {
 	 * @return true if it successfully logs out
 	 */
 	public boolean logout() {
-		attendant.promptLogout();
-		loggedIn = false;
+		this.attendant.promptLogout();
+		this.loggedIn = false;
 		return true;
 	}
 	
@@ -200,7 +201,6 @@ public class AttendantStation {
 			login();
 			return false;
 		}
-
 	}
 	
 	/**

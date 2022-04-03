@@ -10,7 +10,7 @@ public class Attendant {
 	private String password;
 	
 	public void notifyBanknotesFull(){
-		
+
 	}
 
 	public void promptLogin() {
@@ -33,12 +33,6 @@ public class Attendant {
 	public String getPassword() {
 		return password;
 	}
-	
 
-	
-	
-	
-	
-	
 
 }
