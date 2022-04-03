@@ -611,7 +611,7 @@ public class CheckoutTest {
         Customer customer = new Customer();
         customer.addToCart(barcode);
 
-        ArrayList<Barcode> cart = customer.getBarcodedItemsInCart();
+        ArrayList<Barcode> cart = customer.getCart();
         assertEquals("cart should have one item", 1, cart.size());
         assertEquals("cart should have the same item", barcode, cart.get(0));
 

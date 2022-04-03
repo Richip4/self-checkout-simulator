@@ -2,12 +2,16 @@ package checkout;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
 
 import store.Inventory;
 import user.Customer;
@@ -25,7 +29,7 @@ public class Receipt implements ReceiptPrinterObserver{
 	private String currentPrice;
 	private BigDecimal subtotal = BigDecimal.ZERO;
 	private String itemDescription;
-	private ArrayList<Barcode> customerItems;
+	private List<Product> customerItems;
 	
 	// declaration of variables used to access methods in control software/hardware
 	private SelfCheckoutStation scs;
@@ -43,7 +47,7 @@ public class Receipt implements ReceiptPrinterObserver{
 		scs.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
 		scs.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
 		
-		customerItems = customer.getBarcodedItemsInCart();
+		this.customerItems = customer.getCart();
 	}
 	
 	/**
@@ -58,16 +62,19 @@ public class Receipt implements ReceiptPrinterObserver{
 		int i;
 		
 		// for loop iterates through each item in customer's cart
-		for (Barcode bc: customerItems) {
-			// use checkForItem() method to see if the item exists in the store inventory database
-			if (inventory.checkForItem(bc) == true) {
-				currentBarcodedProduct = (BarcodedProduct)inventory.getProduct(bc);	
+		for (Product product : customerItems) {
+			// If the item is a barcoded product, then the item is a product that is in the store
+			if (product instanceof BarcodedProduct) {
+				BarcodedProduct barcodedProduct = (BarcodedProduct) product;
+				itemDescription = barcodedProduct.getDescription();
+			}else if(product instanceof PLUCodedProduct){
+				PLUCodedProduct pluCodedProduct = (PLUCodedProduct) product;
+				itemDescription = pluCodedProduct.getDescription();
 			}
-			
+
 			// update class variables with appropriate values
-			itemDescription = currentBarcodedProduct.getDescription();
-			subtotal = subtotal.add(currentBarcodedProduct.getPrice());
-			currentPrice = currentBarcodedProduct.getPrice().toString();
+			subtotal = subtotal.add(product.getPrice());
+			currentPrice = product.getPrice().toString();
 			
 			// this for loop is responsible for printing the description of the item to the receipt.
 			// In order to avoid cases where the description exceeds the maximum amount of characters
