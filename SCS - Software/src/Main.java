@@ -126,7 +126,7 @@ public final class Main {
         for (int t = 0; t < 6; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
                     coinDenominations, 1000, 2);
-            
+
             // Add ink to the station
             try {
                 station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
@@ -141,7 +141,8 @@ public final class Main {
                 e.printStackTrace();
             }
 
-            // Add this station to tangibles, and add this station to the supervision station
+            // Add this station to tangibles, and add this station to the supervision
+            // station
             Tangibles.SELF_CHECKOUT_STATIONS.add(station);
             Tangibles.SUPERVISION_STATION.add(station);
 
@@ -215,7 +216,7 @@ public final class Main {
         public static final List<Item> ITEMS = new ArrayList<Item>();
         public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
         public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
-        
+
         /**
          * This class is not to be instantiated.
          */

@@ -1,6 +1,5 @@
 package user;
 
-
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 import interrupt.BanknoteHandler;
