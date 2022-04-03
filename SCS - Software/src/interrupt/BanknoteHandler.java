@@ -57,6 +57,8 @@ public class BanknoteHandler implements BanknoteDispenserObserver,
 	 */
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+		this.banknoteDetected = false;
+		this.banknoteValue = BigDecimal.ZERO;
 	}
 
 	/**
