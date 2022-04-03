@@ -17,20 +17,23 @@ import user.Customer;
 
 public class AppControl {
 	
+	// types of present users at a self-checkout station
 	Integer NO_USER		= 0;
 	Integer CUSTOMER 	= 1;
 	Integer ATTENDANT 	= 2;
 	Integer BOTH		= 3;
 	
 	SupervisionStation attendantStation;
-	// list of self-checkout stations and there current user
+	// list of self-checkout stations and their current user
 	List<Pair<SelfCheckoutStation, Integer>> selfStations;
 	
+	// list of handlers, one for each station
 	List<BanknoteHandler> banknoteHandlers;
 	List<CardHandler> cardHandlers;
 	List<CoinHandler> coinHandlers;
 	List<ProcessItemHandler> processItemHandlers;
 	
+	// list of current customers. Maximun == number of selfStations
 	List<Customer> customers;
 	
 	public AppControl() {
