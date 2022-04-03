@@ -84,6 +84,10 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	 */
 	@Override
 	public void barcodeScanned(BarcodeScanner barcodeScanner, Barcode barcode) {
+		if(this.customer == null) {
+			return;
+		}
+
 		Product product = Inventory.getProduct(barcode);
 
 		if (product != null) {
@@ -130,6 +134,9 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	 */
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
+		if(this.customer == null) {
+			return;
+		}
 
 		// Get the weight of the bag and store it, if the customer has said that they
 		// want to use their own bags
@@ -179,16 +186,14 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 
 	@Override
 	public void overload(ElectronicScale scale) {
-
-		scaleOverloaded = true;
+		this.scaleOverloaded = true;
 		this.scs.mainScanner.disable();
 		this.scs.handheldScanner.disable();
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
-
-		scaleOverloaded = false;
+		this.scaleOverloaded = false;
 		this.scs.mainScanner.enable();
 		this.scs.handheldScanner.enable();
 	}
