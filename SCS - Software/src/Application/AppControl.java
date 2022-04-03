@@ -48,7 +48,7 @@ public class AppControl {
 		banknoteHandlers 	= new ArrayList<>(selfStations.size());
 		cardHandlers 		= new ArrayList<>(selfStations.size());
 		coinHandlers 		= new ArrayList<>(selfStations.size());
-		processItemHandlers = new ArrayList<>(selfStations.size());
+		processItemHandlers	= new ArrayList<>(selfStations.size());
 
 		// instantiate the handlers for all stations
 		for (int i = 0; i < selfStations.size(); i++) {
