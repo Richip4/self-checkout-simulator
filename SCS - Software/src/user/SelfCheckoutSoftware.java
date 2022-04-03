@@ -20,10 +20,10 @@ public class SelfCheckoutSoftware {
     private SelfCheckoutStation scs;
     private Customer customer;
 
-    private BanknoteHandler banknoteHandler;
-    private CardHandler cardHandler;
-    private CoinHandler coinHandler;
-    private ProcessItemHandler processItemHandler;
+    private final BanknoteHandler banknoteHandler;
+    private final CardHandler cardHandler;
+    private final CoinHandler coinHandler;
+    private final ProcessItemHandler processItemHandler;
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
