@@ -1,4 +1,4 @@
-package user;
+package software;
 
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
@@ -6,6 +6,7 @@ import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
+import user.Customer;
 
 /**
  * A software for a self-checkout station.
