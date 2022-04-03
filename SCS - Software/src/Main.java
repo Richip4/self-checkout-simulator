@@ -150,7 +150,6 @@ public final class Main {
             // and add this softeare to supervision software
             SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
             Store.addSelfCheckoutSoftware(software);
-            Store.getSupervisionSoftware().add(software);
         }
     }
 
