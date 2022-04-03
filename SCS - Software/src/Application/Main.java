@@ -1,4 +1,5 @@
 package Application;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
@@ -18,6 +19,7 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
+import GUI.GUI;
 import bank.Bank;
 import store.Membership;
 import store.Store;
@@ -48,6 +50,8 @@ public final class Main {
         Main.initializeProductDatabase();
         Main.initializeStore();
         Main.initializeMembership();
+        
+        new GUI(new AppControl());
     }
 
     private static void initializeCardIssuers() {
@@ -199,34 +203,4 @@ public final class Main {
         private Tangibles() {
         }
     }
-
-import java.util.Currency;
-
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
-
-import Application.AppControl;
-import Application.AppData;
-import GUI.GUI;
-
-public class Main {
-
-    private static SelfCheckoutStation[] selfStations;
-    
-	public static void main(String[] args) {
-		AppData ad = new AppData();
-		ad.config(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
-		
-		selfStations = new SelfCheckoutStation[numSelfCheckoutStations];
-		
-		for (int i = 0; i < numSelfCheckoutStations; i++) {
-			selfStations[i] = new SelfCheckoutStation(currency, banknoteDenominations,
-		            coinDenominations, scaleMaximumWeight, scaleSensitivity);
-		}
-		
-		ad.setSelfCheckoutStations(selfStations);
-		
-		new GUI(new AppControl(ad));
-	}
-
->>>>>>> cb44f58... created application initialization classes and GUI classes
 }
