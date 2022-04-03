@@ -10,6 +10,7 @@ public class Customer {
 
 	// in place of a cart class I simply used a list of barcodes
 	private ArrayList<Barcode> barcodedItemsInCart = new ArrayList<Barcode>();
+	private ArrayList<PriceLookupCode> PLUcodedItemsInCart = new ArrayList<PriceLookupCode>(); // collects list of plu codes
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
@@ -26,8 +27,16 @@ public class Customer {
 		barcodedItemsInCart.add(barcode);
 	}
 
+	public void addToCartPLUcode(PriceLookupCode PLUcode) {
+		PLUcodedItemsInCart.add(PLUcode);
+	}
+
 	public ArrayList<Barcode> getBarcodedItemsInCart() {
 		return this.barcodedItemsInCart;
+	}
+
+	public ArrayList<PriceLookupCode> getPLUcodedItemsInCart() {
+		return this.PLUcodedItemsInCart;
 	}
 
 	// following methods are to be implemented with the customer UI

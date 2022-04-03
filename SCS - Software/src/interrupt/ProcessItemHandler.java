@@ -9,6 +9,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
+import org.lsmr.external.ProductDatabases;
 
 import store.Inventory;
 import user.Customer;
@@ -21,11 +22,12 @@ import java.time.Duration;
  * @author joshuaplosz
  *
  */
-public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver {
+public class ProcessItemHandler extends PLUCodedItem implements BarcodeScannerObserver, ElectronicScaleObserver  {
 	
 	SelfCheckoutStation scs;
 	private Inventory inv;
 	private Customer customer;
+	private ProductDatabases pd;
 	private double currentItemsWeight = 0.0;
 	private double weightBeforeBagging;			// Weight on scale before most recently scanned item is bagged
 	private boolean unexpectedItem = false;
@@ -106,6 +108,24 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 			
 		}
 	}
+
+	
+	public void PLUcodeInputted(PriceLookupCode pluCode, double weightInGrams){
+		if(pd.PLU_PRODUCT_DATABASE.containsKey(pluCode)){ //checks for vallid code
+
+			currentItemsWeight = weightInGrams;
+			try {
+				weightBeforeBagging = scs.baggingArea.getCurrentWeight();
+			} catch (OverloadException e) {
+				// TODO Auto-generated catch block
+			}
+
+			customer.addToCartPLUcode(pluCode);
+			customer.notifyPlaceInBaggingArea();
+			waitingForBagging = true;
+		}
+	}
+
 	
 	public void setownBagsUsed(boolean ownBagsUsed) {
 		this.ownBagsUsed = ownBagsUsed;

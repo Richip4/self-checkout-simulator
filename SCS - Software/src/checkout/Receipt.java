@@ -8,6 +8,8 @@ import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.external.ProductDatabases;
 
 import store.Inventory;
 import user.Customer;
@@ -22,15 +24,17 @@ public class Receipt implements ReceiptPrinterObserver{
 	// declaration of variables used to capture properties of the items in the
 	// customer's cart
 	private BarcodedProduct currentBarcodedProduct;
+	private PLUCodedProduct currentPLUCodedProduct;
 	private String currentPrice;
 	private BigDecimal subtotal = BigDecimal.ZERO;
 	private String itemDescription;
 	private ArrayList<Barcode> customerItems;
-	
+	private ArrayList<ProductLookupCode> customerItemsPLUCOde;
 	// declaration of variables used to access methods in control software/hardware
 	private SelfCheckoutStation scs;
 	private Customer customer;
 	private Inventory inventory;
+	private ProductDatabases pd;
 	
 	public Receipt(SelfCheckoutStation scs, Customer customer, Inventory inventory) throws OverloadException
     {
@@ -43,6 +47,7 @@ public class Receipt implements ReceiptPrinterObserver{
 		scs.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
 		scs.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
 		
+		customerItemsPLUCOde = customer.getPLUcodedItemsInCart();
 		customerItems = customer.getBarcodedItemsInCart();
 	}
 	
@@ -68,6 +73,39 @@ public class Receipt implements ReceiptPrinterObserver{
 			itemDescription = currentBarcodedProduct.getDescription();
 			subtotal = subtotal.add(currentBarcodedProduct.getPrice());
 			currentPrice = currentBarcodedProduct.getPrice().toString();
+			
+			// this for loop is responsible for printing the description of the item to the receipt.
+			// In order to avoid cases where the description exceeds the maximum amount of characters
+			// per line, we add the condition (i < 45) to cut off the description at 45 characters. 
+			for (i = 0; i < itemDescription.length() && i < 45; i++) {
+				if (Character.isWhitespace(itemDescription.charAt(i))) {
+					scs.printer.print(' ');
+				} else {
+					scs.printer.print(itemDescription.charAt(i));
+				}
+			}
+			
+			// print whitespace followed by a dollar sign to the receipt, to separate item description and price
+			scs.printer.print(' ');
+			scs.printer.print('$');
+			
+			// this for loop is responsible for printing the price of the item to the receipt
+			for (i = 0; i < currentPrice.length(); i++) {
+				scs.printer.print(currentPrice.charAt(i));
+			}
+			
+			// once item description and price have been printed, start the next line before returning
+			// to the top of the loop
+			scs.printer.print('\n');
+		}
+
+		for (PriceLookupCode pc: customerItemsPLUCOde) {
+			currentPLUCodedProduct = pd.PLU_PRODUCT_DATABASE.get(pc);
+			
+			// update class variables with appropriate values
+			itemDescription = currentPLUcodedProduct.getDescription();
+			subtotal = subtotal.add(currentPLUCodedProduct.getPrice());
+			currentPrice = currentPLUCodedProduct.getPrice().toString();
 			
 			// this for loop is responsible for printing the description of the item to the receipt.
 			// In order to avoid cases where the description exceeds the maximum amount of characters
