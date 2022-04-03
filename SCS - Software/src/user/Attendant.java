@@ -9,7 +9,9 @@ public class Attendant {
 	private String username;
 	private String password;
 	
-	
+	public void notifyBanknotesFull(){
+		
+	}
 
 	public void promptLogin() {
 		//call gui

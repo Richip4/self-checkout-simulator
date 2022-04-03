@@ -73,6 +73,10 @@ public class Customer {
 		// TODO either notify them to try again or try a different card.
 	}
 	
+	public void notifyCustomerInvalidMemberID(){
+		// TODO in GUI
+	}
+
 	public void notifyCustomerIsMember() {
 		// Say welcome to the member
 		// TODO in the GUI
@@ -99,20 +103,16 @@ public class Customer {
 
     /**
      * We prompt the customer for their memberID if they don't want to tap, insert
-     * or swipe.
+     * or swipe. We don't use memberID because 
      */
     public String promptCustomerForMemberID(String rawMemberID)
     {
-        String memberID = "";
-        try
-        {
-            memberID = String.valueOf(Integer.parseInt(rawMemberID));
-        } catch (NumberFormatException e)
-        {
-
+        try{
+            int memberID = Integer.parseInt(rawMemberID);
+        } catch (NumberFormatException e){
+			notifyCustomerInvalidMemberID();
         }
-
-        return memberID;
+        return rawMemberID;
     }
 
     /*

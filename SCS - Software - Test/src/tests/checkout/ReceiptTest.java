@@ -49,7 +49,7 @@ public class ReceiptTest {
     {
         Customer customer = new Customer();
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
         Receipt receipt = new Receipt(selfCheckoutStation, customer, inventory);
         customer.addToCart(barcode);
         receipt.printReceipt();

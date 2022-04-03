@@ -8,10 +8,10 @@ import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 import bank.Bank;
-import checkout.CardHandler;
 import checkout.Checkout;
 import checkout.Receipt;
 import interrupt.BanknoteHandler;
+import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
 import store.CredentialsSystem;
@@ -24,7 +24,6 @@ public class AttendantStation {
 	
 	public class StationSoftware{
 		Customer customer;
-		CardHandler cardHandler;
 		Checkout checkoutHandler;
 		Receipt receiptHandler;
 		BanknoteHandler banknoteHandler;

@@ -1,4 +1,4 @@
-package checkout;
+package interrupt;
 
 import java.math.BigDecimal;
 
@@ -114,7 +114,7 @@ public class CardHandler implements CardReaderObserver {
 		
 		if (type.equals("membership")) {
 			String memberID = data.getNumber();
-			isMember = members.checkMember(memberID);
+			isMember = members.isMember(memberID);
 			if (isMember) {
 				for (char s : memberID.toCharArray())
                 {

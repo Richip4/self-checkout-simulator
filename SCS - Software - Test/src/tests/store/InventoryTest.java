@@ -47,79 +47,79 @@ public class InventoryTest {
     @Test
     public void addToInventoryTest() {
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
         assertEquals(inventory.getQuantity(barcode), 1);
     }
 
     @Test
     public void addToInventoryTest2() {
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
         assertEquals(inventory.getQuantity(barcode), 2);
     }
 
     @Test
     public void removeFromInventoryTest() {
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);        
-        assertTrue(inventory.removeFromInventory(barcode));
+        inventory.addProduct(barcode, product, item);        
+        assertTrue(inventory.removeInventory(barcode));
     }
 
     @Test
     public void removeFromInventoryTest2() {
         Inventory inventory = new Inventory();
-        assertFalse(inventory.removeFromInventory(barcode));
+        assertFalse(inventory.removeInventory(barcode));
     }
 
     @Test
     public void checkForItemTest() {
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
         assertTrue(inventory.checkForItem(barcode));
     }
 
     @Test
     public void getItemTest() {
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
         assertEquals(item, inventory.getItem(barcode));
     }
 
     @Test
     public void getProductTest() {
         Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
         assertEquals(product, inventory.getProduct(barcode));
     }
     
     @Test
     public void getQuantityTest() {
     	Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
-        inventory.removeFromInventory(barcode);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.removeInventory(barcode);
         assertEquals(inventory.getQuantity(barcode), 3);
     }
     
     @Test
     public void getQuantityTest2() {
     	Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
-        inventory.addToInventory(barcode, product, item);
-        inventory.removeFromInventory(barcode);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.addProduct(barcode, product, item);
+        inventory.removeInventory(barcode);
         assertNotEquals(inventory.getQuantity(barcode), 4);
     }
     
     @Test
     public void getQuantityTest3() {
     	Inventory inventory = new Inventory();
-        inventory.addToInventory(barcode, product, item);
-        inventory.removeFromInventory(barcode);
+        inventory.addProduct(barcode, product, item);
+        inventory.removeInventory(barcode);
         assertEquals(inventory.getQuantity(barcode), 0);
     }
 }
