@@ -1,7 +1,7 @@
 package user;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
@@ -18,7 +18,7 @@ public class SupervisionSoftware {
     private SupervisionStation svs;
     // private Attendant attendant; // TODO: Expecting a Attendant class in the
     // future development
-    private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
+    private final Set<SelfCheckoutSoftware> softwareList = new HashSet<SelfCheckoutSoftware>();
 
     public SupervisionSoftware(SupervisionStation svs) {
         this.svs = svs;
@@ -34,7 +34,7 @@ public class SupervisionSoftware {
         this.softwareList.add(software);
     }
 
-    public List<SelfCheckoutSoftware> getSoftwareList() {
+    public Set<SelfCheckoutSoftware> getSoftwareList() {
         return this.softwareList;
     }
 }
