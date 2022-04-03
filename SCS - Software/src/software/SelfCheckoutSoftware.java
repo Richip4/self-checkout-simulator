@@ -2,6 +2,8 @@ package software;
 
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
+import checkout.Checkout;
+import checkout.Receipt;
 import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
@@ -26,6 +28,9 @@ public class SelfCheckoutSoftware {
     private final CoinHandler coinHandler;
     private final ProcessItemHandler processItemHandler;
 
+    private final Checkout checkout; // Controller for processing checkout
+    private final Receipt receipt; // Controller for printing receipt
+
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
 
@@ -33,6 +38,9 @@ public class SelfCheckoutSoftware {
         this.cardHandler = new CardHandler(scs);
         this.coinHandler = new CoinHandler(scs);
         this.processItemHandler = new ProcessItemHandler(scs);
+        
+        this.checkout = new Checkout(scs);
+        this.receipt = new Receipt(scs);
     }
 
     public void setCustomer(Customer customer) {
@@ -42,6 +50,9 @@ public class SelfCheckoutSoftware {
         this.cardHandler.setCustomer(customer);
         this.coinHandler.setCustomer(customer);
         this.processItemHandler.setCustomer(customer);
+
+        this.checkout.setCustomer(customer);
+        this.receipt.setCustomer(customer);
     }
 
     public SelfCheckoutStation getSelfCheckoutStation() {
