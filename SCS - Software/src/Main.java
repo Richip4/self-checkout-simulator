@@ -2,9 +2,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
@@ -24,6 +23,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import bank.Bank;
 import store.Membership;
 import store.Store;
+import store.credentials.Account;
 import store.credentials.CredentialsSystem;
 import user.SelfCheckoutSoftware;
 import user.SupervisionSoftware;
@@ -174,7 +174,7 @@ public final class Main {
         Membership.createMembership(card2No, card2Holder);
     }
 
-    private static void initializeCredentialsSytem(){
+    private static void initializeCredentialsSytem() {
         CredentialsSystem creds = new CredentialsSystem();
 
         String username1 = "Sharjeel";
@@ -183,8 +183,12 @@ public final class Main {
         String password1 = "password123";
         String password2 = "123password";
 
-        creds.createAccount(username1, password1);
-        creds.createAccount(username2, password2);
+        Account account1 = new Account(username1, password1);
+        Account account2 = new Account(username2, password2);
+
+        creds.addAccount(account1);
+        creds.addAccount(account2);
+
     }
 
     public static Store getStore() {
@@ -232,8 +236,7 @@ public final class Main {
         public static final List<Item> ITEMS = new ArrayList<Item>();
         public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
         public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
-        public static final Map<String, String> ATTENDANT_ACCOUNTS = new HashMap<String, String>();
-
+        public static final List<Account> ATTENDANT_ACCOUNTS = new ArrayList<Account>();
 
         /**
          * This class is not to be instantiated.

@@ -3,6 +3,7 @@ package user;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
 import store.credentials.CredentialsSystem;
@@ -96,7 +97,7 @@ public class SupervisionSoftware {
 	 * because the hardware team should have it enabled?
 	 */
 	public boolean startUpStation(SelfCheckoutStation scs)  {
-		if (loggedIn) {
+		if (logged_in) {
 			SelfCheckoutSoftware software = new SelfCheckoutSoftware(scs);
 			List<SelfCheckoutSoftware> software_list = Store.getSelfCheckoutSoftwareList();
 			
@@ -119,12 +120,9 @@ public class SupervisionSoftware {
 	 * the station most likely is not in the HashMap not exist)
 	 */
 	public boolean shutDownStation(int id) {
-		if (loggedIn) {
-			if (checkoutStations.containsKey(id)) {
-				checkoutStations.remove(id);
-				return true;
-			}else 
-				return false;
+		if (logged_in) {
+			
+            return true;
 		}else {
 			login();
 			return false;
