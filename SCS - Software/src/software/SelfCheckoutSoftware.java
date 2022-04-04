@@ -9,7 +9,6 @@ import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
 import user.Customer;
-import user.User;
 
 /**
  * A software for a self-checkout station.
