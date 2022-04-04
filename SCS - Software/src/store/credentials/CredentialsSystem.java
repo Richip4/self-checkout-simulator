@@ -1,24 +1,11 @@
-package store;
+package store.credentials;
 
 import java.util.HashMap;
 
 
 public class CredentialsSystem {
 	
-	/**
-	 * Class for creating an account in the credentials system
-	 * @author Tyler Chen
-	 *
-	 */
-	public class Account{
-		private String username;
-		private String password;
-	
-		public Account(String username, String password) {
-			this.username = username;
-			this.password = password;
-		}
-	}
+
 	
 	//contains all accounts
 	private HashMap<String, Account> accounts = new HashMap<String, Account>();
@@ -29,7 +16,7 @@ public class CredentialsSystem {
 	 * @param password - desired password
 	 * @return T/F whether the account has been added or not
 	 */
-	public boolean addAccount(String username, String password) {
+	public boolean createAccount(String username, String password) {
 		//if the username already exists
 		if (accounts.containsKey(username))
 			return false;

@@ -2,10 +2,7 @@ package user;
 
 
 public class Attendant {
-	
 
-
-	
 	private String username;
 	private String password;
 	

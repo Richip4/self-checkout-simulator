@@ -2,7 +2,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
@@ -14,6 +16,7 @@ import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -21,6 +24,9 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import bank.Bank;
 import store.Membership;
 import store.Store;
+import store.credentials.CredentialsSystem;
+import user.SelfCheckoutSoftware;
+import user.SupervisionSoftware;
 import store.Inventory;
 
 /**
@@ -48,6 +54,7 @@ public final class Main {
         Main.initializeProductDatabase();
         Main.initializeStore();
         Main.initializeMembership();
+        Main.initializeCredentialsSytem();
     }
 
     private static void initializeCardIssuers() {
@@ -109,12 +116,21 @@ public final class Main {
                 new BigDecimal("1.00")
         };
 
+        // Initialize supervision station
+        SupervisionStation svs = new SupervisionStation();
+        Tangibles.SUPERVISION_STATION = svs;
+
+        // Create supervision software for this svs
+        // and set it to the store
+        SupervisionSoftware svss = new SupervisionSoftware(svs);
+        Store.setSupervisionSoftware(svss);
+
         // Initialize 6 self-checkout stations
         // and add them to the supervision station to be supervised
         for (int t = 0; t < 6; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
                     coinDenominations, 1000, 2);
-            
+
             // Add ink to the station
             try {
                 station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
@@ -129,7 +145,15 @@ public final class Main {
                 e.printStackTrace();
             }
 
-            Store.addSelfCheckoutStation(station);
+            // Add this station to tangibles, and add this station to the supervision
+            // station
+            Tangibles.SELF_CHECKOUT_STATIONS.add(station);
+            Tangibles.SUPERVISION_STATION.add(station);
+
+            // Create SelfCheckoutSoftware for this station
+            // and add this softeare to supervision software
+            SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
+            Store.addSelfCheckoutSoftware(software);
         }
     }
 
@@ -148,6 +172,19 @@ public final class Main {
 
         Membership.createMembership(card1No, card1Holder);
         Membership.createMembership(card2No, card2Holder);
+    }
+
+    private static void initializeCredentialsSytem(){
+        CredentialsSystem creds = new CredentialsSystem();
+
+        String username1 = "Sharjeel";
+        String username2 = "Richi";
+
+        String password1 = "password123";
+        String password2 = "123password";
+
+        creds.createAccount(username1, password1);
+        creds.createAccount(username2, password2);
     }
 
     public static Store getStore() {
@@ -189,10 +226,15 @@ public final class Main {
      * @author Yunfan Yang
      */
     public class Tangibles {
+        public static SupervisionStation SUPERVISION_STATION;
+        public static final List<SelfCheckoutStation> SELF_CHECKOUT_STATIONS = new ArrayList<SelfCheckoutStation>();
+
         public static final List<Item> ITEMS = new ArrayList<Item>();
         public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
         public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
-        
+        public static final Map<String, String> ATTENDANT_ACCOUNTS = new HashMap<String, String>();
+
+
         /**
          * This class is not to be instantiated.
          */

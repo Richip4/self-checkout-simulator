@@ -2,6 +2,8 @@ package user;
 
 import org.lsmr.selfcheckout.Barcode;
 
+import store.Inventory;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 // @author Abdelhak Khalfallah, Tyler Chen
@@ -22,8 +24,22 @@ public class Customer {
 		return accumulatedCurrency;
 	}
 
+	public BigDecimal getAccumulatedCurrency() {
+		return new BigDecimal(this.accumulatedCurrency.toString());
+	}
+
 	public void addToCart(Barcode barcode) {
 		barcodedItemsInCart.add(barcode);
+	}
+
+	public BigDecimal getCartSubtotal() {
+		BigDecimal subtotal = BigDecimal.ZERO;
+
+		for (Barcode bc : barcodedItemsInCart) {
+			subtotal = subtotal.add(Inventory.getProduct(bc).getPrice());
+		}
+
+		return subtotal;
 	}
 
 	public ArrayList<Barcode> getBarcodedItemsInCart() {
