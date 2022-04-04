@@ -23,7 +23,6 @@ public interface SelfCheckoutObserver extends Observer {
     
     public Void invalidBanknoteDetected();
 
-    // Items and Cart
     public Void placeInBaggingAreaBlocked();
 
     public Void placeInBaggingAreaUnblocked();
