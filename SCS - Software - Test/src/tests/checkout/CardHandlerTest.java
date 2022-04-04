@@ -1,7 +1,8 @@
 package tests.checkout;
 
 import bank.Bank;
-import checkout.CardHandler;
+import interrupt.CardHandler;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Card;

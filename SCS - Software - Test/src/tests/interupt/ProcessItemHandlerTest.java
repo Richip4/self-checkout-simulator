@@ -66,7 +66,7 @@ public class ProcessItemHandlerTest {
     @Before
     public void setup() {
     	inventory = new Inventory();
-    	inventory.addToInventory(barcode, product, item);
+    	inventory.addProduct(barcode, product, item);
     	handler = new ProcessItemHandler(selfCheckoutStation, inventory);
     	customer = new Customer();
     	System.setIn(new ByteArrayInputStream("no\n".getBytes()));
@@ -140,7 +140,7 @@ public class ProcessItemHandlerTest {
 
     @Test
     public void weightChangedOverload() {
-    	inventory.addToInventory(barcode3, product3, item3);
+    	inventory.addProduct(barcode3, product3, item3);
     	
         handler.barcodeScanned(selfCheckoutStation.mainScanner, barcode);
         selfCheckoutStation.baggingArea.add(item); 
