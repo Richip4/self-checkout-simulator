@@ -1,11 +1,8 @@
 package user;
 
-import java.util.List;
-
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
-import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
 import store.Inventory;
@@ -16,7 +13,7 @@ import store.Inventory;
  * @author Michelle Cheung
  *
  */
-public class Attendant {
+public class Attendant extends User {
 
 	private SelfCheckoutSoftware software;	
 	private List<Product> cart = software.getCustomer().getCart(); //Keeping the cart as a list of Products
@@ -38,5 +35,5 @@ public class Attendant {
 		else {}//TODO Display an error on the GUI that the product is invalid
 		
 	}
-	
+
 }
