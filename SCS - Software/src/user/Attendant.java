@@ -1,11 +1,8 @@
 package user;
 
-import java.util.List;
-
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
-import org.lsmr.selfcheckout.products.Product;
 
 import store.Inventory;
 
