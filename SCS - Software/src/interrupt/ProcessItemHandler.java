@@ -112,7 +112,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			}
 
 			this.customer.addToCart(product);
-			this.customer.notifyPlaceInBaggingArea();
+			this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
 			this.waitingForBagging = true;
 		}
 	}
@@ -157,7 +157,8 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			if (weightDiff < discrepancy && weightDiff > -discrepancy) { // weightDiff > -discrepancy: weightDiff is
 																			// positive
 				currentItemsWeight = 0.0;
-				customer.removePlaceInBaggingArea();
+
+				this.scss.notifyObservers(observer -> observer.placeInBaggingAreaUnblocked());
 				waitingForBagging = false;
 
 				this.scs.mainScanner.enable();
@@ -165,20 +166,15 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			}
 
 			else {
-				customer.notifyUnexpectedItemInBaggingArea();
+				this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaDetected());
 				unexpectedItem = true;
 			}
 
-		}
-		// else if (scaleOverloaded) {
-		// customer.removeUnexpectedItemInBaggingArea();
-		// return;
-		// }
-		else {
+		} else {
 			try {
 				double weightDiff = weightBeforeBagging - scale.getCurrentWeight(); // changing weight
 				if (weightDiff < discrepancy && weightDiff > -discrepancy) {
-					customer.removeUnexpectedItemInBaggingArea();
+					this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
 					unexpectedItem = false;
 				}
 			} catch (OverloadException e) {
