@@ -41,8 +41,6 @@ public class CoinHandler extends Handler
 	private boolean coinDetectedIsValid = false;
 	private boolean coinDispenserFull = false;
 	private BigDecimal coinValue;
-	
-	private boolean hardwareState;
 
 	public CoinHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
