@@ -15,7 +15,7 @@ import store.Inventory;
  * @author Michelle Cheung
  *
  */
-public class Attendant {
+public class Attendant extends User {
 
 	private Customer customer;
 
