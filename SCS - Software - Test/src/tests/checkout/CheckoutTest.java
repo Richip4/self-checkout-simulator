@@ -530,12 +530,12 @@ public class CheckoutTest {
 
         checkout.makeChange(change);
         assertFalse("Change is not completed", checkout.changeComplete());
-        assertTrue("Should be making change", checkout.isMakingChange());
+        assertTrue("Should be making change", checkout.hasPendingChange());
 
         BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
         BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
 
-        assertFalse("Should not be making change", checkout.isMakingChange());
+        assertFalse("Should not be making change", checkout.hasPendingChange());
         assertTrue("Change should be completed", checkout.changeComplete());
 
         BigDecimal sum = BigDecimal.ZERO;
