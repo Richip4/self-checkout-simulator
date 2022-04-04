@@ -14,7 +14,7 @@ import org.lsmr.selfcheckout.devices.SupervisionStation;
  * 
  * @author Yunfan Yang
  */
-public class SupervisionSoftware {
+public class SupervisionSoftware extends Software {
     private SupervisionStation svs;
     // private Attendant attendant; // TODO: Expecting a Attendant class in the
     // future development

@@ -9,6 +9,7 @@ import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
 import user.Customer;
+import user.User;
 
 /**
  * A software for a self-checkout station.
@@ -19,7 +20,7 @@ import user.Customer;
  * 
  * @author Yunfan Yang
  */
-public class SelfCheckoutSoftware {
+public class SelfCheckoutSoftware extends Software {
     private SelfCheckoutStation scs;
     private Customer customer;
 
@@ -34,13 +35,13 @@ public class SelfCheckoutSoftware {
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
 
-        this.banknoteHandler = new BanknoteHandler(scs);
-        this.cardHandler = new CardHandler(scs);
-        this.coinHandler = new CoinHandler(scs);
-        this.processItemHandler = new ProcessItemHandler(scs);
+        this.banknoteHandler = new BanknoteHandler(this);
+        this.cardHandler = new CardHandler(this);
+        this.coinHandler = new CoinHandler(this);
+        this.processItemHandler = new ProcessItemHandler(this);
         
-        this.checkout = new Checkout(scs);
-        this.receipt = new Receipt(scs);
+        this.checkout = new Checkout(this);
+        this.receipt = new Receipt(this);
     }
 
     public void setCustomer(Customer customer) {
