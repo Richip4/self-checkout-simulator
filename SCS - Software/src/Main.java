@@ -47,32 +47,39 @@ public final class Main {
     private static Store store;
 
     public static void main(String[] args) {
-        Main.initializeCardIssuers();
+        Main.initializeCardAndIssuers();
         Main.initializeProductDatabase();
         Main.initializeStore();
         Main.initializeMembership();
     }
 
-    private static void initializeCardIssuers() {
+    private static void initializeCardAndIssuers() {
         Bank.clearIssuers();
+        Bank.clearCardIssuers();
 
         CardIssuer rbc = new CardIssuer("RBC");
         CardIssuer scotia = new CardIssuer("Scotiabank");
 
         Calendar expiry1 = Calendar.getInstance();
         expiry1.set(Calendar.YEAR, expiry1.get(Calendar.YEAR) + 1);
-        rbc.addCardData("4510123456789000", "Yunfan Yang", expiry1, "054", new BigDecimal("11903.56"));
+        String cardNo1 = "4510123456789000";
+        rbc.addCardData(cardNo1, "Yunfan Yang", expiry1, "054", new BigDecimal("11903.56"));
 
         Calendar expiry2 = Calendar.getInstance();
         expiry2.set(Calendar.YEAR, expiry2.get(Calendar.YEAR) + 1);
-        scotia.addCardData("4510987654321000", "Joshua Plosz", expiry2, "563", new BigDecimal("19532.20"));
+        String cardNo2 = "4510987654321000";
+        scotia.addCardData(cardNo2, "Joshua Plosz", expiry2, "563", new BigDecimal("19532.20"));
 
         Calendar expiry3 = Calendar.getInstance();
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
-        scotia.addCardData("4511220329440683", "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
+        String cardNo3 = "4511220329440683";
+        scotia.addCardData(cardNo3, "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
 
         Bank.addIssuer(rbc);
         Bank.addIssuer(scotia);
+        Bank.addCardIssuer(cardNo1, rbc);
+        Bank.addCardIssuer(cardNo2, scotia);
+        Bank.addCardIssuer(cardNo3, scotia);
     }
 
     private static void initializeProductDatabase() {
