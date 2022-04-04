@@ -2,9 +2,12 @@ package user;
 
 import java.util.List;
 
+import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
+
+import store.Inventory;
 
 /**
  * This class represents the attendant and their actions.
@@ -29,5 +32,12 @@ public class Attendant {
 			customer.removeProduct(p);
 	}
 	
+	public void lookupProduct(PriceLookupCode plu) {
+		if (Inventory.getProduct(plu) != null) { 
+			customer.addToCart(Inventory.getProduct(plu));
+		}
+		else {}//TODO Display an error on the GUI that the product is invalid
+		
+	}
 	
 }

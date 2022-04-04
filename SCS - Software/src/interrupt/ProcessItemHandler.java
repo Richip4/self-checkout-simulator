@@ -1,6 +1,7 @@
 package interrupt;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
@@ -9,6 +10,8 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
 
 import store.Inventory;
 import user.Customer;
@@ -81,9 +84,12 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	@Override
 	public void barcodeScanned(BarcodeScanner barcodeScanner, Barcode barcode) {
 
-		if (inv.checkForItem(barcode)) {
-			scs.mainScanner.disable();
-			scs.handheldScanner.disable();
+		
+		Product product = Inventory.getProduct(barcode);
+
+		if (product != null) {
+			this.scs.mainScanner.disable();
+			this.scs.handheldScanner.disable();
 			
 			currentItemsWeight = inv.getItem(barcode).getWeight();
 			try {
@@ -92,7 +98,7 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 				// TODO Auto-generated catch block
 			}
 			
-			customer.addToCart(Inventory.getProduct(barcode)); //TODO do the same for the PLUCoded product
+			customer.addToCart(Inventory.getProduct(barcode)); 
 			customer.notifyPlaceInBaggingArea();
 			waitingForBagging = true;
 			/*			
