@@ -9,6 +9,7 @@ import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.products.Product;
 
 import interrupt.BanknoteHandler;
 import interrupt.CoinHandler;
@@ -106,8 +107,8 @@ public class Checkout {
 
 		// Calculate the subtotal of the items in the customer's cart
 		this.subtotal = BigDecimal.ZERO;
-		for (Barcode barcode : this.customer.getBarcodedItemsInCart()) {
-			this.subtotal = this.subtotal.add(inv.getProduct(barcode).getPrice());
+		for (Product product : this.customer.getCart()) {
+			this.subtotal = this.subtotal.add(product.getPrice());
 		}
 
 		this.enableCardReader();

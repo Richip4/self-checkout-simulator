@@ -37,14 +37,14 @@ public class CustomerTest
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
         customer.addToCart(barcode);
-        assertTrue(customer.getBarcodedItemsInCart().get(0)==barcode);
+        assertTrue(customer.getCart().get(0)==barcode);
     }
 
     @Test
     public void getBarcodedItemsInCardTest()
     {
         Customer customer = new Customer();
-        assertEquals(new ArrayList <Barcode>(), customer.getBarcodedItemsInCart());
+        assertEquals(new ArrayList <Barcode>(), customer.getCart());
     }
 
     @Test
