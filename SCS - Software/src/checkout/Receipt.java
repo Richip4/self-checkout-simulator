@@ -2,8 +2,10 @@ package checkout;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
@@ -56,39 +58,26 @@ public class Receipt implements ReceiptPrinterObserver {
 		int i;
 
 		// for loop iterates through each item in customer's cart
-		ArrayList<Barcode> customerItems = customer.getBarcodedItemsInCart();
-		for (Barcode bc : customerItems) {
-			// use checkForItem() method to see if the item exists in the store inventory
-			// database
-			Product p = Inventory.getProduct(bc);
+		for (Product product : this.customer.getCart()) {
+			String itemDescription = "";
+			String currentPrice = product.getPrice().toString();
 
-			String price;
-			String description;
-
-			if (p instanceof BarcodedProduct) {
-				BarcodedProduct bp = (BarcodedProduct) p;
-				description = bp.getDescription();
-				price = bp.getPrice().toString();
-			} else if (p instanceof PLUCodedProduct) {
-				PLUCodedProduct pp = (PLUCodedProduct) p;
-				description = pp.getDescription();
-				price = pp.getPrice().toString();
-			} else {
-				description = "";
-				price = "";
+			if (product instanceof BarcodedProduct) {
+				BarcodedProduct barcodedProduct = (BarcodedProduct) product;
+				itemDescription = barcodedProduct.getDescription();
+			} else if (product instanceof PLUCodedProduct) {
+				PLUCodedProduct pluCodedProduct = (PLUCodedProduct) product;
+				itemDescription = pluCodedProduct.getDescription();
 			}
+			
+			String line = itemDescription + " $" + currentPrice;
 
-			String line = description + " $" + price;
-
-			// this for loop is responsible for printing the description of the item to the
-			// receipt.
-			// In order to avoid cases where the description exceeds the maximum amount of
-			// characters
-			// per line, we add the condition (i < 45) to cut off the description at 45
-			// characters.
-			for (i = 0; i < line.length() && i < 45; i++) {
-				if (Character.isWhitespace(line.charAt(i))) {
-					this.scs.printer.print(' ');
+			// this for loop is responsible for printing the description of the item to the receipt.
+			// In order to avoid cases where the description exceeds the maximum amount of characters
+			// per line, we add the condition (i < 45) to cut off the description at 45 characters. 
+			for (i = 0; i < itemDescription.length() && i < 45; i++) {
+				if (Character.isWhitespace(itemDescription.charAt(i))) {
+					scs.printer.print(' ');
 				} else {
 					this.scs.printer.print(line.charAt(i));
 				}

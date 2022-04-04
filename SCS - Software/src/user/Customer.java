@@ -1,17 +1,19 @@
 package user;
 
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.products.Product;
 
 import store.Inventory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-// @author Abdelhak Khalfallah, Tyler Chen
+import java.util.Collections;
+import java.util.List;
 
 public class Customer extends User {
 
 	// in place of a cart class I simply used a list of barcodes
-	private ArrayList<Barcode> barcodedItemsInCart = new ArrayList<Barcode>();
+	private List<Product> cart = new ArrayList<Product>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
@@ -28,22 +30,22 @@ public class Customer extends User {
 		return new BigDecimal(this.accumulatedCurrency.toString());
 	}
 
-	public void addToCart(Barcode barcode) {
-		barcodedItemsInCart.add(barcode);
-	}
-
 	public BigDecimal getCartSubtotal() {
 		BigDecimal subtotal = BigDecimal.ZERO;
 
-		for (Barcode bc : barcodedItemsInCart) {
-			subtotal = subtotal.add(Inventory.getProduct(bc).getPrice());
+		for (Product product : this.cart) {
+			subtotal = subtotal.add(product.getPrice());
 		}
 
 		return subtotal;
 	}
 
-	public ArrayList<Barcode> getBarcodedItemsInCart() {
-		return this.barcodedItemsInCart;
+	public void addToCart(Product barcode) {
+		this.cart.add(barcode);
+	}
+
+	public List<Product> getCart() {
+		return Collections.unmodifiableList(this.cart);
 	}
 
 	// following methods are to be implemented with the customer UI
