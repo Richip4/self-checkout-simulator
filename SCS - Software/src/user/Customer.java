@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// @author Abdelhak Khalfallah, Tyler Chen, Michelle Cheung
-public class Customer {
+public class Customer extends User {
 
 	// in place of a cart class the cart is a list Products
 	private List<Product> cart = new ArrayList<Product>();
@@ -31,11 +30,11 @@ public class Customer {
 	public void addToCart(Product product) {
 		cart.add(product);
 	}
-	
+
 	public void removeProduct(Product p) {
 		cart.remove(p);
 	}
-	
+
 	/**
 	 * The GUI handles the customer using the touch screen to find an item
 	 * This method would match the PLU code and to a PLU code in the inventory.
@@ -46,9 +45,22 @@ public class Customer {
 	public void lookupProduct(PriceLookupCode plu) {
 		if (Inventory.getProduct(plu) != null) { 
 			addToCart(Inventory.getProduct(plu));
+		} else {
+			// TODO Display an error on the GUI that the product is invalid
 		}
-		else {}//TODO Display an error on the GUI that the product is invalid
-		
+
+	public BigDecimal getAccumulatedCurrency() {
+		return new BigDecimal(this.accumulatedCurrency.toString());
+	}
+
+	public BigDecimal getCartSubtotal() {
+		BigDecimal subtotal = BigDecimal.ZERO;
+
+		for (Product product : this.cart) {
+			subtotal = subtotal.add(product.getPrice());
+		}
+
+		return subtotal;
 	}
 
 	public List<Product> getCart() {
@@ -85,19 +97,20 @@ public class Customer {
 		// TODO notify customer must place item in bagging area to proceed
 		waitingToBag = true;
 	}
-	
+
 	public void notifyCustomerTransactionSuccessful() {
 		// TODO notify the customer that their payment was succesful
 	}
-	
+
 	public void notifyCustomerToTryCardAgain() {
-		// TODO notify the customer to try their card again, as their card does not match any databases.
+		// TODO notify the customer to try their card again, as their card does not
+		// match any databases.
 	}
-	
+
 	public void notifyCustomerInvalidCardType() {
 		// TODO either notify them to try again or try a different card.
 	}
-	
+
 	public void notifyCustomerIsMember() {
 		// Say welcome to the member
 		// TODO in the GUI
@@ -122,40 +135,34 @@ public class Customer {
 		removeLastAddedItem = true;
 	}
 
-    /**
-     * We prompt the customer for their memberID if they don't want to tap, insert
-     * or swipe.
-     */
-    public String promptCustomerForMemberID(String rawMemberID)
-    {
-        String memberID = "";
-        try
-        {
-            memberID = String.valueOf(Integer.parseInt(rawMemberID));
-        } catch (NumberFormatException e)
-        {
+	/**
+	 * We prompt the customer for their memberID if they don't want to tap, insert
+	 * or swipe.
+	 */
+	public String promptCustomerForMemberID(String rawMemberID) {
+		String memberID = "";
+		try {
+			memberID = String.valueOf(Integer.parseInt(rawMemberID));
+		} catch (NumberFormatException e) {
 
-        }
+		}
 
-        return memberID;
-    }
+		return memberID;
+	}
 
-    /*
-     * Asks the customer if they are using their own bags Gets the bags weight in
-     * bagging area scale, so that it can be accounted for in that class.
-     */
-    public boolean askForBags(boolean usingOwnBag)
-    {
-        if (usingOwnBag)
-        {
+	/*
+	 * Asks the customer if they are using their own bags Gets the bags weight in
+	 * bagging area scale, so that it can be accounted for in that class.
+	 */
+	public boolean askForBags(boolean usingOwnBag) {
+		if (usingOwnBag) {
 
-            return true;
-        } else
-        {
-            return false;
-        }
+			return true;
+		} else {
+			return false;
+		}
 
-    }
+	}
 
 	public boolean getWaitingToBag() {
 		return waitingToBag;

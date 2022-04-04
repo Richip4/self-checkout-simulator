@@ -16,30 +16,36 @@ import org.lsmr.selfcheckout.devices.observers.CoinStorageUnitObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinTrayObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 
-import checkout.Checkout;
+import software.SelfCheckoutSoftware;
 import user.Customer;
 
 /**
-* @author: Mohammed Allam
-* @author: Michelle Cheung
-*
-* This class handles Coin related hardware,
-* and the communication between the customer and the self-checkout station.
-*
-*/
-public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, CoinStorageUnitObserver, CoinTrayObserver, CoinValidatorObserver {
-	
-	private SelfCheckoutStation scs;
+ * @author: Mohammed Allam
+ * @author: Michelle Cheung
+ *
+ *          This class handles Coin related hardware,
+ *          and the communication between the this.customer and the
+ *          self-checkout
+ *          station.
+ *
+ */
+public class CoinHandler extends Handler
+		implements CoinDispenserObserver, CoinSlotObserver, CoinStorageUnitObserver, CoinTrayObserver,
+		CoinValidatorObserver {
+
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
-	private Checkout checkout;
 
 	private boolean coinDetected = false;
 	private boolean coinDetectedIsValid = false;
 	private boolean coinDispenserFull = false;
 	private BigDecimal coinValue;
 
-	public CoinHandler(SelfCheckoutStation scs) {
-		this.scs = scs;
+	public CoinHandler(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
+
 		scs.coinTray.attach(this);
 		scs.coinSlot.attach(this);
 		scs.coinValidator.attach(this);
@@ -47,109 +53,116 @@ public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, Coi
 		scs.coinDispensers.forEach((k, v) -> v.attach(this));
 	}
 
-	public CoinHandler(SelfCheckoutStation scs, Checkout checkout) {
-		this(scs);
-		this.checkout = checkout;
-	}
-	
-	// set Customer
+	// Set this.customer
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+		this.coinDetected = false;
+		this.coinDetectedIsValid = false;
+		this.coinDispenserFull = false;
+		this.coinValue = BigDecimal.ZERO;
 	}
-	
-	//get Customer
+
+	// Get this.customer
 	public Customer getCustomer() {
-		return customer;
+		return this.customer;
 	}
 
 	@Override
-	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {}
-		
+	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+	}
+
 	@Override
-	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {}
-	
-	// when a coin is inserted, we set coin detected flag to True 
+	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+	}
+
+	// when a coin is inserted, we set coin detected flag to True
 	@Override
 	public void coinInserted(CoinSlot slot) {
-		coinDetected = true;
+		this.coinDetected = true;
 	}
-	
+
 	public boolean getCoinDetected() {
-		return coinDetected;
+		return this.coinDetected;
 	}
+
 	@Override
-	public void coinAdded(CoinTray tray) {}
-	
-	// when an inserted coin is valid, set coin-detected-is-valid flag to True  
+	public void coinAdded(CoinTray tray) {
+	}
+
+	// when an inserted coin is valid, set coin-detected-is-valid flag to True
 	@Override
 	public void validCoinDetected(CoinValidator validator, BigDecimal value) {
-		if(customer != null && coinDetected) {
-			coinDetectedIsValid = true;
+		if (this.customer != null && this.coinDetected) {
+			this.coinDetectedIsValid = true;
 		}
-		coinValue = value;
+
+		this.coinValue = value;
 	}
-	
+
 	public BigDecimal getCoinValue() {
-		return coinValue;
+		return this.coinValue;
 	}
-	
+
 	public boolean getCoinDetectedIsValid() {
-		return coinDetectedIsValid;
+		return this.coinDetectedIsValid;
 	}
-	
-	// when inserted coin is invalid, we notify customer that the coin is invalid 
+
+	// when inserted coin is invalid, we notify this.customer that the coin is
+	// invalid
 	@Override
 	public void invalidCoinDetected(CoinValidator validator) {
-		if(customer != null && coinDetected) {
-			customer.notifyInvalidCoin();
+		if (this.customer != null && this.coinDetected) {
+			this.customer.notifyInvalidCoin();
 		}
-		coinDetectedIsValid = false;
+
+		this.coinDetectedIsValid = false;
 	}
-	
+
 	@Override
-	public void coinsLoaded(CoinStorageUnit unit) {}
-	
+	public void coinsLoaded(CoinStorageUnit unit) {
+	}
+
 	@Override
 	public void coinsUnloaded(CoinStorageUnit unit) {
-		scs.coinSlot.enable();
+		this.scs.coinSlot.enable();
 	}
-	
+
 	// disables the coin slot when coin storage is full
 	@Override
 	public void coinsFull(CoinStorageUnit unit) {
-		scs.coinSlot.disable();
+		this.scs.coinSlot.disable();
 	}
 
 	// if coin dispenser is full & coin is valid;
-	// this method adds value of coin to the customers accumulated currency
+	// this method adds value of coin to the this.customers accumulated currency
 	@Override
 	public void coinAdded(CoinStorageUnit unit) {
-		if(customer != null && coinDetectedIsValid == true) {
-			customer.addCurrency(coinValue);
+		if (this.customer != null && coinDetectedIsValid == true) {
+			this.customer.addCurrency(coinValue);
 		}
 	}
-	
-	// when coin dispenser is full; set coin dispenser flag is full to true 
+
+	// when coin dispenser is full; set coin dispenser flag is full to true
 	@Override
 	public void coinsFull(CoinDispenser dispenser) {
-		coinDispenserFull = true;
+		this.coinDispenserFull = true;
 	}
-	
+
 	public boolean getCoinDispenserFull() {
-		return coinDispenserFull;
+		return this.coinDispenserFull;
 	}
 
 	@Override
 	public void coinsEmpty(CoinDispenser dispenser) {
-		// we currently don't do anything when the coin dispenser is empty 
+		// we currently don't do anything when the coin dispenser is empty
 	}
 
 	// if coin dispenser is not full & coin is valid;
-	// this method adds value of coin to the customers accumulated currency
+	// this method adds value of coin to the this.customers accumulated currency
 	@Override
 	public void coinAdded(CoinDispenser dispenser, Coin coin) {
-		if(customer != null && coinDetectedIsValid == true) {
-			customer.addCurrency(coinValue);
+		if (this.customer != null && this.coinDetectedIsValid == true) {
+			this.customer.addCurrency(this.coinValue);
 		}
 	}
 
@@ -165,7 +178,8 @@ public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, Coi
 
 	@Override
 	public void coinsUnloaded(CoinDispenser dispenser, Coin... coins) {
-		// currently we don't do anything when a coin is unloaded from the coin dispenser
+		// currently we don't do anything when a coin is unloaded from the coin
+		// dispenser
 	}
 
 }
