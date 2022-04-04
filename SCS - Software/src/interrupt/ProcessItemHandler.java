@@ -22,6 +22,7 @@ import user.Customer;
  * Easily extendable to incorporate PLU codes in future iterations.
  * 
  * @author joshuaplosz
+ * @author Michelle Cheung
  *
  */
 public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {

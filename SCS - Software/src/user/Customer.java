@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Customer extends User {
 
-	// in place of a cart class I simply used a list of barcodes
+	// in place of a cart class the cart is a list Products
 	private List<Product> cart = new ArrayList<Product>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
@@ -21,6 +21,29 @@ public class Customer extends User {
 
 	public BigDecimal getCurrency() {
 		return accumulatedCurrency;
+	}
+
+	public void addToCart(Product product) {
+		cart.add(product);
+	}
+
+	public void removeProduct(Product p) {
+		cart.remove(p);
+	}
+
+	/**
+	 * The GUI handles the customer using the touch screen to find an item
+	 * This method would match the PLU code and to a PLU code in the inventory.
+	 * If getProduct != null then that means it matches and we would add to cart.
+	 * Then it could proceed normally as if it was another PLU coded item.
+	 * Both the customer and attendant would be using this method
+	 */
+	public void lookupProduct(PriceLookupCode plu) {
+		if (Inventory.getProduct(plu) != null) { 
+			addToCart(Inventory.getProduct(plu));
+		} else {
+			// TODO Display an error on the GUI that the product is invalid
+		}
 	}
 
 	public BigDecimal getAccumulatedCurrency() {
@@ -35,10 +58,6 @@ public class Customer extends User {
 		}
 
 		return subtotal;
-	}
-
-	public void addToCart(Product product) {
-		this.cart.add(product);
 	}
 
 	public List<Product> getCart() {

@@ -45,4 +45,6 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
     public List<SelfCheckoutSoftware> getSoftwareList() {
         return this.softwareList;
     }
+
 }
+
