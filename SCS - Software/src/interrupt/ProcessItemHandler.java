@@ -111,7 +111,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 				// TODO Auto-generated catch block
 			}
 
-			this.customer.addToCart(barcode);
+			this.customer.addToCart(product);
 			this.customer.notifyPlaceInBaggingArea();
 			this.waitingForBagging = true;
 		}
