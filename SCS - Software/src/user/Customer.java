@@ -48,6 +48,7 @@ public class Customer extends User {
 		} else {
 			// TODO Display an error on the GUI that the product is invalid
 		}
+	}
 
 	public BigDecimal getAccumulatedCurrency() {
 		return new BigDecimal(this.accumulatedCurrency.toString());
