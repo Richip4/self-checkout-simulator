@@ -22,10 +22,6 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;
-
-	private boolean isSwipe; // if swipe is used, there is no CVV
-	private boolean isMember;
-	
 	private Customer customer;
 
 	/*
@@ -35,15 +31,10 @@ public class CardHandler extends Handler implements CardReaderObserver {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 		this.scs.cardReader.attach(this);
-
-		this.isSwipe = false;
-		this.isMember = false;
 	}
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		this.isSwipe = false;
-		this.isMember = false;
 	}
 
 	@Override
@@ -83,20 +74,16 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	 */
 	@Override
 	public void cardTapped(CardReader reader) {
-		scs.cardReader.disable();
 		// notify the customer that the card has been tapped.
 		// wait for cardDataRead to finish running before allowing more taps.
-		scs.cardReader.enable();
 	}
 
 	@Override
 	public void cardSwiped(CardReader reader) {
 		scs.cardReader.disable();
-		isSwipe = true;
 		// notify the customer that the card has been swiped.
 		// wait for cardDataRead to finish running before allowing more taps.
 		scs.cardReader.enable();
-
 	}
 
 	/**
@@ -115,7 +102,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 		if (type.equals("membership")) {
 			String memberID = data.getNumber();
-			isMember = Membership.isMember(memberID);
+			boolean isMember = Membership.isMember(memberID);
 
 			if (isMember) {
 				for (char s : memberID.toCharArray()) {
@@ -133,17 +120,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 		} else if (type.equals("debit") || type.equals("credit")) {
 			String cardNumber = data.getNumber();
-			String cvv = null;
 
-			// if the card wasn't swiped then we want to get the cvv.
-			if (!this.isSwipe) {
-				cvv = data.getCVV();
-			}
-
-			// FIXME: CVV is not being checked?
-
-			// We then bill the account through the bank and if it's completed (checks to
-			// see if the cardHolder matches)
 			CardIssuer issuer = Bank.getCardIssuer(cardNumber);
 			int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
 
