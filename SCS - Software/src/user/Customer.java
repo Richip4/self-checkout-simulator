@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 // @author Abdelhak Khalfallah, Tyler Chen
 
-public class Customer {
+public class Customer extends User {
 
 	// in place of a cart class I simply used a list of barcodes
 	private ArrayList<Barcode> barcodedItemsInCart = new ArrayList<Barcode>();
