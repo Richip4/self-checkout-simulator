@@ -3,10 +3,8 @@ package software;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
-import store.Store;
 import store.credentials.CredentialsSystem;
 import user.Attendant;
 
@@ -16,6 +14,13 @@ import user.Attendant;
  * The creation of this object can be seen as a supervision station software
  * system is launched. The constructor initializes / binds the hardware
  * handlers, the hardware devices have observers.
+ * 
+ * Use cases implemented here:
+ * 	- Attendant logs in to their control console
+ * 	- Attendant logs out from their control console
+ *  - Attendant starts up a station
+ * 	- Attendant sthuts down a station
+ * 
  * 
  * @author Yunfan Yang
  * @author Tyler Chen
@@ -71,7 +76,7 @@ public class SupervisionSoftware extends Software {
 	 * @return T/F whether we've logged in successfully
 	 */
 	public boolean login() {
-		this.attendant.promptLogin();	//hopefully calls the GUI to enter login
+		notifyAttendantLogin();	//hopefully calls the GUI to enter login
 		
 		//the above has to be completed.
 		String username = attendant.getUsername();
@@ -89,7 +94,6 @@ public class SupervisionSoftware extends Software {
 	 * @return true if it successfully logs out
 	 */
 	public boolean logout() {
-		this.attendant.promptLogout();
 		this.logged_in = false;
 		return true;
 	}
@@ -103,15 +107,9 @@ public class SupervisionSoftware extends Software {
 	 * If it enables hardware, should it before or after? I don't think we do
 	 * because the hardware team should have it enabled?
 	 */
-	public boolean startUpStation(SelfCheckoutStation scs)  {
+	public boolean startUpStation(SelfCheckoutSoftware scss)  {
 		if (logged_in) {
-			SelfCheckoutSoftware software = new SelfCheckoutSoftware(scs);
-            
-			List<SelfCheckoutSoftware> software_list = Store.getSelfCheckoutSoftwareList();
-			
-				
-
-				
+			scss.startSystem();	
 			return true;
 		}else {
 			login();
@@ -122,23 +120,15 @@ public class SupervisionSoftware extends Software {
     /**
 	 * Shuts down the software simply by removing it from the HashMap of checkoutStations
 	 * 
-	 * @param id - Each station should be identified by an id (could use scs but not easily
-	 * identifiable.
 	 * @return T/F - whether the checkoutStation has been removed. (If false
 	 * the station most likely is not in the HashMap not exist)
 	 */
-	public boolean shutDownStation(SelfCheckoutStation scs) {
+	public boolean shutDownStation(SelfCheckoutSoftware scss) {
         //If we're closing down the software, then the attendant should be forced to login again.
         logged_in = false;
         login();
 		if (logged_in) {
-            List<SelfCheckoutSoftware> software_list = Store.getSelfCheckoutSoftwareList();
-            for (SelfCheckoutSoftware scss : software_list){
-                if (scss.getSelfCheckoutStation().equals(scs)){
-                    scss.stopSystem();
-                    return true;
-                }
-            }
+			scss.stopSystem();
             return false;
 		}else {
 			login();
@@ -146,6 +136,33 @@ public class SupervisionSoftware extends Software {
 		}
 	}
 
+	/**
+	 * This function should block the Station. We disable the hardware
+	 * so that we cannot receive events.
+	 * 
+	 * @param scss - the SelfCheckoutSoftware
+	 * @return T/F whether the station has been blocked.
+	 */
+	public boolean blockStation(SelfCheckoutSoftware scss){
+		if (logged_in){
+			scss.notifyBlockTouchScreen();
+			scss.getSelfCheckoutStation().mainScanner.disable();
+			scss.getSelfCheckoutStation().handheldScanner.disable();
 
+			scss.getSelfCheckoutStation().banknoteInput.disable();
+			scss.getSelfCheckoutStation().coinSlot.disable();
+
+			scss.getSelfCheckoutStation().cardReader.disable();
+			
+			return true;
+		}else{
+			login();
+			return false;
+		}
+	}
+
+	private void notifyAttendantLogin(){
+
+	}
 
 }

@@ -1,10 +1,6 @@
 package user;
 
-import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.products.Product;
-
-import store.Inventory;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,20 +74,21 @@ public class Customer extends User {
 		// TODO notify customer must place item in bagging area to proceed
 		waitingToBag = true;
 	}
-	
+
 	public void notifyCustomerTransactionSuccessful() {
 		// TODO notify the customer that their payment was succesful
 	}
-	
+
 	public void notifyCustomerToTryCardAgain() {
-		// TODO notify the customer to try their card again, as their card does not match any databases.
+		// TODO notify the customer to try their card again, as their card does not
+		// match any databases.
 	}
-	
+
 	public void notifyCustomerInvalidCardType() {
 		// TODO either notify them to try again or try a different card.
 	}
-	
-	public void notifyCustomerInvalidMemberID(){
+
+	public void notifyCustomerInvalidMemberID() {
 		// TODO in GUI
 	}
 
@@ -119,36 +116,40 @@ public class Customer extends User {
 		removeLastAddedItem = true;
 	}
 
-    /**
-     * We prompt the customer for their memberID if they don't want to tap, insert
-     * or swipe. We don't use memberID because 
-     */
-    public String promptCustomerForMemberID(String rawMemberID)
-    {
-        try{
-            int memberID = Integer.parseInt(rawMemberID);
-        } catch (NumberFormatException e){
+	/**
+	 * We prompt the customer for their memberID if they don't want to tap, insert
+	 * or swipe. We don't use memberID because
+	 */
+	public String promptCustomerForMemberID(String rawMemberID) {
+		try {
+			int memberID = Integer.parseInt(rawMemberID);
+		} catch (NumberFormatException e) {
 			notifyCustomerInvalidMemberID();
-        }
-        return rawMemberID;
-    }
+		}
+		return rawMemberID;
+	}
 
-    /*
-     * Asks the customer if they are using their own bags Gets the bags weight in
-     * bagging area scale, so that it can be accounted for in that class.
-     */
-    public boolean askForBags(boolean usingOwnBag)
-    {
-        if (usingOwnBag)
-        {
+	/*
+	 * Asks the customer if they are using their own bags Gets the bags weight in
+	 * bagging area scale, so that it can be accounted for in that class.
+	 */
+	public boolean askForBags(boolean usingOwnBag) {
+		// int bags = new JFrame()....
+		if (usingOwnBag) {
+			return true;
+		} else {
+			return false;
+		}
 
-            return true;
-        } else
-        {
-            return false;
-        }
+	}
 
-    }
+	public void setNumBags(int num) {
+
+	}
+
+	public int getNumBags() {
+		return 0;
+	}
 
 	public boolean getWaitingToBag() {
 		return waitingToBag;

@@ -91,13 +91,13 @@ public class SelfCheckoutSoftware extends Software {
      * when something is turned on/off.
      */
     public void startSystem(){
-        this.banknoteHandler = new BanknoteHandler(scs);
-        this.cardHandler = new CardHandler(scs);
-        this.coinHandler = new CoinHandler(scs);
-        this.processItemHandler = new ProcessItemHandler(scs);
+        this.banknoteHandler = new BanknoteHandler(this);
+        this.cardHandler = new CardHandler(this);
+        this.coinHandler = new CoinHandler(this);
+        this.processItemHandler = new ProcessItemHandler(this);
 
-        this.checkout = new Checkout(scs);
-        this.receipt = new Receipt(scs);
+        this.checkout = new Checkout(this);
+        this.receipt = new Receipt(this);
     }
 
     /**
@@ -113,5 +113,9 @@ public class SelfCheckoutSoftware extends Software {
 
         this.checkout = null;
         this.receipt = null;
+    }
+
+    public void notifyBlockTouchScreen() {
+        //TODO
     }
 }

@@ -1,39 +1,50 @@
 package user;
 
-
 public class Attendant {
+
+	private boolean unexpectedItemDecision;
 
 	private String username;
 	private String password;
-	
-	public void notifyBanknotesFull(){
 
+	/**
+	 * The GUI will set the what the attendant made about the unexpected item.
+	 */
+	public void setUnexpectedItemDecision(boolean value) {
+		this.unexpectedItemDecision = value;
 	}
 
-	public void promptLogin() {
-		//call gui
-	}
-	
-	public void promptLogout() {
-		//call gui
+	/**
+	 * Get the decision the attendant made about the unexpected Item
+	 */
+	public boolean getUnexpectedItemDecision() {
+		return this.unexpectedItemDecision;
 	}
 
-	// public boolean promptAllowUnexpectedItem(){
-	// 	//boolean allowUnexpectedItem = new AllowUnexpectedItem
-	// }
-	
+	///////////////////// SupervisionSoftware.java /////////////////////
+
+	/**
+	 * Set the attendant login information.
+	 */
 	public void setLogin(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}
-	
+
+	/**
+	 * Get the username
+	 */
 	public String getUsername() {
 		return username;
 	}
-	
+
+	/**
+	 * Get the password
+	 */
 	public String getPassword() {
 		return password;
 	}
 
+	///////////////////// SupervisionSoftware.java /////////////////////
 
 }
