@@ -2,6 +2,8 @@ package user;
 
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
+import checkout.Checkout;
+import checkout.Receipt;
 import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
@@ -20,10 +22,13 @@ public class SelfCheckoutSoftware {
     private SelfCheckoutStation scs;
     private Customer customer;
 
-    private final BanknoteHandler banknoteHandler;
-    private final CardHandler cardHandler;
-    private final CoinHandler coinHandler;
-    private final ProcessItemHandler processItemHandler;
+    private BanknoteHandler banknoteHandler;
+    private CardHandler cardHandler;
+    private CoinHandler coinHandler;
+    private ProcessItemHandler processItemHandler;
+
+    private Checkout checkout; // Controller for processing checkout
+    private Receipt receipt; // Controller for printing receipt
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
@@ -50,4 +55,36 @@ public class SelfCheckoutSoftware {
     public Customer getCustomer() {
         return this.customer;
     }
+
+    /**
+     * This method is used for starting or restarting a system.
+     * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
+     * when something is turned on/off.
+     */
+    public void startSystem(){
+        this.banknoteHandler = new BanknoteHandler(scs);
+        this.cardHandler = new CardHandler(scs);
+        this.coinHandler = new CoinHandler(scs);
+        this.processItemHandler = new ProcessItemHandler(scs);
+
+        this.checkout = new Checkout(scs);
+        this.receipt = new Receipt(scs);
+    }
+
+    /**
+     * Turns off the system by setting everything to null, the Handlers are technically turned off.
+     * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
+     * when something is turned off.
+     */
+    public void stopSystem(){
+        this.banknoteHandler = null;
+        this.cardHandler = null;
+        this.coinHandler = null;
+        this.processItemHandler = null;
+
+        this.checkout = null;
+        this.receipt = null;
+    }
+
+
 }

@@ -26,7 +26,7 @@ public class Receipt implements ReceiptPrinterObserver {
 	private SelfCheckoutStation scs;
 	private Customer customer;
 
-	public Receipt(SelfCheckoutStation scs, Customer customer) {
+	public Receipt(SelfCheckoutStation scs) {
 		this.scs = scs;
 		this.customer = customer;
 		

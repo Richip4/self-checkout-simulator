@@ -6,6 +6,7 @@ import java.util.List;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
+import store.Store;
 import store.credentials.CredentialsSystem;
 
 /**
@@ -53,7 +54,6 @@ public class SupervisionSoftware {
     public void setAttendant(Attendant attendant){
         this.attendant = attendant;
         this.logged_in = false;
-
     }
 
     /**
@@ -72,8 +72,7 @@ public class SupervisionSoftware {
 		if(creds.checkLogin(username, password)) {
 			this.logged_in = true;
 			return true;
-		}
-		else 
+		}else 
 			return false;		
 	}
 	
@@ -99,6 +98,7 @@ public class SupervisionSoftware {
 	public boolean startUpStation(SelfCheckoutStation scs)  {
 		if (logged_in) {
 			SelfCheckoutSoftware software = new SelfCheckoutSoftware(scs);
+            
 			List<SelfCheckoutSoftware> software_list = Store.getSelfCheckoutSoftwareList();
 			
 				
@@ -119,10 +119,19 @@ public class SupervisionSoftware {
 	 * @return T/F - whether the checkoutStation has been removed. (If false
 	 * the station most likely is not in the HashMap not exist)
 	 */
-	public boolean shutDownStation(int id) {
+	public boolean shutDownStation(SelfCheckoutStation scs) {
+        //If we're closing down the software, then the attendant should be forced to login again.
+        logged_in = false;
+        login();
 		if (logged_in) {
-			
-            return true;
+            List<SelfCheckoutSoftware> software_list = Store.getSelfCheckoutSoftwareList();
+            for (SelfCheckoutSoftware scss : software_list){
+                if (scss.getSelfCheckoutStation().equals(scs)){
+                    scss.stopSystem();
+                    return true;
+                }
+            }
+            return false;
 		}else {
 			login();
 			return false;
