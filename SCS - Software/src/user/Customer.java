@@ -1,6 +1,9 @@
 package user;
 
+import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.Product;
+
+import store.Inventory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
