@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// @author Abdelhak Khalfallah, Tyler Chen
+// @author Abdelhak Khalfallah, Tyler Chen, Michelle Cheung
 public class Customer {
 
-	// in place of a cart class I simply used a list of barcodes
+	// in place of a cart class the cart is a list of barcodes and PLU codes
 	private List<Product> cart = new ArrayList<Product>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
@@ -25,8 +25,14 @@ public class Customer {
 		return accumulatedCurrency;
 	}
 
-	public void addToCart(Product barcode) {
+	public void addToCartBarcodedItem(Product barcode) {
 		cart.add(barcode);
+	}
+	
+	public void addToCartPLUCodedItem(Product plucode) {
+		cart.add(plucode);
+		
+		//TODO PLS CHECK if it is possible for the cart to have both barcoded items and PLUCoded items
 	}
 
 	public List<Product> getCart() {
