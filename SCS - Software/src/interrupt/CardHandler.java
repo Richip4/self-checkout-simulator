@@ -5,6 +5,7 @@ import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 
+import software.SelfCheckoutSoftware;
 import store.Membership;
 import user.Customer;
 
@@ -15,9 +16,10 @@ import user.Customer;
  * @author Tyler Chen
  *
  */
-public class CardHandler implements CardReaderObserver {
+public class CardHandler extends Handler implements CardReaderObserver {
 
-	private SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 
 	private boolean isSwipe; // if swipe is used, there is no CVV
 	private boolean isMember;
@@ -27,8 +29,9 @@ public class CardHandler implements CardReaderObserver {
 	/*
 	 * Constructor for creating a CardHandler. Attaches itself to the cardReader.
 	 */
-	public CardHandler(SelfCheckoutStation scs) {
-		this.scs = scs;
+	public CardHandler(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 		this.scs.cardReader.attach(this);
 
 		this.isSwipe = false;

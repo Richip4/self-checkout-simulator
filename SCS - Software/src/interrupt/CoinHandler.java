@@ -16,6 +16,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinStorageUnitObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinTrayObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 
+import software.SelfCheckoutSoftware;
 import user.Customer;
 
 /**
@@ -23,14 +24,17 @@ import user.Customer;
  * @author: Michelle Cheung
  *
  *          This class handles Coin related hardware,
- *          and the communication between the this.customer and the self-checkout
+ *          and the communication between the this.customer and the
+ *          self-checkout
  *          station.
  *
  */
-public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, CoinStorageUnitObserver, CoinTrayObserver,
+public class CoinHandler extends Handler
+		implements CoinDispenserObserver, CoinSlotObserver, CoinStorageUnitObserver, CoinTrayObserver,
 		CoinValidatorObserver {
 
-	private SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
 
 	private boolean coinDetected = false;
@@ -38,8 +42,9 @@ public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, Coi
 	private boolean coinDispenserFull = false;
 	private BigDecimal coinValue;
 
-	public CoinHandler(SelfCheckoutStation scs) {
-		this.scs = scs;
+	public CoinHandler(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 
 		scs.coinTray.attach(this);
 		scs.coinSlot.attach(this);
@@ -102,7 +107,8 @@ public class CoinHandler implements CoinDispenserObserver, CoinSlotObserver, Coi
 		return this.coinDetectedIsValid;
 	}
 
-	// when inserted coin is invalid, we notify this.customer that the coin is invalid
+	// when inserted coin is invalid, we notify this.customer that the coin is
+	// invalid
 	@Override
 	public void invalidCoinDetected(CoinValidator validator) {
 		if (this.customer != null && this.coinDetected) {

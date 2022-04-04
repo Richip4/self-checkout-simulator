@@ -11,6 +11,7 @@ import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
+import software.SelfCheckoutSoftware;
 import store.Inventory;
 import user.Customer;
 
@@ -23,16 +24,18 @@ import user.Customer;
  */
 public class Receipt implements ReceiptPrinterObserver {
 	// declaration of variables used to access methods in control software/hardware
-	private SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
 
-	public Receipt(SelfCheckoutStation scs) {
-		this.scs = scs;
+	public Receipt(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 
-		//attach observer
-		scs.printer.attach(this);
+		// attach observer
+		this.scs.printer.attach(this);
 	}
-	
+
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}

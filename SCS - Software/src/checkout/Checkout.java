@@ -9,6 +9,7 @@ import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
+import software.SelfCheckoutSoftware;
 import user.Customer;
 
 /**
@@ -26,14 +27,13 @@ import user.Customer;
  * @author Yunfan Yang
  */
 public class Checkout {
-	private SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
 
-	public Checkout(SelfCheckoutStation scs) {
-		this.scs = scs;
-
-		// Connect with interrupts
-		// TODO:
+	public Checkout(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 	}
 
 	/**

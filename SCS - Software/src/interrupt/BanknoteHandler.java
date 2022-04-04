@@ -12,6 +12,7 @@ import org.lsmr.selfcheckout.devices.BanknoteValidator;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.*;
 
+import software.SelfCheckoutSoftware;
 import user.Customer;
 
 /**
@@ -28,20 +29,20 @@ import user.Customer;
  * @author joshuaplosz
  *
  */
-public class BanknoteHandler implements BanknoteDispenserObserver,
-		BanknoteSlotObserver,
-		BanknoteStorageUnitObserver,
-		BanknoteValidatorObserver {
+public class BanknoteHandler extends Handler implements BanknoteDispenserObserver, BanknoteSlotObserver,
+		BanknoteStorageUnitObserver, BanknoteValidatorObserver {
 
-	private SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
 
 	// record latest processed banknote(bn)
 	private boolean banknoteDetected = false;
 	private BigDecimal banknoteValue = BigDecimal.ZERO;
 
-	public BanknoteHandler(SelfCheckoutStation scs) {
-		this.scs = scs;
+	public BanknoteHandler(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 
 		// attaches itself as an observer to all related hardware
 		this.scs.banknoteInput.attach(this);
