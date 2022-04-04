@@ -1,11 +1,7 @@
 package user;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.lsmr.selfcheckout.BarcodedItem;
-import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
