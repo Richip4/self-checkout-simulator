@@ -36,7 +36,9 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	
 	private boolean ownBagsUsed = false;
 	private double ownBagWeight = 0;
-	
+
+	private int numOfPlasticBags = 0;
+
 	public ProcessItemHandler(SelfCheckoutStation scs, Inventory inv) {
 		this.scs = scs;
 		this.inv = inv;
@@ -111,6 +113,16 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 		this.ownBagsUsed = ownBagsUsed;
 	}
 
+	//set and get methods for plastic bags
+	public void setPlacticBags(int numOfPlasticBags)
+	{
+		this.numOfPlasticBags = numOfPlasticBags;
+	}
+
+	public int getPlasticBags()
+	{
+		return numOfPlasticBags;
+	}
 	/**
 	 * When electronic scale weight change event occurs under normal operation compare
 	 * the weight of the current item scanned and the scales changed weight.  If they 
