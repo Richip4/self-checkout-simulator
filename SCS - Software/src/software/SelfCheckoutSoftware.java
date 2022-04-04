@@ -21,7 +21,8 @@ import user.User;
  * @author Yunfan Yang
  */
 public class SelfCheckoutSoftware extends Software {
-    private SelfCheckoutStation scs;
+    private final SelfCheckoutStation scs;
+    private SupervisionSoftware svs;
     private Customer customer;
 
     private final BanknoteHandler banknoteHandler;
@@ -62,5 +63,21 @@ public class SelfCheckoutSoftware extends Software {
 
     public Customer getCustomer() {
         return this.customer;
+    }
+
+    /**
+     * This method should not be used.
+     * If want to set supersivion software for this self-checkout software,
+     * please use {@link SupervisionSoftware#add(SelfCheckoutSoftware)}.
+     * 
+     * @param svs
+     * @author Yunfan Yang
+     */
+    protected void setSupervisionSoftware(SupervisionSoftware svs) {
+        this.svs = svs;
+    }
+
+    public SupervisionSoftware getSupervisionSoftware() {
+        return this.svs;
     }
 }

@@ -15,7 +15,7 @@ import org.lsmr.selfcheckout.devices.SupervisionStation;
  * @author Yunfan Yang
  */
 public class SupervisionSoftware extends Software {
-    private SupervisionStation svs;
+    private final SupervisionStation svs;
     // private Attendant attendant; // TODO: Expecting a Attendant class in the
     // future development
     private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
@@ -32,6 +32,12 @@ public class SupervisionSoftware extends Software {
 
     public void add(SelfCheckoutSoftware software) {
         this.softwareList.add(software);
+        software.setSupervisionSoftware(this);
+    }
+
+    public void remove(SelfCheckoutSoftware software) {
+        this.softwareList.remove(software);
+        software.setSupervisionSoftware(null);
     }
 
     public List<SelfCheckoutSoftware> getSoftwareList() {
