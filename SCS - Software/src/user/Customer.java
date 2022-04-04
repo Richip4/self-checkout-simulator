@@ -3,13 +3,14 @@ package user;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.products.Product;
 
+import store.Inventory;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// @author Abdelhak Khalfallah, Tyler Chen
-public class Customer {
+public class Customer extends User {
 
 	// in place of a cart class I simply used a list of barcodes
 	private List<Product> cart = new ArrayList<Product>();
@@ -25,8 +26,22 @@ public class Customer {
 		return accumulatedCurrency;
 	}
 
-	public void addToCart(Product barcode) {
-		cart.add(barcode);
+	public BigDecimal getAccumulatedCurrency() {
+		return new BigDecimal(this.accumulatedCurrency.toString());
+	}
+
+	public BigDecimal getCartSubtotal() {
+		BigDecimal subtotal = BigDecimal.ZERO;
+
+		for (Product product : this.cart) {
+			subtotal = subtotal.add(product.getPrice());
+		}
+
+		return subtotal;
+	}
+
+	public void addToCart(Product product) {
+		this.cart.add(product);
 	}
 
 	public List<Product> getCart() {
