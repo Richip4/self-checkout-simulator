@@ -40,8 +40,8 @@ public class Customer extends User {
 		return subtotal;
 	}
 
-	public void addToCart(Product barcode) {
-		this.cart.add(barcode);
+	public void addToCart(Product product) {
+		this.cart.add(product);
 	}
 
 	public List<Product> getCart() {
