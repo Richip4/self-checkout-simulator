@@ -4,7 +4,9 @@ import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
+import org.lsmr.selfcheckout.external.CardIssuer;
 
+import bank.Bank;
 import software.SelfCheckoutSoftware;
 import store.Membership;
 import user.Customer;
@@ -130,8 +132,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 			}
 
 		} else if (type.equals("debit") || type.equals("credit")) {
-			String cardNumbers = data.getNumber();
-			String cardHolder = data.getCardholder();
+			String cardNumber = data.getNumber();
 			String cvv = null;
 
 			// if the card wasn't swiped then we want to get the cvv.
@@ -139,18 +140,28 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				cvv = data.getCVV();
 			}
 
+			// FIXME: CVV is not being checked?
+
 			// We then bill the account through the bank and if it's completed (checks to
 			// see if the cardHolder matches)
-			// boolean transactionStatus = Bank.billAccount(cardNumbers, cardHolder, total);
-			
-			// if (transactionStatus) {
-				// 	total = BigDecimal.ZERO;
-				// 	customer.notifyCustomerTransactionSuccessful();
-				// } else
-				// 	customer.notifyCustomerToTryCardAgain();
+			CardIssuer issuer = Bank.getCardIssuer(cardNumber);
+			int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
 
+			// Fail to hold the authorization
+			if (holdNumber == -1) {
+				// TODO: Notify observers
+				return;
+			}
 
-			// FIXME: Bank transaction needs to be implemented first.
+			boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
+
+			// Fail to post transaction
+			if (!posted) {
+				// TODO: Notify
+				return;
+			}
+
+			// TODO: Notify success
 		} else {
 			customer.notifyCustomerInvalidCardType();
 		}
