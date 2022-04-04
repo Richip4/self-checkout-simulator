@@ -15,23 +15,19 @@ import org.lsmr.selfcheckout.products.Product;
 public class Attendant {
 
 	private Customer customer;	
-	private List<Product> cart = customer.getCart(); //Keeping the cart as a list of barcodes
+	private List<Product> cart = customer.getCart(); //Keeping the cart as a list of Products
 	
 /**
  * remove item if it is in cart
  * if item is not in cart, ignore and move on
  */
 	public void removeBarcodedProductFromPurchases(BarcodedProduct p) {
-		
-		if (cart.contains(p.getBarcode())) {
-			cart.remove(p.getBarcode());
-		}
+			customer.removeProduct(p);
 	}
 	
 	public void removePLUProductFromPurchases(PLUCodedProduct p) {
-		if (cart.contains(p.getPLUCode())) {
-			cart.remove(p.getPLUCode());
-		}
+			customer.removeProduct(p);
 	}
+	
 	
 }

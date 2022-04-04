@@ -92,7 +92,7 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 				// TODO Auto-generated catch block
 			}
 			
-			customer.addToCartBarcodedItem(inv.getProduct(barcode)); //TODO do the same for the PLUCoded product
+			customer.addToCart(Inventory.getProduct(barcode)); //TODO do the same for the PLUCoded product
 			customer.notifyPlaceInBaggingArea();
 			waitingForBagging = true;
 			/*			

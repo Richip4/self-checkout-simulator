@@ -25,15 +25,14 @@ public class Customer {
 		return accumulatedCurrency;
 	}
 
-	public void addToCartBarcodedItem(Product barcodedProduct) {
-		cart.add(barcodedProduct);
+	public void addToCart(Product product) {
+		cart.add(product);
 	}
 	
-	public void addToCartPLUCodedItem(Product plucodedProduct) {
-		cart.add(plucodedProduct);
-		
-		//TODO PLS CHECK if it is possible for the cart to have both barcoded items and PLUCoded items
+	public void removeProduct(Product p) {
+		cart.remove(p);
 	}
+	
 
 	public List<Product> getCart() {
 		return Collections.unmodifiableList(this.cart);
