@@ -80,4 +80,8 @@ public class SelfCheckoutSoftware extends Software {
     public SupervisionSoftware getSupervisionSoftware() {
         return this.svs;
     }
+
+    public void notifyBanknoteEjected() {
+        this.checkout.makeChange();
+    }
 }

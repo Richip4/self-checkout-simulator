@@ -194,9 +194,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	@Override
 	public void banknotesEjected(BanknoteSlot slot) {
-		if (this.customer != null) {
-			this.customer.notifyBanknoteEjected();
-		}
+		this.scss.notifyBanknoteEjected();
 	}
 
 	/**
