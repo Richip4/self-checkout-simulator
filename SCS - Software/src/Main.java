@@ -25,8 +25,8 @@ import store.Membership;
 import store.Store;
 import store.credentials.Account;
 import store.credentials.CredentialsSystem;
-import user.SelfCheckoutSoftware;
-import user.SupervisionSoftware;
+import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import store.Inventory;
 
 /**

@@ -1,4 +1,4 @@
-package user;
+package software;
 
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
@@ -8,6 +8,8 @@ import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
+import user.Customer;
+import user.User;
 
 /**
  * A software for a self-checkout station.
@@ -18,8 +20,9 @@ import interrupt.ProcessItemHandler;
  * 
  * @author Yunfan Yang
  */
-public class SelfCheckoutSoftware {
-    private SelfCheckoutStation scs;
+public class SelfCheckoutSoftware extends Software {
+    private final SelfCheckoutStation scs;
+    private SupervisionSoftware svs;
     private Customer customer;
 
     private BanknoteHandler banknoteHandler;
@@ -33,10 +36,13 @@ public class SelfCheckoutSoftware {
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
 
-        this.banknoteHandler = new BanknoteHandler(scs);
-        this.cardHandler = new CardHandler(scs);
-        this.coinHandler = new CoinHandler(scs);
-        this.processItemHandler = new ProcessItemHandler(scs);
+        this.banknoteHandler = new BanknoteHandler(this);
+        this.cardHandler = new CardHandler(this);
+        this.coinHandler = new CoinHandler(this);
+        this.processItemHandler = new ProcessItemHandler(this);
+        
+        this.checkout = new Checkout(this);
+        this.receipt = new Receipt(this);
     }
 
     public void setCustomer(Customer customer) {
@@ -46,6 +52,9 @@ public class SelfCheckoutSoftware {
         this.cardHandler.setCustomer(customer);
         this.coinHandler.setCustomer(customer);
         this.processItemHandler.setCustomer(customer);
+
+        this.checkout.setCustomer(customer);
+        this.receipt.setCustomer(customer);
     }
 
     public SelfCheckoutStation getSelfCheckoutStation() {
@@ -54,6 +63,26 @@ public class SelfCheckoutSoftware {
 
     public Customer getCustomer() {
         return this.customer;
+    }
+
+    /**
+     * This method should not be used.
+     * If want to set supersivion software for this self-checkout software,
+     * please use {@link SupervisionSoftware#add(SelfCheckoutSoftware)}.
+     * 
+     * @param svs
+     * @author Yunfan Yang
+     */
+    protected void setSupervisionSoftware(SupervisionSoftware svs) {
+        this.svs = svs;
+    }
+
+    public SupervisionSoftware getSupervisionSoftware() {
+        return this.svs;
+    }
+
+    public void notifyBanknoteEjected() {
+        this.checkout.makeChange();
     }
 
     /**
@@ -85,6 +114,4 @@ public class SelfCheckoutSoftware {
         this.checkout = null;
         this.receipt = null;
     }
-
-
 }

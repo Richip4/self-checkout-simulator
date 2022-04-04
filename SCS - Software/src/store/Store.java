@@ -3,8 +3,8 @@ package store;
 import java.util.Collections;
 import java.util.List;
 
-import user.SelfCheckoutSoftware;
-import user.SupervisionSoftware;
+import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 
 public final class Store {
     private static SupervisionSoftware SUPERVISION_SOFTWARE;

@@ -3,12 +3,14 @@ package checkout;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
+import software.SelfCheckoutSoftware;
 import user.Customer;
 
 /**
@@ -26,14 +28,16 @@ import user.Customer;
  * @author Yunfan Yang
  */
 public class Checkout {
-	private SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
 
-	public Checkout(SelfCheckoutStation scs) {
-		this.scs = scs;
+	private List<Cash> pendingChanges; // This list contains "banknote" cash objects, the cash object is simply the
+										// denomination of banknotes and coins
 
-		// Connect with interrupts
-		// TODO:
+	public Checkout(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 	}
 
 	/**
@@ -143,10 +147,6 @@ public class Checkout {
 		this.scs.cardReader.disable();
 	}
 
-	private BigDecimal remainingChange = BigDecimal.ZERO;
-	private boolean doneDispensingChange = true;
-	private ArrayList<Cash> availableDenominations = new ArrayList<>();
-
 	/**
 	 * Returns change to the customer by dispensing banknotes and coins,
 	 * prioritizing the highest denomination value.
@@ -158,10 +158,51 @@ public class Checkout {
 	 * calls this method until we no longer consider banknotes for dispensing
 	 * change or the change has been fully dispensed.
 	 * 
-	 * @param change - total amount to be returned to the customer
+	 * @param pendingChanges - total amount to be returned to the customer
 	 */
 	public void makeChange() {
+		// Dispense remaining pending change to customer
+		if (!this.pendingChanges.isEmpty()) {
+			int size = this.pendingChanges.size();
+
+			// There's change pending to be returned to customer
+			// start emitting change to slot devices
+			for (Cash cash : this.pendingChanges) {
+				if (cash.type.equals("banknote")) {
+					try {
+						this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
+						this.pendingChanges.remove(cash);
+					} catch (EmptyException | DisabledException | OverloadException e) {
+						continue;
+					}
+				} else if (cash.type.equals("coin")) {
+					try {
+						this.scs.coinDispensers.get(cash.value).emit();
+						this.pendingChanges.remove(cash);
+					} catch (OverloadException | EmptyException | DisabledException e) {
+						continue;
+					}
+				}
+			}
+
+			if (size >= this.pendingChanges.size()) {
+				// No change is successfully emmited for customer, encounters error, notify
+				// attendant maybe?
+			}
+
+			return;
+		}
+
+		// Calculate how much change to return to customer
 		BigDecimal change = this.customer.getAccumulatedCurrency().subtract(this.customer.getCartSubtotal());
+
+		// No change needs to be returned to customer
+		if (change.equals(BigDecimal.ZERO)) {
+			return;
+		}
+
+		// Clear pending change list
+		this.pendingChanges = new ArrayList<Cash>();
 
 		// Establish what banknote and coin denominations are available
 		ArrayList<Cash> availableDenominations = new ArrayList<>();
@@ -169,7 +210,7 @@ public class Checkout {
 
 		// go through all banknotes and record all the accepted as well as the available
 		// notes
-		scs.banknoteDispensers.forEach((value, dispenser) -> {
+		this.scs.banknoteDispensers.forEach((value, dispenser) -> {
 			Cash cash = new Cash(value);
 			acceptableDenominations.add(cash);
 
@@ -179,7 +220,7 @@ public class Checkout {
 		});
 
 		// same thing with coins
-		scs.coinDispensers.forEach((value, dispenser) -> {
+		this.scs.coinDispensers.forEach((value, dispenser) -> {
 			Cash cash = new Cash(value);
 			acceptableDenominations.add(cash);
 
@@ -188,12 +229,9 @@ public class Checkout {
 			}
 		});
 
-		// sort the accepted denominations to get the lowest possible cash value
+		// sort the accepted and available denominations to get the lowest possible cash
+		// value
 		Collections.sort(acceptableDenominations);
-		Cash lowestDenom = acceptableDenominations.get(0);
-
-		// sort the availableDenominations in descending order to prioritize
-		// dispensing highest values first
 		Collections.sort(availableDenominations, Collections.reverseOrder());
 
 		// Starting from the highest value available denomination, dispense denomination
@@ -203,39 +241,19 @@ public class Checkout {
 		// Otherwise, remove denomination from consideration.
 		while (availableDenominations.size() > 0 && change.compareTo(BigDecimal.ZERO) > 0) {
 			Cash cash = availableDenominations.get(0);
+
 			if (change.compareTo(cash.value) >= 0) {
-
-				if (cash.type.equals("banknote")) {
-					try {
-						scs.banknoteDispensers.get(cash.value.intValue()).emit();
-						change.subtract(cash.value);
-					} catch (EmptyException | DisabledException e) {
-						// can no longer emit denominations from this dispenser
-						availableDenominations.remove(0);
-					} catch (OverloadException e) {
-						// there is a banknote still in the output. try to emit again.
-						continue;
-					}
-
-				} else if (cash.type.equals("coin")) {
-					try {
-						scs.coinDispensers.get(cash.value).emit();
-						change = change.subtract(cash.value);
-					} catch (EmptyException | DisabledException e) {
-						// can no longer emit denominations from this dispenser
-						availableDenominations.remove(0);
-					} catch (OverloadException e) {
-						// currently coinDispenser never throws this exception. Unnecessary to handle
-						// it.
-					}
-				}
-
+				// Add this to the pending change list
+				this.pendingChanges.add(cash);
 			} else {
 				// current denomination is bigger than 'change' amount. Remove it from
 				// consideration.
 				availableDenominations.remove(0);
 			}
 		}
+
+		// Start pending change to customer
+		this.makeChange();
 	}
 
 	/**
@@ -265,7 +283,7 @@ public class Checkout {
 		}
 	}
 
-	public boolean isMakingChange() {
-		return !doneDispensingChange;
+	public boolean hasPendingChange() {
+		return !this.pendingChanges.isEmpty();
 	}
 }

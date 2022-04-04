@@ -18,9 +18,9 @@ public class Attendant {
 		//call gui
 	}
 
-	public boolean promptAllowUnexpectedItem(){
-		//boolean allowUnexpectedItem = new AllowUnexpectedItem
-	}
+	// public boolean promptAllowUnexpectedItem(){
+	// 	//boolean allowUnexpectedItem = new AllowUnexpectedItem
+	// }
 	
 	public void setLogin(String username, String password) {
 		this.username = username;

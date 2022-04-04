@@ -12,6 +12,7 @@ import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
+import software.SelfCheckoutSoftware;
 import store.Inventory;
 import user.Customer;
 
@@ -23,10 +24,12 @@ import user.Customer;
  * @author joshuaplosz
  *
  */
-public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver {
+public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {
 
-	SelfCheckoutStation scs;
+	private final SelfCheckoutStation scs;
+	private final SelfCheckoutSoftware scss;
 	private Customer customer;
+
 	private double currentItemsWeight = 0.0;
 	private double weightBeforeBagging; // Weight on scale before most recently scanned item is bagged
 	private boolean unexpectedItem = false;
@@ -38,8 +41,9 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	private boolean ownBagsUsed = false;
 	private double ownBagWeight = 0;
 
-	public ProcessItemHandler(SelfCheckoutStation scs) {
-		this.scs = scs;
+	public ProcessItemHandler(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 
 		// Attach both scanners
 		this.scs.mainScanner.attach(this);
@@ -84,7 +88,7 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	 */
 	@Override
 	public void barcodeScanned(BarcodeScanner barcodeScanner, Barcode barcode) {
-		if(this.customer == null) {
+		if (this.customer == null) {
 			return;
 		}
 
@@ -93,7 +97,6 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 		if (product != null) {
 			this.scs.mainScanner.disable();
 			this.scs.handheldScanner.disable();
-
 
 			if (product instanceof BarcodedProduct) {
 				BarcodedProduct barcodedProduct = (BarcodedProduct) product;
@@ -134,7 +137,7 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	 */
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-		if(this.customer == null) {
+		if (this.customer == null) {
 			return;
 		}
 
