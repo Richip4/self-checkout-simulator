@@ -4,15 +4,19 @@ import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.AbstractDevice;
 import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
+import org.lsmr.selfcheckout.devices.Keyboard;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
+import org.lsmr.selfcheckout.devices.observers.KeyboardObserver;
 
 import store.Inventory;
 import user.Customer;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.time.Duration;
 
 /**
@@ -21,9 +25,11 @@ import java.time.Duration;
  * @author joshuaplosz
  *
  */
-public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver {
-	
+public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver, KeyboardObserver {
+	SupervisionStation svs = new SupervisionStation();
 	SelfCheckoutStation scs;
+	private String command;
+	private boolean overridden = false;
 	private Inventory inv;
 	private Customer customer;
 	private double currentItemsWeight = 0.0;
@@ -165,6 +171,17 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 					customer.removeUnexpectedItemInBaggingArea();
 					unexpectedItem = false;
 				}
+				
+				else if(unexpectedItem) {
+					svs.add(scs);
+					while(!overridden) {	// keep asking until unexpected item is overridden
+						String cmd = Attendant.promptForInput();
+						svs.keyboard.type("cmd");
+					}
+					unexpectedItem = false;					// ignore unexpected item, it was overridden
+					weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
+					customer.removeUnexpectedItemInBaggingArea();
+				}
 			} catch (OverloadException e) {
 				
 			}
@@ -204,6 +221,15 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	
 	public double getWeightBeforeBagging() {
 		return weightBeforeBagging;
+	}
+
+	@Override
+	public void keyPressed(Keyboard k, char c) {
+		command = command + c;
+		if (command == "accept") {		// idk what command to accept should be, "accept" for now
+			overridden = true;
+			command = "";
+		}
 	}
 
 }
