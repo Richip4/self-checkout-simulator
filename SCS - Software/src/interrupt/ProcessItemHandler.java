@@ -19,6 +19,7 @@ import java.time.Duration;
  * Currenty handles any barcode scanner events and electronic scale events from the bagging area.
  * Easily extendable to incorporate PLU codes in future iterations.
  * @author joshuaplosz
+ * @author Michelle Cheung
  *
  */
 public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver {
