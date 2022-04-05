@@ -91,13 +91,24 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * when something is turned on/off.
      */
     public void startSystem(){
+        this.notifyObservers(observer -> observer.GUIStartup());
+
         this.banknoteHandler = new BanknoteHandler(this);
+        this.banknoteHandler.enableHardware();
+
         this.cardHandler = new CardHandler(this);
+        this.cardHandler.enableHardware();
+
         this.coinHandler = new CoinHandler(this);
+        this.coinHandler.enableHardware();
+
         this.processItemHandler = new ProcessItemHandler(this);
+        this.processItemHandler.enableHardware();
 
         this.checkout = new Checkout(this);
+
         this.receipt = new Receipt(this);
+        this.receipt.enableHardware();
     }
 
     /**
@@ -106,26 +117,28 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * when something is turned off.
      */
     public void stopSystem(){
+        this.notifyObservers(observer -> observer.GUIShutdown());
 
         this.banknoteHandler.detatchAll();
+        this.banknoteHandler.disableHardware();
         this.banknoteHandler = null;
 
         this.cardHandler.detatchAll();
+        this.cardHandler.disableHardware();
         this.cardHandler = null;
 
         this.coinHandler.detatchAll();
+        this.coinHandler.disableHardware();
         this.coinHandler = null;
-
+        
         this.processItemHandler.detatchAll();
+        this.processItemHandler.disableHardware();
         this.processItemHandler = null;
 
         this.checkout = null;
 
-        this.processItemHandler.detatchAll();
+        this.receipt.detatchAll();
+        this.receipt.disableHardware();
         this.receipt = null;
-    }
-
-    public void notifyBlockTouchScreen() {
-        //TODO
     }
 }

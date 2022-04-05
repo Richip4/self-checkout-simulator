@@ -29,7 +29,6 @@ import software.observers.SupervisionObserver;
 public class SupervisionSoftware extends Software<SupervisionObserver> {
     private final SupervisionStation svs;
     private Attendant attendant; // TODO: Expecting a Attendant class in the
-    private CredentialsSystem creds;
     
     private boolean logged_in;
     // private Attendant attendant; // TODO: Expecting a Attendant class in the
@@ -77,13 +76,13 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * @return T/F whether we've logged in successfully
 	 */
 	public boolean login() {
-		notifyAttendantLogin();	//hopefully calls the GUI to enter login
+		this.notifyObservers(observer -> observer.loginRequired());	
 		
 		//the above has to be completed.
 		String username = attendant.getUsername();
 		String password = attendant.getPassword();
 		
-		if(creds.checkLogin(username, password)) {
+		if(CredentialsSystem.checkLogin(username, password)) {
 			this.logged_in = true;
 			return true;
 		}else 
@@ -96,6 +95,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 */
 	public boolean logout() {
 		this.logged_in = false;
+		this.notifyObservers(observer -> observer.logoutSuccessful());	
 		return true;
 	}
 
@@ -146,7 +146,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 */
 	public boolean blockStation(SelfCheckoutSoftware scss){
 		if (logged_in){
-			scss.notifyBlockTouchScreen();
+			this.notifyObservers(observer -> observer.touchScreenBlock());	
 			scss.getSelfCheckoutStation().mainScanner.disable();
 			scss.getSelfCheckoutStation().handheldScanner.disable();
 
@@ -155,15 +155,12 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
 			scss.getSelfCheckoutStation().cardReader.disable();
 			
+			this.notifyObservers(observer -> observer.stationBlockSuccessful());
 			return true;
 		}else{
 			login();
 			return false;
 		}
-	}
-
-	private void notifyAttendantLogin(){
-
 	}
 
 }

@@ -16,7 +16,6 @@ public class Customer extends User {
 	private List<Product> cart = new ArrayList<Product>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
-	private boolean removeLastAddedItem;
 	private String memberID;
 
 	public void addCurrency(BigDecimal value) {

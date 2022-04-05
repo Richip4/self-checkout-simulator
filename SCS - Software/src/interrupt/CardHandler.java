@@ -45,6 +45,22 @@ public class CardHandler extends Handler implements CardReaderObserver {
 		this.scs.cardReader.detach(this);
 	}
 
+	/**
+	 * Used to enable all the associated hardware.
+	 */
+	public void enableHardware(){
+		this.scs.cardReader.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware.
+	 */
+	public void disableHardware(){
+		this.scs.cardReader.disable();
+	}
+
+	
+
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// we don't have to do anything when the device is enabled
@@ -118,7 +134,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				return;
 			}
 
-			this.customer.promptCustomerForMemberID(memberID);
+			this.customer.getMemberID();
 
 			this.scss.notifyObservers(observer -> observer.membershipCardDetected(memberID));
 		} else if (type.equals("debit") || type.equals("credit")) {

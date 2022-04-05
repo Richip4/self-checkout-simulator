@@ -80,6 +80,26 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scs.handheldScanner.detach(this);
 	}
 
+	/**
+	 * Used to enable all the associated hardware in a single function.
+	 */
+	public void enableHardware(){
+		this.scs.mainScanner.enable();
+        this.scs.handheldScanner.enable();
+        this.scs.scanningArea.enable();
+        this.scs.baggingArea.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware(){
+		this.scs.mainScanner.disable();
+        this.scs.handheldScanner.disable();
+        this.scs.scanningArea.disable();
+        this.scs.baggingArea.disable();
+	}
+
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// do nothing when barcode scanner or electronic scale is enabled

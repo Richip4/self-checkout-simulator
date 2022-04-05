@@ -42,4 +42,7 @@ public interface SelfCheckoutObserver extends Observer {
     public Void paymentPostingTransactionFailed();
 
     public Void paymentCompleted();
+
+    public Void GUIStartup();
+    public Void GUIShutdown();
 }

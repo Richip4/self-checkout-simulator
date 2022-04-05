@@ -83,6 +83,26 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	}
 
 	/**
+	 * Used to enable all the associated hardware in a single function.
+	 */
+	public void enableHardware(){
+		this.scs.banknoteInput.enable();
+        this.scs.banknoteOutput.enable();
+        this.scs.banknoteStorage.enable();
+        this.scs.banknoteValidator.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware(){
+		this.scs.banknoteInput.disable();
+        this.scs.banknoteOutput.disable();
+        this.scs.banknoteStorage.disable();
+        this.scs.banknoteValidator.disable();
+	}
+
+	/**
 	 * Check each banknote related device to determine which device to handle
 	 * enable.
 	 * 

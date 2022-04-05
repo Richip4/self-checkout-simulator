@@ -50,6 +50,21 @@ public class Receipt implements ReceiptPrinterObserver {
 	}
 
 	/**
+	 * Used to enable all the associated hardware.
+	 */
+	public void enableHardware(){
+		this.scs.printer.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware.
+	 */
+	public void disableHardware(){
+		this.scs.printer.disable();
+	}
+	
+
+	/**
 	 * Method that iterates through each item in the customer's cart, printing out a
 	 * receipt
 	 * including the description and price of each item, as well as a subtotal at

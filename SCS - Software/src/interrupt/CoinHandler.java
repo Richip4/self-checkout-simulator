@@ -78,6 +78,26 @@ public class CoinHandler extends Handler
 		this.scs.coinStorage.detach(this);
 	}
 
+	/**
+	 * Used to enable all the associated hardware in a single function.
+	 */
+	public void enableHardware(){
+		this.scs.coinSlot.enable();
+        this.scs.coinTray.enable();
+        this.scs.coinStorage.enable();
+        this.scs.coinValidator.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware(){
+		this.scs.coinSlot.disable();
+        this.scs.coinTray.disable();
+        this.scs.coinStorage.disable();
+        this.scs.coinValidator.disable();
+	}
+
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 	}
