@@ -66,7 +66,7 @@ public class ProcessItemHandlerTest {
     @Before
     public void setup() {
     	inventory = new Inventory();
-    	inventory.addToInventory(barcode, product, item);
+    	inventory.addProduct(barcode, product, item);
     	handler = new ProcessItemHandler(selfCheckoutStation, inventory);
     	customer = new Customer();
     	System.setIn(new ByteArrayInputStream("no\n".getBytes()));
@@ -90,22 +90,22 @@ public class ProcessItemHandlerTest {
     @Test
     public void barcodeScannedInInvTest() {
     	
-    	assertTrue(customer.getBarcodedItemsInCart().isEmpty());
+    	assertTrue(customer.getCart().isEmpty());
     	
         handler.barcodeScanned(selfCheckoutStation.mainScanner, barcode);
         
-        ArrayList<Barcode> items = customer.getBarcodedItemsInCart();
+        ArrayList<Barcode> items = customer.getCart();
         assertTrue("Item scanned does not match barcode inputted", barcode.equals(items.get(0)));
     }
     
     @Test
     public void barcodeScannedInNotInvTest() {
     	
-    	assertTrue(customer.getBarcodedItemsInCart().isEmpty());
+    	assertTrue(customer.getCart().isEmpty());
     	
         handler.barcodeScanned(selfCheckoutStation.mainScanner, barcode2);
         
-        ArrayList<Barcode> items = customer.getBarcodedItemsInCart();
+        ArrayList<Barcode> items = customer.getCart();
         assertTrue("Item scanned does not match barcode inputted", items.isEmpty());
     }
 
@@ -140,7 +140,7 @@ public class ProcessItemHandlerTest {
 
     @Test
     public void weightChangedOverload() {
-    	inventory.addToInventory(barcode3, product3, item3);
+    	inventory.addProduct(barcode3, product3, item3);
     	
         handler.barcodeScanned(selfCheckoutStation.mainScanner, barcode);
         selfCheckoutStation.baggingArea.add(item); 
