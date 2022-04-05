@@ -26,7 +26,6 @@ public class CardHandler implements CardReaderObserver {
     private Membership members;
     private Customer customer;
 	private BigDecimal giftCardValue;
-	public boolean test;
 
     private boolean isMember;
 
