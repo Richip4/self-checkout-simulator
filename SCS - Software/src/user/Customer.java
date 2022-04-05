@@ -10,11 +10,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
 
 public class Customer extends User {
 
 	// in place of a cart class the cart is a list Products
 	private List<Product> cart = new ArrayList<Product>();
+	private HashMap<Product, Double> PLUcodedItemsWithWeight ; 
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
@@ -42,9 +44,10 @@ public class Customer extends User {
 	 * Then it could proceed normally as if it was another PLU coded item.
 	 * Both the customer and attendant would be using this method
 	 */
-	public void lookupProduct(PriceLookupCode plu) {
-		if (Inventory.getProduct(plu) != null) { 
+	public void lookupProduct(PriceLookupCode plu, double weightInGrams) {
+		if (Inventory.getProduct(plu) != null && weightInGrams > 0) { 
 			addToCart(Inventory.getProduct(plu));
+			PLUcodedItemsWithWeight.put(Inventory.getProduct(plu), weightInGrams);
 		} else {
 			// TODO Display an error on the GUI that the product is invalid
 		}
@@ -58,7 +61,12 @@ public class Customer extends User {
 		BigDecimal subtotal = BigDecimal.ZERO;
 
 		for (Product product : this.cart) {
+			if(product.isPerUnit()){
 			subtotal = subtotal.add(product.getPrice());
+			}
+			else{ //it is by the kilo
+				subtotal = subtotal.add(product.getPrice() * new BigDecimal(PLUcodedItemsWithWeight.get(product)));
+			}
 		}
 
 		return subtotal;
