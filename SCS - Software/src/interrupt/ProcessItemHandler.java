@@ -64,8 +64,6 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.waitingForBagging = false;
 		this.scaleResetWeight = 0.0;
 		this.scaleOverloaded = false;
-		this.ownBagsUsed = false;
-		this.ownBagWeight = 0;
 	}
 
 	@Override
