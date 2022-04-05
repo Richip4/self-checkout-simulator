@@ -46,11 +46,8 @@ public class CoinHandler extends Handler
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		this.scs.coinTray.attach(this);
-		this.scs.coinSlot.attach(this);
-		this.scs.coinValidator.attach(this);
-		this.scs.coinStorage.attach(this);
-		this.scs.coinDispensers.forEach((k, v) -> v.attach(this));
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	// Set this.customer
@@ -65,6 +62,15 @@ public class CoinHandler extends Handler
 	// Get this.customer
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	// Attach all the hardware
+	public void attachAll() {
+		this.scs.coinTray.attach(this);
+		this.scs.coinSlot.attach(this);
+		this.scs.coinValidator.attach(this);
+		this.scs.coinStorage.attach(this);
+		this.scs.coinDispensers.forEach((k, v) -> v.attach(this));
 	}
 
 	/**

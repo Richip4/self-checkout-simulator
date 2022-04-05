@@ -30,11 +30,17 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	public CardHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
-		this.scs.cardReader.attach(this);
+
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+	}
+
+	public void attachAll() {
+		this.scs.cardReader.attach(this);
 	}
 
 	/**
