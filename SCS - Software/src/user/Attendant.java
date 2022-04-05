@@ -1,6 +1,7 @@
 package user;
 
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
@@ -29,6 +30,16 @@ public class Attendant extends User {
 		}
 		else {}//TODO Display an error on the GUI that the product is invalid
 		
+	}
+	
+	// TODO refactor these so they are in the GUI?
+	public void unloadBanknoteStorage(SelfCheckoutStation scs) {
+		scs.banknoteStorage.unload();
+	}
+	
+	// TODO refactor these so they are in the GUI?
+	public void unloadCoinStorage(SelfCheckoutStation scs) {
+		scs.coinStorage.unload();
 	}
 
 }
