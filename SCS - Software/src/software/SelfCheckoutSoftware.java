@@ -35,14 +35,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
-
-        this.banknoteHandler = new BanknoteHandler(this);
-        this.cardHandler = new CardHandler(this);
-        this.coinHandler = new CoinHandler(this);
-        this.processItemHandler = new ProcessItemHandler(this);
         
-        this.checkout = new Checkout(this);
-        this.receipt = new Receipt(this);
+        this.startSystem();
     }
 
     public void setCustomer(Customer customer) {
