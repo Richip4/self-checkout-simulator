@@ -25,8 +25,8 @@ import java.time.Duration;
  * @author joshuaplosz
  *
  */
-public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver, KeyboardObserver {
-	SupervisionStation svs = new SupervisionStation();
+public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver {
+	SupervisionStation svs;
 	SelfCheckoutStation scs;
 	private String command;
 	private boolean overridden = false;
@@ -46,7 +46,7 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	public ProcessItemHandler(SelfCheckoutStation scs, Inventory inv) {
 		this.scs = scs;
 		this.inv = inv;
-		
+		this.svs = new SupervisionStation();
 		// Attach both scanners
 		scs.mainScanner.attach(this);
 		scs.handheldScanner.attach(this);
@@ -174,20 +174,19 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 				
 				else if(unexpectedItem) {
 					svs.add(scs);
-					while(!overridden) {	// keep asking until unexpected item is overridden
-						String cmd = Attendant.promptForInput();
-						svs.keyboard.type("cmd");
-					}
-					unexpectedItem = false;					// ignore unexpected item, it was overridden
-					weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
-					customer.removeUnexpectedItemInBaggingArea();
+					if(Attendant.promptForInput()){
+						unexpectedItem = false;					// ignore unexpected item, it was overridden
+						weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
+						customer.removeUnexpectedItemInBaggingArea();
+						
+				}
+					svs.remove(scs);
 				}
 			} catch (OverloadException e) {
 				
 			}
 		}
 	}
-
 	@Override
 	public void overload(ElectronicScale scale) {
 
@@ -223,13 +222,5 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 		return weightBeforeBagging;
 	}
 
-	@Override
-	public void keyPressed(Keyboard k, char c) {
-		command = command + c;
-		if (command == "accept") {		// idk what command to accept should be, "accept" for now
-			overridden = true;
-			command = "";
-		}
-	}
 
 }
