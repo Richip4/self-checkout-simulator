@@ -133,7 +133,7 @@ public class CoinHandler extends Handler
 	public void coinsFull(CoinStorageUnit unit) {
 		this.scs.coinSlot.disable();
 		SupervisionSoftware svs = scss.getSupervisionSoftware();
-		svs.notifyCoinStorageFull(scs);
+		svs.notifyObservers(observer -> observer.coinStorageFull(scss));
 	}
 
 	// if coin dispenser is full & coin is valid;

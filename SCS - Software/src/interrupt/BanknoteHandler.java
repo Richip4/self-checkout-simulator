@@ -149,7 +149,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	public void banknotesFull(BanknoteStorageUnit unit) {
 		this.scs.banknoteInput.disable();
 		SupervisionSoftware svs = scss.getSupervisionSoftware();
-		svs.notifyBanknoteStorageFull(scs);
+		svs.notifyObservers(observer -> observer.banknoteStorageFull(scss));
 	}
 
 	/**

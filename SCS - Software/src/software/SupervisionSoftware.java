@@ -57,19 +57,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
         return this.softwareList;
     }
     
-    public void notifyBanknoteStorageFull(SelfCheckoutStation scs) {
-    	//GUI method that notifies the supervision station screen that the banknote storage
-    	// in the given scs is full, attendant will see the message and interact with
-    	// the selfcheckout station via the GUI to notify that they have loaded or unloaded
-    	// we would need to call on the hardware methods in the GUI to simulate this
-    }
     
-    public void notifyCoinStorageFull(SelfCheckoutStation scs) {
-    	//GUI method that notifies the supervision station screen that the coin storage
-    	// in the given scs is full, attendant will see the message and interact with
-    	// the selfcheckout station via the GUI to notify that they have loaded or unloaded
-    	// we would need to call on the hardware methods in the GUI to simulate this
-    }
 
 }
 

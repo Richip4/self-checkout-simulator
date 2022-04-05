@@ -32,14 +32,4 @@ public class Attendant extends User {
 		
 	}
 	
-	// TODO refactor these so they are in the GUI?
-	public void unloadBanknoteStorage(SelfCheckoutStation scs) {
-		scs.banknoteStorage.unload();
-	}
-	
-	// TODO refactor these so they are in the GUI?
-	public void unloadCoinStorage(SelfCheckoutStation scs) {
-		scs.coinStorage.unload();
-	}
-
 }
