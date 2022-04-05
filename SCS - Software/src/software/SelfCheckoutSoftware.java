@@ -8,6 +8,7 @@ import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
+import software.observers.SelfCheckoutObserver;
 import user.Customer;
 
 /**
@@ -19,7 +20,7 @@ import user.Customer;
  * 
  * @author Yunfan Yang
  */
-public class SelfCheckoutSoftware extends Software {
+public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
@@ -78,9 +79,5 @@ public class SelfCheckoutSoftware extends Software {
 
     public SupervisionSoftware getSupervisionSoftware() {
         return this.svs;
-    }
-
-    public void notifyBanknoteEjected() {
-        this.checkout.makeChange();
     }
 }

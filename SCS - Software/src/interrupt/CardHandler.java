@@ -90,7 +90,9 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	@Override
 	public void cardSwiped(CardReader reader) {
 		scs.cardReader.disable();
-		isSwipe = true;
+
+		this.isSwipe = true;
+
 		// notify the customer that the card has been swiped.
 		// wait for cardDataRead to finish running before allowing more taps.
 		scs.cardReader.enable();
@@ -126,7 +128,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 					}
 				}
 			} else {
-				customer.notifyCustomerToTryCardAgain();
+				this.scss.notifyObservers(observer -> observer.invalidMembershipCardDetected());
 			}
 
 		} else if (type.equals("debit") || type.equals("credit")) {
@@ -145,14 +147,14 @@ public class CardHandler extends Handler implements CardReaderObserver {
 			
 			// if (transactionStatus) {
 				// 	total = BigDecimal.ZERO;
-				// 	customer.notifyCustomerTransactionSuccessful();
+				//  this.scss.notifyObservers(observer -> observer.cardTransactionSucceed());
 				// } else
 				// 	customer.notifyCustomerToTryCardAgain();
 
 
 			// FIXME: Bank transaction needs to be implemented first.
 		} else {
-			customer.notifyCustomerInvalidCardType();
+			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
 
 		// Variables will be reset after when the next customer is binded.
