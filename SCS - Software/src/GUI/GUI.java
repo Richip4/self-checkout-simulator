@@ -45,15 +45,119 @@ public class GUI {
 		}
 	}
 	
-	public void userLeavesStation(int station) {
-		
-	}
-	
 	// main for testing GUI
 	public static void main(String[] args) {
 		new GUI(new AppControl());
 	}
 	
+	public void userLeavesStation(int station) {
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			ac.customerLeavesStation(station);
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			ac.attendantLeavesStation(station);
+		}
+	}
+
+	//
+	public void userBagsItem(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userInsertsBanknote(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userRemovesBanknote(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userServicesStation(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userInsertsCoin(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+	
+	public void userRemovesCoins(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userPlacesItemOnWeighScale(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userScansItem(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userRemovesReceipt(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userAccessCardReader(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
+	public void userAccessTouchscreen(int currentStation) {
+		// TODO Auto-generated method stub
+		if (ac.getActiveUser().getType() == AppControl.CUSTOMER) {
+			
+		} else if (ac.getActiveUser().getType() == AppControl.ATTENDANT) {
+			
+		}
+	}
+
 	private static void errorMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}

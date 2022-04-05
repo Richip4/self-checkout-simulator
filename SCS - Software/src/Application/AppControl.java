@@ -23,14 +23,12 @@ public class AppControl {
 	public static final int ATTENDANT = 2;
 	public static final int BOTH = 3;
 	
-
-	
 	// the types of user currently at each 
 	// station. Index matches stations number
 	private int[] stationsUserType;
 	
 	// list of people visiting the stations
-	private List<User> users;
+	private List<User> users = new ArrayList<>();
 	private User activeUser;
 	
 	public AppControl() {
@@ -85,7 +83,6 @@ public class AppControl {
 	 */
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
-		
 	}
 	
 	/**
@@ -93,16 +90,19 @@ public class AppControl {
 	 * @param station - specific stations index
 	 */
 	public void attendantUsesStation(int station) {
-		
+		addStationUserType(station, ATTENDANT);
 	}
 	
-	public void userLeavesStation(int station) {
-		
+	public void customerLeavesStation(int station) {
+		removeStationUserType(station, CUSTOMER);
+	}
+	
+	public void attendantLeavesStation(int station) {
+		removeStationUserType(station, ATTENDANT);
 	}
 	
 	/**
-	 * Figures out a stations new type based on it's 
-	 * previous state.
+	 * update stations new type based on it's previous state
 	 * Stations can have one of four combiniations of users:
 	 * 		- no users
 	 * 		- just a customer
@@ -121,6 +121,17 @@ public class AppControl {
 		
 	}
 	
+	/**
+	 * update stations new type based on it's previous state
+	 * Stations can have one of four combiniations of users:
+	 * 		- no users
+	 * 		- just a customer
+	 * 		- just an attendant
+	 * 		- or both a customer and attendant
+	 * 
+	 * @param station - specific stations index
+	 * @param user - type of user approaching the station
+	 */
 	private void removeStationUserType(int station, int user) {
 		if (stationsUserType[station] == CUSTOMER) {
 			if (user == CUSTOMER) stationsUserType[station] = NO_USER;
