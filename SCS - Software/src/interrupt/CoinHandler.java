@@ -29,7 +29,7 @@ import user.Customer;
  *          station.
  *
  */
-public class CoinHandler extends Middleware
+public class CoinHandler extends Handler
 		implements CoinDispenserObserver, CoinSlotObserver, CoinStorageUnitObserver, CoinTrayObserver,
 		CoinValidatorObserver {
 

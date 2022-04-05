@@ -25,7 +25,7 @@ import user.Customer;
  * @author Michelle Cheung
  *
  */
-public class ProcessItemHandler extends Middleware implements BarcodeScannerObserver, ElectronicScaleObserver {
+public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {
 
 	private final SelfCheckoutStation scs;
 	private final SelfCheckoutSoftware scss;
