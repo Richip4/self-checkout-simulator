@@ -13,7 +13,9 @@ import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
 import store.Inventory;
 import store.Store;
+import user.Attendant;
 import user.Customer;
+import user.User;
 
 public class AppControl {
 	
@@ -23,26 +25,49 @@ public class AppControl {
 	public static final int ATTENDANT = 2;
 	public static final int BOTH = 3;
 	
-	// the types of user currently at each 
-	// station. Index matches stations number
-	private int[] stationsUserType;
+	// the attendant station that oversees the self-checkout stations
+	private SupervisionStation supervisor;
+	
+	// list of self-checkout stations
+	private List<SelfCheckoutStation> selfStations;
 	
 	// list of people visiting the stations
 	private List<User> users = new ArrayList<>();
+	
+	// the type of user combination at each station
+	private int[] stationsUserType;
+	
+	// the user we are actively simulating
 	private User activeUser;
 	
-	public AppControl() {
-		stationsUserType = new int[1 + 6]; //Store.getSelfCheckoutStations().size()];
+	public AppControl(SupervisionStation supervisor) {
+		this.supervisor = supervisor;
+		selfStations = supervisor.supervisedStations();
+		stationsUserType = new int[selfStations.size()]; 
 	}
 	
 	/**
-	 * adds another user to the simulation
-	 * @param userType
+	 * add a new customer and set them as the active user
 	 */
-	public void addNewUser(int userType) {
-		// TODO: null user to be replaced with attendant when implemented
-		activeUser = new User((userType == CUSTOMER) ? new Customer() : null); 
-		users.add(activeUser);	
+	public void addNewCustomer() {
+		activeUser = new Customer();
+		users.add(activeUser);
+	}
+
+	/**
+	 * add a new attendant and set them as the active user
+	 */
+	public void addNewAttendant() {
+		activeUser = new Attendant();
+		users.add(activeUser);
+	}
+	
+	/**
+	 * removes a user that left the simulation
+	 * @param u - a User to remove
+	 */
+	public void removeUser(User u) {
+		users.remove(u);
 	}
 	
 	/**
@@ -73,8 +98,12 @@ public class AppControl {
 		return activeUser;
 	}
 	
-	public int getUserAt(int station) {
-		return stationsUserType[station];
+	public User getUserAt(int station) {
+		return users.get(station);
+	}
+	
+	public List<User> getActiveUsers() {
+		return users;
 	}
 	
 	/**
@@ -143,43 +172,6 @@ public class AppControl {
 			} else if (user == ATTENDANT) {
 				stationsUserType[station] = CUSTOMER;
 			}
-		}
-	}
-	
-	/**
-	 * Represents a person whom interacts with 
-	 * with the self-checkout stations.
-	 * @author joshuaplosz
-	 *
-	 */
-	public class User {
-		
-		int station;
-		Customer customer = null;
-		//Attendant attendant = null;  <-- Attendant needs to be implemented yet
-		
-		public User(Customer c) {
-			customer = c;
-		}
-		/*
-		public User(Attendant a) {
-			attendant = a;
-		}
-		*/
-		public int getType() {
-			if (customer != null) {
-				return CUSTOMER;
-			}
-			
-			return ATTENDANT;
-		}
-		
-		public void setStation(int station) {
-			this.station = station;
-		}
-		
-		public int getStation() {
-			return station;
 		}
 	}
 }

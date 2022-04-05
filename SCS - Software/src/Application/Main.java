@@ -54,7 +54,7 @@ public final class Main {
         Main.initializeStore();
         Main.initializeMembership();
         
-        new GUI(new AppControl());
+        new GUI(new AppControl(Tangibles.SUPERVISION_STATION));
     }
 
     private static void initializeCardAndIssuers() {
@@ -219,7 +219,7 @@ public final class Main {
      * 
      * @author Yunfan Yang
      */
-    public class Tangibles {
+    public static class Tangibles {
         public static SupervisionStation SUPERVISION_STATION;
         public static final List<SelfCheckoutStation> SELF_CHECKOUT_STATIONS = new ArrayList<SelfCheckoutStation>();
 

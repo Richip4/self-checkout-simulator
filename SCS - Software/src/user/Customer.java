@@ -3,6 +3,7 @@ package user;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.Product;
 
+import Application.AppControl;
 import store.Inventory;
 
 import java.math.BigDecimal;
@@ -104,6 +105,16 @@ public class Customer extends User {
 
 	public boolean getWaitingToBag() {
 		return waitingToBag;
+	}
+
+	@Override
+	public int getUserType() {
+		return AppControl.CUSTOMER;
+	}
+
+	public void setMemberID(String memberID) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
