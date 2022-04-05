@@ -113,7 +113,7 @@ public final class Main {
     }
 
     private static void initializeStore() {
-        Currency currency = Currency.getInstance("CAD");
+        Currency currency = Configurations.currency;
         int[] banknoteDenominations = { 1, 5, 10, 20, 100 };
         BigDecimal[] coinDenominations = {
                 new BigDecimal("0.01"),
@@ -132,9 +132,9 @@ public final class Main {
         SupervisionSoftware svss = new SupervisionSoftware(svs);
         Store.setSupervisionSoftware(svss);
 
-        // Initialize 6 self-checkout stations
+        // Initialize n self-checkout stations
         // and add them to the supervision station to be supervised
-        for (int t = 0; t < 6; t++) {
+        for (int t = 0; t < Configurations.stations; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
                     coinDenominations, 1000, 2);
 
@@ -240,7 +240,7 @@ public final class Main {
      * @author Yunfan Yang
      *
      */
-    public class Configuration {
+    public class Configurations {
     	public static final Currency currency = Currency.getInstance("CAD");
     	public static final int stations = 6;
     }
