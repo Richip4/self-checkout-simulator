@@ -115,7 +115,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 					}
 				}
 			} else {
-				customer.notifyCustomerToTryCardAgain();
+				this.scss.notifyObservers(observer -> observer.invalidMembershipCardDetected());
 			}
 
 		} else if (type.equals("debit") || type.equals("credit")) {
@@ -140,7 +140,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 			// TODO: Notify success
 		} else {
-			customer.notifyCustomerInvalidCardType();
+			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
 
 		// Variables will be reset after when the next customer is binded.
