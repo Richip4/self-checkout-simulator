@@ -10,7 +10,6 @@ import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
-import org.lsmr.selfcheckout.devices.observers.KeyboardObserver;
 
 import store.Inventory;
 import user.Customer;
@@ -27,8 +26,6 @@ import java.time.Duration;
 public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicScaleObserver {
 	SupervisionStation svs;
 	SelfCheckoutStation scs;
-	private String command;
-	private boolean overridden = false;
 	private Inventory inv;
 	private Customer customer;
 	private double currentItemsWeight = 0.0;
