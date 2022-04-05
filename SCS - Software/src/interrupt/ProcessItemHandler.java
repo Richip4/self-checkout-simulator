@@ -46,12 +46,8 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// Attach both scanners
-		this.scs.mainScanner.attach(this);
-		this.scs.handheldScanner.attach(this);
-
-		// Attach bagging area scale; to get notified
-		this.scs.baggingArea.attach(this);
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	/**
@@ -69,6 +65,16 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scaleOverloaded = false;
 		this.ownBagsUsed = false;
 		this.ownBagWeight = 0;
+	}
+
+
+	public void attachAll() {
+		// Attach both scanners
+		this.scs.mainScanner.attach(this);
+		this.scs.handheldScanner.attach(this);
+
+		// Attach bagging area scale; to get notified
+		this.scs.baggingArea.attach(this);
 	}
 
 	/**

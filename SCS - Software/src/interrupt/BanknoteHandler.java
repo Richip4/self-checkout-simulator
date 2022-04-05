@@ -44,11 +44,8 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// attaches itself as an observer to all related hardware
-		this.scs.banknoteInput.attach(this);
-		this.scs.banknoteOutput.attach(this);
-		this.scs.banknoteValidator.attach(this);
-		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	/**
@@ -60,6 +57,14 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.customer = customer;
 		this.banknoteDetected = false;
 		this.banknoteValue = BigDecimal.ZERO;
+	}
+
+	public void attachAll() {
+		// attaches itself as an observer to all related hardware
+		this.scs.banknoteInput.attach(this);
+		this.scs.banknoteOutput.attach(this);
+		this.scs.banknoteValidator.attach(this);
+		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
 	}
 
 	/**

@@ -28,8 +28,8 @@ public class Receipt implements ReceiptPrinterObserver {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// attach observer
-		this.scs.printer.attach(this);
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	public void setCustomer(Customer customer) {
@@ -39,7 +39,10 @@ public class Receipt implements ReceiptPrinterObserver {
 	public Customer getCustomer() {
 		return this.customer;
 	}
-	
+
+	public void attachAll() {
+		this.scs.printer.attach(this);
+	}
 
 	/**
 	 * Used to reboot/shutdown the software. Detatches the handler so that
