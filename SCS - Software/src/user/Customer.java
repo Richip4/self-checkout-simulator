@@ -18,6 +18,7 @@ public class Customer extends User {
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
+	private String memberID;
 
 	public void addCurrency(BigDecimal value) {
 		accumulatedCurrency = accumulatedCurrency.add(value);
@@ -68,23 +69,13 @@ public class Customer extends User {
 		return Collections.unmodifiableList(this.cart);
 	}
 
-    /**
-     * We prompt the customer for their memberID if they don't want to tap, insert
-     * or swipe.
-     */
-    public String promptCustomerForMemberID(String rawMemberID)
-    {
-        String memberID = "";
-        try
-        {
-            memberID = String.valueOf(Integer.parseInt(rawMemberID));
-        } catch (NumberFormatException e)
-        {
+	public void setMemberID(String memberID) {
+		this.memberID = memberID;
+	}
 
-        }
-
-        return memberID;
-    }
+	public String getMemberID() {
+		return this.memberID.toString();
+	}
 
     /*
      * Asks the customer if they are using their own bags Gets the bags weight in
