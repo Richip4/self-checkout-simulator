@@ -7,8 +7,8 @@ package store.credentials;
  *
  */
 public class Account {
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public Account(String username, String password) {
         this.username = username;
