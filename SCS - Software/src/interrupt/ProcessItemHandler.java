@@ -114,7 +114,7 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	}
 
 	//set and get methods for plastic bags
-	public void setPlacticBags(int numOfPlasticBags)
+	public void setPlasticBags(int numOfPlasticBags)
 	{
 		this.numOfPlasticBags = numOfPlasticBags;
 	}
