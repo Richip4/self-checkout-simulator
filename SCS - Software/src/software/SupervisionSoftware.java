@@ -7,6 +7,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
 import user.Attendant;
+import software.observers.SupervisionObserver;
 
 /**
  * A software for a supervision station.
@@ -17,7 +18,7 @@ import user.Attendant;
  * 
  * @author Yunfan Yang
  */
-public class SupervisionSoftware extends Software {
+public class SupervisionSoftware extends Software<SupervisionObserver> {
     private final SupervisionStation svs;
     // private Attendant attendant; // TODO: Expecting a Attendant class in the
     // future development

@@ -83,9 +83,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		if (device.equals(this.scs.banknoteInput)) {
-			if (this.customer != null) {
-				this.customer.removeBanknoteInputDisabled();
-			}
+			this.scss.notifyObservers(observer -> observer.banknoteInputEnabled());
 		}
 
 		if (device.equals(this.scs.banknoteOutput))
@@ -111,13 +109,15 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		if (device.equals(this.scs.banknoteInput)) {
-			if (customer != null)
-				customer.notifyBanknoteInputDisabled();
+			this.scss.notifyObservers(observer -> observer.banknoteInputDisabled());
 		}
+
 		if (device.equals(this.scs.banknoteOutput))
 			/* Nothing happens when banknote output slot is disabled */ ;
+
 		if (device.equals(this.scs.banknoteValidator))
 			/* Nothing happens when banknote validator is disabled */ ;
+			
 		this.scs.banknoteDispensers.forEach((k, d) -> {
 			if (device.equals(d))
 				/* Nothing happens when banknote dispenser is disabled */ ;
@@ -139,9 +139,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	@Override
 	public void invalidBanknoteDetected(BanknoteValidator validator) {
-		if (this.customer != null) {
-			this.customer.notifyInvalidBanknote();
-		}
+		this.scss.notifyObservers(observer -> observer.invalidBanknoteDetected());
 	}
 
 	/**
@@ -197,7 +195,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	@Override
 	public void banknotesEjected(BanknoteSlot slot) {
-		this.scss.notifyBanknoteEjected();
+		this.scss.notifyObservers(observer -> observer.banknoteEjected());
 	}
 
 	/**
@@ -240,7 +238,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	public void banknotesUnloaded(BanknoteDispenser dispenser, Banknote... banknotes) {
 		// We don't currently do anything with the banknote dispenser
 	}
-
+	
 	public boolean isBanknoteDetected() {
 		return banknoteDetected;
 	}

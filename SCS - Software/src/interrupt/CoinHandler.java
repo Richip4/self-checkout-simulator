@@ -93,7 +93,7 @@ public class CoinHandler extends Handler
 	// when an inserted coin is valid, set coin-detected-is-valid flag to True
 	@Override
 	public void validCoinDetected(CoinValidator validator, BigDecimal value) {
-		if (this.customer != null && this.coinDetected) {
+		if (this.coinDetected) {
 			this.coinDetectedIsValid = true;
 		}
 
@@ -112,8 +112,8 @@ public class CoinHandler extends Handler
 	// invalid
 	@Override
 	public void invalidCoinDetected(CoinValidator validator) {
-		if (this.customer != null && this.coinDetected) {
-			this.customer.notifyInvalidCoin();
+		if (this.coinDetected) {
+			this.scss.notifyObservers(observer -> observer.invalidCoinDetected());
 		}
 
 		this.coinDetectedIsValid = false;
