@@ -67,7 +67,6 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.ownBagWeight = 0;
 	}
 
-
 	public void attachAll() {
 		// Attach both scanners
 		this.scs.mainScanner.attach(this);
@@ -81,7 +80,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 * Used to reboot/shutdown the software. Detatches the handler so that
 	 * we can stop listening or assign a new handler.
 	 */
-	public void detatchAll(){
+	public void detatchAll() {
 		this.scs.mainScanner.detach(this);
 		this.scs.handheldScanner.detach(this);
 	}
@@ -89,21 +88,21 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	/**
 	 * Used to enable all the associated hardware in a single function.
 	 */
-	public void enableHardware(){
+	public void enableHardware() {
 		this.scs.mainScanner.enable();
-        this.scs.handheldScanner.enable();
-        this.scs.scanningArea.enable();
-        this.scs.baggingArea.enable();
+		this.scs.handheldScanner.enable();
+		this.scs.scanningArea.enable();
+		this.scs.baggingArea.enable();
 	}
 
 	/**
 	 * Used to disable all the associated hardware in a single function.
 	 */
-	public void disableHardware(){
+	public void disableHardware() {
 		this.scs.mainScanner.disable();
-        this.scs.handheldScanner.disable();
-        this.scs.scanningArea.disable();
-        this.scs.baggingArea.disable();
+		this.scs.handheldScanner.disable();
+		this.scs.scanningArea.disable();
+		this.scs.baggingArea.disable();
 	}
 
 	@Override
