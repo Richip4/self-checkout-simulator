@@ -175,20 +175,17 @@ public final class Main {
     }
 
     private static void initializeCredentialsSytem() {
-        CredentialsSystem creds = new CredentialsSystem();
-
         String username1 = "Sharjeel";
         String username2 = "Richi";
 
-        String password1 = "password123";
+        String password1 = "1234";
         String password2 = "123password";
 
         Account account1 = new Account(username1, password1);
         Account account2 = new Account(username2, password2);
 
-        creds.addAccount(account1);
-        creds.addAccount(account2);
-
+        CredentialsSystem.addAccount(account1);
+        CredentialsSystem.addAccount(account2);
     }
 
     public static Store getStore() {

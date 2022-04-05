@@ -70,6 +70,15 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.ownBagWeight = 0;
 	}
 
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.mainScanner.detach(this);
+		this.scs.handheldScanner.detach(this);
+	}
+
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// do nothing when barcode scanner or electronic scale is enabled

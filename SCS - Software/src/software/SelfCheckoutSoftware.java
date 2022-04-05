@@ -106,12 +106,22 @@ public class SelfCheckoutSoftware extends Software {
      * when something is turned off.
      */
     public void stopSystem(){
+
+        this.banknoteHandler.detatchAll();
         this.banknoteHandler = null;
+
+        this.cardHandler.detatchAll();
         this.cardHandler = null;
+
+        this.coinHandler.detatchAll();
         this.coinHandler = null;
+
+        this.processItemHandler.detatchAll();
         this.processItemHandler = null;
 
         this.checkout = null;
+
+        this.processItemHandler.detatchAll();
         this.receipt = null;
     }
 

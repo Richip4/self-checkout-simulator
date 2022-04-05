@@ -47,6 +47,14 @@ public class Receipt implements ReceiptPrinterObserver {
 	}
 
 	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.printer.detach(this);
+	}
+
+	/**
 	 * Method that iterates through each item in the customer's cart, printing out a
 	 * receipt
 	 * including the description and price of each item, as well as a subtotal at

@@ -46,11 +46,11 @@ public class CoinHandler extends Handler
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		scs.coinTray.attach(this);
-		scs.coinSlot.attach(this);
-		scs.coinValidator.attach(this);
-		scs.coinStorage.attach(this);
-		scs.coinDispensers.forEach((k, v) -> v.attach(this));
+		this.scs.coinTray.attach(this);
+		this.scs.coinSlot.attach(this);
+		this.scs.coinValidator.attach(this);
+		this.scs.coinStorage.attach(this);
+		this.scs.coinDispensers.forEach((k, v) -> v.attach(this));
 	}
 
 	// Set this.customer
@@ -65,6 +65,17 @@ public class CoinHandler extends Handler
 	// Get this.customer
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.coinTray.detach(this);
+		this.scs.coinSlot.detach(this);
+		this.scs.coinValidator.detach(this);
+		this.scs.coinStorage.detach(this);
 	}
 
 	@Override

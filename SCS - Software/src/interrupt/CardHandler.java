@@ -44,6 +44,14 @@ public class CardHandler extends Handler implements CardReaderObserver {
 		this.isMember = false;
 	}
 
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.cardReader.detach(this);
+	}
+
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// we don't have to do anything when the device is enabled

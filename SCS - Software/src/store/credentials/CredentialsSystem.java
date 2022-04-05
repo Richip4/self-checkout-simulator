@@ -7,28 +7,33 @@ import java.util.List;
 
 public class CredentialsSystem {
 	
-	private final List<Account> ACCOUNTS = new ArrayList<Account>();
+	private static final List<Account> ACCOUNTS = new ArrayList<Account>();
 
-	public boolean addAccount(Account account) {
-		for (Account a : ACCOUNTS){
-			if (a.getUsername().equals(account.getUsername()));
-				return false;
-		}
-		ACCOUNTS.add(account);
-		return true;
+	/**
+	 * Instances of this class are not needed, so the constructor is private.
+	 */
+	private CredentialsSystem(){
+	}
+
+	public static void addAccount(Account account) {
+		for (Account a : ACCOUNTS)
+			if (a.getUsername().equals(account.getUsername()))
+				return;
+		CredentialsSystem.ACCOUNTS.add(account);
 	}
 	
-	public boolean removeAccount(Account account) {
-		for (Account a : ACCOUNTS){
-			if (a.equals(account)){
-				ACCOUNTS.remove(a);
-				return true;
-			}
-		}
-		return false;
+	public static void removeAccount(Account account) {
+		CredentialsSystem.ACCOUNTS.remove(account);
 	}
 	
-	public boolean checkLogin(String username, String password) {
+	/**
+	 * 
+	 * @param username - account username
+	 * @param password - account password
+	 * @return false if check failed; true if the check succeeded. 
+	 */
+	public static boolean checkLogin(String username, String password) {
+
 		Account other = new Account(username, password);
 		for (Account a : ACCOUNTS)
 			if (a.equals(other)) 

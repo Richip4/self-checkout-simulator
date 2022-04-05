@@ -73,6 +73,16 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	}
 
 	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.banknoteInput.detach(this);
+		this.scs.banknoteOutput.detach(this);
+		this.scs.banknoteValidator.detach(this);
+	}
+
+	/**
 	 * Check each banknote related device to determine which device to handle
 	 * enable.
 	 * 
