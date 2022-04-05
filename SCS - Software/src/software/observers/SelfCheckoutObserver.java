@@ -1,5 +1,7 @@
 package software.observers;
 
+import software.SelfCheckoutSoftware;
+
 /**
  * The Observer class for SelfCheckoutSoftware.
  * 
@@ -43,6 +45,7 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void paymentCompleted();
 
-    public Void GUIStartup();
-    public Void GUIShutdown();
+    public Void softwareStarted(SelfCheckoutSoftware scss);
+    
+    public Void softwareStopped(SelfCheckoutSoftware scss);
 }

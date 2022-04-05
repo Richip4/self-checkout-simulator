@@ -85,8 +85,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * when something is turned on/off.
      */
     public void startSystem(){
-        this.notifyObservers(observer -> observer.GUIStartup());
-
         this.banknoteHandler = new BanknoteHandler(this);
         this.banknoteHandler.enableHardware();
 
@@ -103,6 +101,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.receipt = new Receipt(this);
         this.receipt.enableHardware();
+
+        this.notifyObservers(observer -> observer.softwareStarted(this));
     }
 
     /**
@@ -111,8 +111,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * when something is turned off.
      */
     public void stopSystem(){
-        this.notifyObservers(observer -> observer.GUIShutdown());
-
         this.banknoteHandler.detatchAll();
         this.banknoteHandler.disableHardware();
         this.banknoteHandler = null;
@@ -134,5 +132,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.receipt.detatchAll();
         this.receipt.disableHardware();
         this.receipt = null;
+
+        this.notifyObservers(observer -> observer.softwareStopped(this));
     }
 }
