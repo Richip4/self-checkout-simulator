@@ -4,7 +4,9 @@ import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
+import org.lsmr.selfcheckout.external.CardIssuer;
 
+import bank.Bank;
 import software.SelfCheckoutSoftware;
 import store.Membership;
 import user.Customer;
@@ -20,10 +22,6 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;
-
-	private boolean isSwipe; // if swipe is used, there is no CVV
-	private boolean isMember;
-	
 	private Customer customer;
 
 	/*
@@ -33,15 +31,10 @@ public class CardHandler extends Handler implements CardReaderObserver {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 		this.scs.cardReader.attach(this);
-
-		this.isSwipe = false;
-		this.isMember = false;
 	}
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		this.isSwipe = false;
-		this.isMember = false;
 	}
 
 	@Override
@@ -81,22 +74,16 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	 */
 	@Override
 	public void cardTapped(CardReader reader) {
-		scs.cardReader.disable();
 		// notify the customer that the card has been tapped.
 		// wait for cardDataRead to finish running before allowing more taps.
-		scs.cardReader.enable();
 	}
 
 	@Override
 	public void cardSwiped(CardReader reader) {
 		scs.cardReader.disable();
-
-		this.isSwipe = true;
-
 		// notify the customer that the card has been swiped.
 		// wait for cardDataRead to finish running before allowing more taps.
 		scs.cardReader.enable();
-
 	}
 
 	/**
@@ -115,44 +102,37 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 		if (type.equals("membership")) {
 			String memberID = data.getNumber();
-			isMember = Membership.isMember(memberID);
+			boolean isMember = Membership.isMember(memberID);
 
-			if (isMember) {
-				for (char s : memberID.toCharArray()) {
-					try {
-						scs.printer.print(s); // assuming that the printer has ink and paper
-					} catch (EmptyException e) {
-						e.printStackTrace();
-					} catch (OverloadException e) {
-						e.printStackTrace();
-					}
-				}
-			} else {
+			if (!isMember) {
 				this.scss.notifyObservers(observer -> observer.invalidMembershipCardDetected());
+				return;
 			}
 
+			this.customer.setMemberID(memberID);
+
+			this.scss.notifyObservers(observer -> observer.membershipCardDetected(memberID));
 		} else if (type.equals("debit") || type.equals("credit")) {
-			String cardNumbers = data.getNumber();
-			String cardHolder = data.getCardholder();
-			String cvv = null;
+			String cardNumber = data.getNumber();
 
-			// if the card wasn't swiped then we want to get the cvv.
-			if (!this.isSwipe) {
-				cvv = data.getCVV();
+			CardIssuer issuer = Bank.getCardIssuer(cardNumber);
+			int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
+
+			// Fail to hold the authorization
+			if (holdNumber == -1) {
+				this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
+				return;
 			}
 
-			// We then bill the account through the bank and if it's completed (checks to
-			// see if the cardHolder matches)
-			// boolean transactionStatus = Bank.billAccount(cardNumbers, cardHolder, total);
-			
-			// if (transactionStatus) {
-				// 	total = BigDecimal.ZERO;
-				//  this.scss.notifyObservers(observer -> observer.cardTransactionSucceed());
-				// } else
-				// 	customer.notifyCustomerToTryCardAgain();
+			boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
 
+			// Fail to post transaction
+			if (!posted) {
+				this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
+				return;
+			}
 
-			// FIXME: Bank transaction needs to be implemented first.
+			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else {
 			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}

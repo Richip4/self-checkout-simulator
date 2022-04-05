@@ -34,4 +34,12 @@ public interface SelfCheckoutObserver extends Observer {
     public Void cardTransactionSucceeded();
 
     public Void invalidMembershipCardDetected();
+
+    public Void membershipCardDetected(String memberID);
+
+    public Void paymentHoldingAuthorizationFailed();
+
+    public Void paymentPostingTransactionFailed();
+
+    public Void paymentCompleted();
 }
