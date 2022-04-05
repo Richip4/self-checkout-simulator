@@ -6,6 +6,7 @@ import org.lsmr.selfcheckout.devices.BarcodeScanner;
 import org.lsmr.selfcheckout.devices.ElectronicScale;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
@@ -26,11 +27,11 @@ import user.Customer;
  *
  */
 public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {
-
+	SupervisionStation svs;
 	private final SelfCheckoutStation scs;
 	private final SelfCheckoutSoftware scss;
 	private Customer customer;
-
+	
 	private double currentItemsWeight = 0.0;
 	private double weightBeforeBagging; // Weight on scale before most recently scanned item is bagged
 	private boolean unexpectedItem = false;
@@ -45,7 +46,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public ProcessItemHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
-
+		this.svs = new SupervisionStation();
 		// Attach both scanners
 		this.scs.mainScanner.attach(this);
 		this.scs.handheldScanner.attach(this);
@@ -177,6 +178,16 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 				if (weightDiff < discrepancy && weightDiff > -discrepancy) {
 					this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
 					unexpectedItem = false;
+				}
+				else if(unexpectedItem) {
+					svs.add(scs);
+					if(Attendant.promptForInput()){
+						unexpectedItem = false;					// ignore unexpected item, it was overridden
+						weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
+						this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
+						
+				}
+					svs.remove(scs);
 				}
 			} catch (OverloadException e) {
 
