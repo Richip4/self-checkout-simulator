@@ -18,7 +18,7 @@ import user.Customer;
  * @author Tyler Chen
  *
  */
-public class CardHandler extends Handler implements CardReaderObserver {
+public class CardHandler extends Middleware implements CardReaderObserver {
 
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;

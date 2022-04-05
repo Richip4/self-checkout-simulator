@@ -29,7 +29,7 @@ import user.Customer;
  * @author joshuaplosz
  *
  */
-public class BanknoteHandler extends Handler implements BanknoteDispenserObserver, BanknoteSlotObserver,
+public class BanknoteHandler extends Middleware implements BanknoteDispenserObserver, BanknoteSlotObserver,
 		BanknoteStorageUnitObserver, BanknoteValidatorObserver {
 
 	private final SelfCheckoutSoftware scss;

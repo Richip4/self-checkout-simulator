@@ -1,6 +1,6 @@
 package interrupt;
 
-public abstract class Handler {
+public abstract class Middleware {
     public abstract void attachAll();
 
     public abstract void enableHardware();
