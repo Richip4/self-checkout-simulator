@@ -233,4 +233,15 @@ public final class Main {
         private Tangibles() {
         }
     }
+    
+    /**
+     * Just to keep track of some global variables
+     * 
+     * @author Yunfan Yang
+     *
+     */
+    public class Configuration {
+    	public static final Currency currency = Currency.getInstance("CAD");
+    	public static final int stations = 6;
+    }
 }
