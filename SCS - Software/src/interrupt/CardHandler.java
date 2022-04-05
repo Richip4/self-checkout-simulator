@@ -104,20 +104,14 @@ public class CardHandler extends Handler implements CardReaderObserver {
 			String memberID = data.getNumber();
 			boolean isMember = Membership.isMember(memberID);
 
-			if (isMember) {
-				for (char s : memberID.toCharArray()) {
-					try {
-						scs.printer.print(s); // assuming that the printer has ink and paper
-					} catch (EmptyException e) {
-						e.printStackTrace();
-					} catch (OverloadException e) {
-						e.printStackTrace();
-					}
-				}
-			} else {
+			if (!isMember) {
 				this.scss.notifyObservers(observer -> observer.invalidMembershipCardDetected());
+				return;
 			}
 
+			this.customer.setMemberID(memberID);
+
+			this.scss.notifyObservers(observer -> observer.membershipCardDetected(memberID));
 		} else if (type.equals("debit") || type.equals("credit")) {
 			String cardNumber = data.getNumber();
 
@@ -126,7 +120,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 			// Fail to hold the authorization
 			if (holdNumber == -1) {
-				// TODO: Notify observers
+				this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
 				return;
 			}
 
@@ -134,11 +128,11 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 			// Fail to post transaction
 			if (!posted) {
-				// TODO: Notify
+				this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
 				return;
 			}
 
-			// TODO: Notify success
+			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else {
 			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
