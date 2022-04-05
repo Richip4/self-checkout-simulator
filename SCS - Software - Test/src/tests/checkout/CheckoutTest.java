@@ -530,12 +530,12 @@ public class CheckoutTest {
 
         checkout.makeChange(change);
         assertFalse("Change is not completed", checkout.changeComplete());
-        assertTrue("Should be making change", checkout.isMakingChange());
+        assertTrue("Should be making change", checkout.hasPendingChange());
 
         BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
         BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
 
-        assertFalse("Should not be making change", checkout.isMakingChange());
+        assertFalse("Should not be making change", checkout.hasPendingChange());
         assertTrue("Change should be completed", checkout.changeComplete());
 
         BigDecimal sum = BigDecimal.ZERO;
@@ -611,7 +611,7 @@ public class CheckoutTest {
         Customer customer = new Customer();
         customer.addToCart(barcode);
 
-        ArrayList<Barcode> cart = customer.getBarcodedItemsInCart();
+        ArrayList<Barcode> cart = customer.getCart();
         assertEquals("cart should have one item", 1, cart.size());
         assertEquals("cart should have the same item", barcode, cart.get(0));
 
