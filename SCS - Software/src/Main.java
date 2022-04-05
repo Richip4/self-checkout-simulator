@@ -14,6 +14,7 @@ import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -21,6 +22,8 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import bank.Bank;
 import store.Membership;
 import store.Store;
+import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import store.Inventory;
 
 /**
@@ -109,12 +112,21 @@ public final class Main {
                 new BigDecimal("1.00")
         };
 
+        // Initialize supervision station
+        SupervisionStation svs = new SupervisionStation();
+        Tangibles.SUPERVISION_STATION = svs;
+
+        // Create supervision software for this svs
+        // and set it to the store
+        SupervisionSoftware svss = new SupervisionSoftware(svs);
+        Store.setSupervisionSoftware(svss);
+
         // Initialize 6 self-checkout stations
         // and add them to the supervision station to be supervised
         for (int t = 0; t < 6; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
                     coinDenominations, 1000, 2);
-            
+
             // Add ink to the station
             try {
                 station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
@@ -129,7 +141,15 @@ public final class Main {
                 e.printStackTrace();
             }
 
-            Store.addSelfCheckoutStation(station);
+            // Add this station to tangibles, and add this station to the supervision
+            // station
+            Tangibles.SELF_CHECKOUT_STATIONS.add(station);
+            Tangibles.SUPERVISION_STATION.add(station);
+
+            // Create SelfCheckoutSoftware for this station
+            // and add this softeare to supervision software
+            SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
+            Store.addSelfCheckoutSoftware(software);
         }
     }
 
@@ -189,10 +209,13 @@ public final class Main {
      * @author Yunfan Yang
      */
     public class Tangibles {
+        public static SupervisionStation SUPERVISION_STATION;
+        public static final List<SelfCheckoutStation> SELF_CHECKOUT_STATIONS = new ArrayList<SelfCheckoutStation>();
+
         public static final List<Item> ITEMS = new ArrayList<Item>();
         public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
         public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
-        
+
         /**
          * This class is not to be instantiated.
          */
