@@ -13,6 +13,10 @@ public class Customer {
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
+	private boolean ownBagsUsed = false;
+	private double ownBagWeight = 0;
+	private int numOfPlasticBags = 0;
+	private BigDecimal giftCardValue;
 
 	public void addCurrency(BigDecimal value) {
 		accumulatedCurrency = accumulatedCurrency.add(value);
@@ -136,4 +140,41 @@ public class Customer {
 		return waitingToBag;
 	}
 
+	//set and get methods for own bags
+	public void setOwnBagsUsed(boolean ownBagsUsed) {
+		this.ownBagsUsed = ownBagsUsed;
+	}
+
+	public boolean getUseOwnBags() {
+		return ownBagsUsed;
+	}
+
+	public void setOwnBagWeight(double ownBagWeight)
+	{
+		this.ownBagWeight = ownBagWeight;
+	}
+	public double getOwnBagWeight()
+	{
+		return ownBagWeight;
+	}
+
+	//set and get methods for plastic bags
+	public void setPlasticBags(int numOfPlasticBags)
+	{
+		this.numOfPlasticBags = numOfPlasticBags;
+	}
+
+	public int getPlasticBags()
+	{
+		return numOfPlasticBags;
+	}
+
+	//set and get methods for gift card value
+	public BigDecimal getGiftCardValue() {
+		return giftCardValue;
+	}
+
+	public void setGiftCardValue(BigDecimal giftCardValue) {
+		this.giftCardValue = giftCardValue;
+	}
 }

@@ -33,11 +33,6 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	private double scaleResetWeight = 0.0;
 	private boolean scaleOverloaded;
 	private double discrepancy = 0.1;		//Scales have margins of errors, this is how much we allow
-	
-	private boolean ownBagsUsed = false;
-	private double ownBagWeight = 0;
-
-	private int numOfPlasticBags = 0;
 
 	public ProcessItemHandler(SelfCheckoutStation scs, Inventory inv) {
 		this.scs = scs;
@@ -109,20 +104,6 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 		}
 	}
 	
-	public void setownBagsUsed(boolean ownBagsUsed) {
-		this.ownBagsUsed = ownBagsUsed;
-	}
-
-	//set and get methods for plastic bags
-	public void setPlasticBags(int numOfPlasticBags)
-	{
-		this.numOfPlasticBags = numOfPlasticBags;
-	}
-
-	public int getPlasticBags()
-	{
-		return numOfPlasticBags;
-	}
 	/**
 	 * When electronic scale weight change event occurs under normal operation compare
 	 * the weight of the current item scanned and the scales changed weight.  If they 
@@ -138,9 +119,9 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 		
 		
 		// Get the weight of the bag and store it, if the customer has said that they want to use their own bags
-		if (ownBagsUsed) {
-			ownBagWeight = weightInGrams;
-			ownBagsUsed = false;	// reset boolean so this if statement only runs once
+		if (customer.getUseOwnBags()) {
+			customer.setOwnBagWeight(weightInGrams);
+			customer.setOwnBagsUsed(false);	// reset boolean so this if statement only runs once
 			
 			weightBeforeBagging = weightInGrams;	// set the weight before bagging to the weight of the bags on scale
 			
@@ -208,10 +189,6 @@ public class ProcessItemHandler implements BarcodeScannerObserver, ElectronicSca
 	
 	public boolean getUnexpectedItem() {
 		return unexpectedItem;
-	}
-	
-	public boolean getUseOwnBags() {
-		return ownBagsUsed;
 	}
 	
 	public double getWeightBeforeBagging() {

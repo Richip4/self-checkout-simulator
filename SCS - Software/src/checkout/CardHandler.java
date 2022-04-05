@@ -25,7 +25,6 @@ public class CardHandler implements CardReaderObserver {
     private BigDecimal total;
     private Membership members;
     private Customer customer;
-	private BigDecimal giftCardValue;
 
     private boolean isMember;
 
@@ -143,9 +142,9 @@ public class CardHandler implements CardReaderObserver {
 			}else
 				customer.notifyCustomerToTryCardAgain();
 		}else if(type.equals("gift")){
-			if(giftCardValue != null)
+			if(customer.getGiftCardValue() != null)
 			{
-				customer.addCurrency(giftCardValue);
+				customer.addCurrency(customer.getGiftCardValue());
 			}
 			else
 			{
@@ -178,15 +177,4 @@ public class CardHandler implements CardReaderObserver {
     {
         this.customer = customer;
     }
-
-	public BigDecimal getGiftCardValue()
-	{
-		return giftCardValue;
-	}
-	
-	public void setGiftCardValue(BigDecimal giftCardValue)
-	{
-		this.giftCardValue = giftCardValue;
-	}
-
 }
