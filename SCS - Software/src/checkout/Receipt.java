@@ -1,11 +1,6 @@
 package checkout;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
@@ -14,7 +9,6 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
-import store.Inventory;
 import user.Customer;
 
 /**

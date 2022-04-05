@@ -8,8 +8,8 @@ import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
+import software.observers.SelfCheckoutObserver;
 import user.Customer;
-import user.User;
 
 /**
  * A software for a self-checkout station.
@@ -20,7 +20,7 @@ import user.User;
  * 
  * @author Yunfan Yang
  */
-public class SelfCheckoutSoftware extends Software {
+public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
