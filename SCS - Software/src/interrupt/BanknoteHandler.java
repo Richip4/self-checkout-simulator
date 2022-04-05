@@ -13,6 +13,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.*;
 
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import user.Customer;
 
 /**
@@ -149,6 +150,8 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	@Override
 	public void banknotesFull(BanknoteStorageUnit unit) {
 		this.scs.banknoteInput.disable();
+		SupervisionSoftware svs = scss.getSupervisionSoftware();
+		svs.notifyBanknoteStorageFull(scs);
 	}
 
 	/**
