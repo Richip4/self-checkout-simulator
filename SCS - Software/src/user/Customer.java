@@ -20,6 +20,7 @@ public class Customer extends User {
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
+	private double weightDiff;
 
 	public void addCurrency(BigDecimal value) {
 		accumulatedCurrency = accumulatedCurrency.add(value);
@@ -44,10 +45,10 @@ public class Customer extends User {
 	 * Then it could proceed normally as if it was another PLU coded item.
 	 * Both the customer and attendant would be using this method
 	 */
-	public void lookupProduct(PriceLookupCode plu, double weightInGrams) {
-		if (Inventory.getProduct(plu) != null && weightInGrams > 0) { 
+	public void lookupProduct(PriceLookupCode plu) {
+		if (Inventory.getProduct(plu) != null) { 
 			addToCart(Inventory.getProduct(plu));
-			PLUcodedItemsWithWeight.put(Inventory.getProduct(plu), weightInGrams);
+			PLUcodedItemsWithWeight.put(Inventory.getProduct(plu), getWeightDiff());
 		} else {
 			// TODO Display an error on the GUI that the product is invalid
 		}
@@ -74,6 +75,14 @@ public class Customer extends User {
 
 	public List<Product> getCart() {
 		return Collections.unmodifiableList(this.cart);
+	}
+
+	public void setWeightDiff(double weightDiff){
+		this.weightDiff = weightDiff;
+	}
+
+	public double getWeightDiff(){
+		return weightDiff;
 	}
 
 	// following methods are to be implemented with the customer UI

@@ -159,6 +159,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 																			// positive
 				currentItemsWeight = 0.0;
 				customer.removePlaceInBaggingArea();
+				customer.setWeightDiff(weightDiff);
 				waitingForBagging = false;
 
 				this.scs.mainScanner.enable();
