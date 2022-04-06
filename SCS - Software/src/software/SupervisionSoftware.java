@@ -35,7 +35,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
     private Attendant attendant;
     private boolean logged_in;
     private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
-    private Attendant attendant;
+
     
     public SupervisionSoftware(SupervisionStation svs) {
         this.svs = svs;
@@ -47,9 +47,6 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
         return this.svs;
     }
     
-    public void setAttendant(Attendant attendant) {
-    	this.attendant = attendant;
-    }
     
     public Attendant getAttendant() {
     	return this.attendant;
