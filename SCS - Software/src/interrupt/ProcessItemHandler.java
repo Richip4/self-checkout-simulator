@@ -129,27 +129,30 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		Product product = Inventory.getProduct(barcode);
 
-		if (product != null) {
-			this.scs.mainScanner.disable();
-			this.scs.handheldScanner.disable();
-
-			if (product instanceof BarcodedProduct) {
-				BarcodedProduct barcodedProduct = (BarcodedProduct) product;
-				this.currentItemsWeight = barcodedProduct.getExpectedWeight();
-			} else {
-				this.currentItemsWeight = 0.0;
-			}
-
-			try {
-				this.weightBeforeBagging = this.scs.baggingArea.getCurrentWeight();
-			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
-			}
-
-			this.customer.addToCart(product);
-			this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
-			this.waitingForBagging = true;
+		if (product == null) {
+			this.scss.notifyObservers(observer -> observer.productCannotFound());
+			return;
 		}
+
+		this.scs.mainScanner.disable();
+		this.scs.handheldScanner.disable();
+
+		if (product instanceof BarcodedProduct) {
+			BarcodedProduct barcodedProduct = (BarcodedProduct) product;
+			this.currentItemsWeight = barcodedProduct.getExpectedWeight();
+		} else {
+			this.currentItemsWeight = 0.0;
+		}
+
+		try {
+			this.weightBeforeBagging = this.scs.baggingArea.getCurrentWeight();
+		} catch (OverloadException e) {
+			// TODO Auto-generated catch block
+		}
+
+		this.customer.addToCart(product);
+		this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
+		this.waitingForBagging = true;
 	}
 
 	public void setownBagsUsed(boolean ownBagsUsed) {
@@ -221,15 +224,13 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	@Override
 	public void overload(ElectronicScale scale) {
 		this.scaleOverloaded = true;
-		this.scs.mainScanner.disable();
-		this.scs.handheldScanner.disable();
+		this.scss.blockSystem();
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
 		this.scaleOverloaded = false;
-		this.scs.mainScanner.enable();
-		this.scs.handheldScanner.enable();
+		this.scss.blockSystem();
 	}
 
 	/*

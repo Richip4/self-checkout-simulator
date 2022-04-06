@@ -20,7 +20,6 @@ import application.Main.Configurations;
  *
  */
 public class Receipt implements ReceiptPrinterObserver {
-	// declaration of variables used to access methods in control software/hardware
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;
 	private Customer customer;
@@ -146,7 +145,9 @@ public class Receipt implements ReceiptPrinterObserver {
 	public void outOfPaper(ReceiptPrinter printer) {
 		// disable the receipt printer
 		scs.printer.disable();
-		// future implementation: announce that machine has run out of paper
+
+		// announce that machine has run out of paper
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterOutOfPaper(this.scss));
 	}
 
 	/**
@@ -159,7 +160,9 @@ public class Receipt implements ReceiptPrinterObserver {
 	public void outOfInk(ReceiptPrinter printer) {
 		// disable the receipt printer
 		scs.printer.disable();
-		// future implementation: announce that machine has run out of ink
+
+		// announce that machine has run out of ink
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterOutOfInk(this.scss));
 	}
 
 	@Override

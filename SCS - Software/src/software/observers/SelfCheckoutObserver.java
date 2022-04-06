@@ -13,25 +13,26 @@ import software.SelfCheckoutSoftware;
  * @author Yunfan Yang
  */
 public interface SelfCheckoutObserver extends Observer {
-    public Void banknoteEjected();
-
-    public Void banknoteInputEnabled();
-
-    public Void banknoteInputDisabled();
-    
-    public Void invalidCardTypeDetected();
-    
-    public Void invalidCoinDetected();
-    
+    // Banknote Handler
     public Void invalidBanknoteDetected();
 
-    public Void placeInBaggingAreaBlocked();
+    public Void banknoteAdded();
 
-    public Void placeInBaggingAreaUnblocked();
+    public Void banknoteStorageFull();
 
-    public Void unexpectedItemInBaggingAreaDetected();
+    public Void banknoteDispenserEmpty();
 
-    public Void unexpectedItemInBaggingAreaRemoved();
+    // Coin Handler
+    public Void invalidCoinDetected();
+
+    public Void coinAdded();
+
+    public Void coinStorageFull();
+
+    public Void coinDispenserEmpty();
+    
+    // Card Handler
+    public Void invalidCardTypeDetected();
 
     public Void cardTransactionSucceeded();
 
@@ -45,11 +46,24 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void paymentCompleted();
 
+    // Process Item Handler
+    public Void placeInBaggingAreaBlocked();
+
+    public Void placeInBaggingAreaUnblocked();
+
+    public Void unexpectedItemInBaggingAreaDetected();
+
+    public Void unexpectedItemInBaggingAreaRemoved();
+
+    public Void productCannotFound();
+
+    // Self-Checkout Software 
+
     public Void softwareStarted(SelfCheckoutSoftware scss);
     
     public Void softwareStopped(SelfCheckoutSoftware scss);
 
     public Void touchScreenBlocked();
-    
+
     public Void touchScreenUnblocked();
 }
