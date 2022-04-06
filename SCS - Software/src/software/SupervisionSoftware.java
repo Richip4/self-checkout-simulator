@@ -146,11 +146,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 */
 	public boolean blockStation(SelfCheckoutSoftware scss){
 		if (logged_in){
-			this.notifyObservers(observer -> observer.touchScreenBlock());
-			
 			scss.disableHardware();
-			
-			this.notifyObservers(observer -> observer.stationBlockSuccessful());
+			scss.notifyObservers(observer -> observer.touchScreenBlocked());
 			return true;
 		}else{
 			login();
