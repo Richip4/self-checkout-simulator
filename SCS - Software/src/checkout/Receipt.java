@@ -10,6 +10,7 @@ import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
 import user.Customer;
+import application.Main.Configurations;
 
 /**
  * Handles receipt printing for a customer once the customer has finished
@@ -111,7 +112,7 @@ public class Receipt implements ReceiptPrinterObserver {
 				itemDescription = pluCodedProduct.getDescription();
 			}
 
-			String line = itemDescription + " $" + currentPrice;
+			String line = itemDescription + " " + Configurations.currency.getSymbol() + currentPrice;
 			this.printLine(line);
 		}
 
@@ -119,7 +120,7 @@ public class Receipt implements ReceiptPrinterObserver {
 		// subtotal header at the bottom
 		// st is used to print out the Subtotal header at the bottom of the receipt
 		BigDecimal subtotal = this.customer.getCartSubtotal();
-		String st = "Subtotal: $" + subtotal.toString();
+		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal.toString();
 		this.printLine(st);
 
 		// cut the receipt so that the customer can easily remove it

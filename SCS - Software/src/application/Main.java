@@ -1,3 +1,4 @@
+package application;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,11 +91,15 @@ public final class Main {
     private static void initializeProductDatabase() {
         Inventory.clear();
 
-        PriceLookupCode plu = new PriceLookupCode("PLU");
+        PriceLookupCode plu = new PriceLookupCode("4055");
         PLUCodedProduct p1 = new PLUCodedProduct(plu, "Corn", new BigDecimal("2.00"));
         Inventory.addProduct(p1);
 
-        Numeral[] nums = new Numeral[10];
+        Numeral[] nums = new Numeral[4];
+        nums[0] = Numeral.two;
+        nums[1] = Numeral.five;
+        nums[2] = Numeral.six;
+        nums[3] = Numeral.one;
         Barcode bar = new Barcode(nums);
         BarcodedProduct p2 = new BarcodedProduct(bar, "Coffee", new BigDecimal("6.20"), 15.0);
         Inventory.addProduct(p2);
@@ -114,7 +119,7 @@ public final class Main {
     }
 
     private static void initializeStore() {
-        Currency currency = Currency.getInstance("CAD");
+        Currency currency = Configurations.currency;
         int[] banknoteDenominations = { 1, 5, 10, 20, 100 };
         BigDecimal[] coinDenominations = {
                 new BigDecimal("0.01"),
@@ -133,9 +138,9 @@ public final class Main {
         SupervisionSoftware svss = new SupervisionSoftware(svs);
         Store.setSupervisionSoftware(svss);
 
-        // Initialize 6 self-checkout stations
+        // Initialize n self-checkout stations
         // and add them to the supervision station to be supervised
-        for (int t = 0; t < 6; t++) {
+        for (int t = 0; t < Configurations.stations; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
                     coinDenominations, 1000, 2);
 
@@ -173,8 +178,8 @@ public final class Main {
         String card1Holder = "Gagan";
         String card2Holder = "Justin";
 
-        Card card1 = new Card("membership", card1No, card1Holder, null, null, true, true);
-        Card card2 = new Card("membership", card2No, card2Holder, null, null, true, true);
+        Card card1 = new Card("membership", card1No, card1Holder, null, null, true, false);
+        Card card2 = new Card("membership", card2No, card2Holder, null, null, true, false);
         Tangibles.MEMBER_CARDS.add(card1);
         Tangibles.MEMBER_CARDS.add(card2);
 
@@ -254,5 +259,16 @@ public final class Main {
          */
         private Tangibles() {
         }
+    }
+    
+    /**
+     * Just to keep track of some global variables
+     * 
+     * @author Yunfan Yang
+     *
+     */
+    public class Configurations {
+    	public static final Currency currency = Currency.getInstance("CAD");
+    	public static final int stations = 6;
     }
 }

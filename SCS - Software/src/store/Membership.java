@@ -54,7 +54,7 @@ public class Membership {
 
 		Calendar expiry = Calendar.getInstance();
 		expiry.add(Calendar.YEAR, 10);
-		Membership.MEMBERSHIP_ISSUER.addCardData(memberID, holder, expiry, "", BigDecimal.ZERO);
+		Membership.MEMBERSHIP_ISSUER.addCardData(memberID, holder, expiry, "000", BigDecimal.ONE);
 	}
 
 	public static void clear() {
