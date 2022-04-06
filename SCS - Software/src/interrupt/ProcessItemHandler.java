@@ -204,6 +204,14 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 					this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
 					unexpectedItem = false;
 				}
+				else if(unexpectedItem) {
+					if(this.scss.getSuperVisionSoftware().getAttendant.promptForInput()){
+						unexpectedItem = false;					// ignore unexpected item, it was overridden
+						weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
+						this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
+						}
+					// can add else statement to handle if weight discrepancy is declined
+				}
 			} catch (OverloadException e) {
 
 			}
