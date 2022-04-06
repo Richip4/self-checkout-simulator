@@ -36,6 +36,8 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void cardTransactionSucceeded();
 
+    public Void invalidGiftCardDetected();
+
     public Void invalidMembershipCardDetected();
 
     public Void membershipCardDetected(String memberID);
