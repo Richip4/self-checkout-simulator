@@ -135,30 +135,33 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else if(type.equals("gift")){
-			String cardNumber = data.getNumber();
-			CardIssuer issuer = GiftCard.getCardIssuer();
-			int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
-
-			// Fail to hold the authorization
-			if (holdNumber == -1) 
+			if(GiftCard.isGiftCard(data.getNumber()))
 			{
-				this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
-				return;
-			}
-
-			boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
-
-			// Fail to post transaction
-			if (!posted) {
-				this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
-				return;
-			} else {
-				this.scss.notifyObservers(observer -> observer.paymentCompleted());
-			}
-			this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
-			return;
-			} else {
-			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
+				String cardNumber = data.getNumber();
+				CardIssuer issuer = GiftCard.getCardIssuer();
+				int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
+	
+				// Fail to hold the authorization
+				if (holdNumber == -1) 
+				{
+					this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
+					return;
+				}
+	
+				boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
+	
+				// Fail to post transaction
+				if (!posted) {
+					this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
+					return;
+				}
+					this.scss.notifyObservers(observer -> observer.paymentCompleted());
+					return;
+				} else {
+					this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
+				}
+		} else {
+		this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
 
 		// Variables will be reset after when the next customer is binded.

@@ -38,14 +38,7 @@ public class GiftCard
 
     public static boolean isGiftCard(String cardNumber)
     {
-        if(GiftCard.GIFTCARDS.contains(cardNumber))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return GiftCard.GIFTCARDS.contains(cardNumber);
     }
     
     public static void createGiftCard(String cardID, BigDecimal cardValue)
