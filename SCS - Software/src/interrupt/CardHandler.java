@@ -48,25 +48,23 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	 * Used to reboot/shutdown the software. Detatches the handler so that
 	 * we can stop listening or assign a new handler.
 	 */
-	public void detatchAll(){
+	public void detatchAll() {
 		this.scs.cardReader.detach(this);
 	}
 
 	/**
 	 * Used to enable all the associated hardware.
 	 */
-	public void enableHardware(){
+	public void enableHardware() {
 		this.scs.cardReader.enable();
 	}
 
 	/**
 	 * Used to disable all the associated hardware.
 	 */
-	public void disableHardware(){
+	public void disableHardware() {
 		this.scs.cardReader.disable();
 	}
-
-	
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
@@ -77,45 +75,31 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// we don't have to do anything when the device is disabled
-		// TODO: Future implementations we may need to warn the customer that this
-		// device does not work.
 	}
-	
 
+	/**
+	 * We don't care about the following events:
+	 * - cardInserted
+	 * - cardRemoved
+	 * - cardTapped
+	 * - cardSwiped
+	 * Because we only want to disable the device when a card data is actually read,
+	 * and re-enable the device when the transaction is complete or failed.
+	 */
 	@Override
 	public void cardInserted(CardReader reader) {
-		// we currently do not do anything.
-		// future implementations could have a sound play or a please wait message
-		// appear.
 	}
 
-	/*
-	 * On card removal, we enable the reader to allow it to continue reading cards.
-	 */
 	@Override
 	public void cardRemoved(CardReader reader) {
-		// we currently also do not do anything here
-		// future implementations could revert the card reader screen to it's
-		// normal/ready state.
 	}
 
-	/*
-	 * On card tap, we disable the reader from reading any further cards
-	 * until the transaction with the current tap, insertion, swipe
-	 * has been completed and then we re-enable it.
-	 */
 	@Override
 	public void cardTapped(CardReader reader) {
-		// notify the customer that the card has been tapped.
-		// wait for cardDataRead to finish running before allowing more taps.
 	}
 
 	@Override
 	public void cardSwiped(CardReader reader) {
-		scs.cardReader.disable();
-		// notify the customer that the card has been swiped.
-		// wait for cardDataRead to finish running before allowing more taps.
-		scs.cardReader.enable();
 	}
 
 	/**
@@ -129,6 +113,10 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
+		// The card data is read, so disable the device until the transaction is
+		// complete.
+		this.scs.cardReader.disable();
+
 		// Get the type of card first and strip all whitespace and make it lowercase
 		String type = data.getType().toLowerCase().strip();
 
@@ -194,6 +182,9 @@ public class CardHandler extends Handler implements CardReaderObserver {
 		} else {
 		this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
+
+		// Re-enable card reader since transaction is complete or failed.
+		this.scs.cardReader.enable();
 
 		// Variables will be reset after when the next customer is binded.
 	}
