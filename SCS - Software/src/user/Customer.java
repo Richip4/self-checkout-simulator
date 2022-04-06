@@ -3,7 +3,7 @@ package user;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.Product;
 
-import Application.AppControl;
+import application.AppControl;
 import store.Inventory;
 
 import java.math.BigDecimal;

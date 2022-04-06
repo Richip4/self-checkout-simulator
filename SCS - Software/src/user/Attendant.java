@@ -4,7 +4,7 @@ import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
-import Application.AppControl;
+import application.AppControl;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
 
