@@ -37,12 +37,14 @@ public class GUI {
 			ac.addNewCustomer();
 		} else if (newUserType == AppControl.ATTENDANT) {
 			// check list of users for an existing attendant
-			ac.getActiveUsers().forEach(u -> {
-				if (u.getUserType() == AppControl.ATTENDANT) {
+			User[] users = ac.getActiveUsers();
+			
+			for (int i = 0; i < users.length; i++) {
+				if (users[i] != null && users[i].getUserType() == AppControl.ATTENDANT) {
 					errorMsg("An Attendant is already on duty. Sorry.");
 					return;
 				}
-			});
+			}
 			
 			// no attendant found, add a new one
 			ac.addNewAttendant();
@@ -56,12 +58,14 @@ public class GUI {
 	 */
 	public void userApproachesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			if (station == 0) {
+			if (station == 0) { // this is the attendant's station
 				errorMsg("You are not authorized to view the attendant station.");
-			} else if (ac.getUserAt(station).getUserType() == AppControl.ATTENDANT) {
-				errorMsg("Station being serviced");
-			} else if (ac.getUserAt(station).getUserType() == AppControl.CUSTOMER) {
-				errorMsg("A customer is already using this station");
+			} else if (ac.getUserAt(station) != null) { 
+				if (ac.getUserAt(station).getUserType() == AppControl.ATTENDANT) {
+					errorMsg("Station being serviced");
+				} else if (ac.getUserAt(station).getUserType() == AppControl.CUSTOMER) {
+					errorMsg("A customer is already using this station");
+				} 
 			} else {
 				System.out.println("Station " + station);
 				ac.customerUsesStation(station);
@@ -69,14 +73,14 @@ public class GUI {
 			}
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			ac.attendantUsesStation(station);
-			scenes.getScene(Scenes.SCS_OVERVIEW);
+			
+			if (station == 0) {
+				scenes.getScene(Scenes.AS_TOUCH);
+			} else {
+				scenes.getScene(Scenes.SCS_OVERVIEW);				
+			}
 		}
 	}
-	
-//	// main for testing GUI
-//	public static void main(String[] args) {
-//		new GUI(new AppControl(Tangibles.SUPERVISION_STATION));
-//	}
 	
 	public void userLeavesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {

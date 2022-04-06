@@ -103,9 +103,4 @@ public class Customer extends User {
 		return AppControl.CUSTOMER;
 	}
 
-	public void setMemberID(String memberID) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

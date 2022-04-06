@@ -32,7 +32,8 @@ public class AppControl {
 	private List<SelfCheckoutStation> selfStations;
 	
 	// list of people visiting the stations
-	private List<User> users = new ArrayList<>();
+	// NOTE: active users not at an actual station are excluded
+	private User[] users;
 	
 	// the type of user combination at each station
 	private int[] stationsUserType;
@@ -43,42 +44,42 @@ public class AppControl {
 	public AppControl(SupervisionStation supervisor) {
 		this.supervisor = supervisor;
 		selfStations = supervisor.supervisedStations();
-		stationsUserType = new int[selfStations.size()]; 
+		// max number of users equals number of customer stations + 1 attendant
+		users = new User[selfStations.size() + 1]; 
+//		for (int i = 0; i < users.length; i++) {
+//			users[i] = new Customer(); 
+//		}
+		stationsUserType = new int[selfStations.size() + 1]; 
 	}
 	
 	/**
 	 * add a new customer and set them as the active user
+	 * NOTE: overrides previous active user if they were not at a station
 	 */
 	public void addNewCustomer() {
 		activeUser = new Customer();
-		users.add(activeUser);
 	}
 
 	/**
 	 * add a new attendant and set them as the active user
+	 * NOTE: overrides previous active user if they were not at a station
 	 */
 	public void addNewAttendant() {
 		activeUser = new Attendant();
-		users.add(activeUser);
-	}
-	
-	/**
-	 * removes a user that left the simulation
-	 * @param u - a User to remove
-	 */
-	public void removeUser(User u) {
-		users.remove(u);
 	}
 	
 	/**
 	 * sets the active user to the next user in the list of users
 	 */
 	public void nextActiveUser() {
-		int index = users.indexOf(activeUser);
-		if (index == users.size()-1) {
-			activeUser = users.get(0);
-		} else {
-			activeUser = users.get(index+1);
+		for (int i = 0; i < users.length; i++) {
+			if (users[i] == activeUser) {
+				if (i < users.length - 1) {
+					activeUser = users[i+1];
+				} else {
+					activeUser = users[0];
+				}
+			}
 		}
 	}
 	
@@ -86,11 +87,14 @@ public class AppControl {
 	 * sets the active user to the previous user in the list of users
 	 */
 	public void prevActiveUser() {
-		int index = users.indexOf(activeUser);
-		if (index == 0) {
-			activeUser = users.get(users.size()-1);
-		} else {
-			activeUser = users.get(index-1);
+		for (int i = 0; i < users.length; i++) {
+			if (users[i] == activeUser) {
+				if (i > 0) {
+					activeUser = users[i-1];
+				} else {
+					activeUser = users[users.length - 1];
+				}
+			}
 		}
 	}
 	
@@ -99,10 +103,10 @@ public class AppControl {
 	}
 	
 	public User getUserAt(int station) {
-		return users.get(station);
+		return users[station];
 	}
 	
-	public List<User> getActiveUsers() {
+	public User[] getActiveUsers() {
 		return users;
 	}
 	
@@ -112,6 +116,7 @@ public class AppControl {
 	 */
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
+		users[station] = activeUser;
 	}
 	
 	/**
@@ -120,14 +125,35 @@ public class AppControl {
 	 */
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
+		users[station] = activeUser;
 	}
 	
+	/**
+	 * update the stations user type and set the user to null
+	 * @param station - self-checkout station index to update
+	 */
 	public void customerLeavesStation(int station) {
 		removeStationUserType(station, CUSTOMER);
+		for (int i = 0; i < users.length; i++) {
+			if (users[i] == activeUser) {
+				users[i] = null;
+				return;
+			}
+		}
 	}
-	
+
+	/**
+	 * update the stations user type and set the user to null
+	 * @param station - self-checkout station index to update
+	 */ 
 	public void attendantLeavesStation(int station) {
 		removeStationUserType(station, ATTENDANT);
+		for (int i = 0; i < users.length; i++) {
+			if (users[i] == activeUser) {
+				users[i] = null;
+				return;
+			}
+		}
 	}
 	
 	/**
