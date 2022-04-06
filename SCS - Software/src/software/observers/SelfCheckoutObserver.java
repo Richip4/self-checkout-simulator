@@ -50,4 +50,6 @@ public interface SelfCheckoutObserver extends Observer {
     public Void softwareStopped(SelfCheckoutSoftware scss);
 
     public Void touchScreenBlocked();
+    
+    public Void touchScreenUnblocked();
 }
