@@ -9,7 +9,9 @@ import interrupt.CardHandler;
 import interrupt.CoinHandler;
 import interrupt.ProcessItemHandler;
 import software.observers.SelfCheckoutObserver;
+import user.Attendant;
 import user.Customer;
+import user.User;
 
 /**
  * A software for a self-checkout station.
@@ -24,6 +26,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
+    private Attendant attendant;
 
     private BanknoteHandler banknoteHandler;
     private CardHandler cardHandler;
@@ -38,8 +41,16 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.startSystem();
     }
+    
+    public void setUser(User user) {
+    	if (user instanceof Customer) {
+    		setCustomer((Customer)user);
+    	} else if (user instanceof Attendant) {
+    		setAttendant((Attendant)user);
+    	}
+    }
 
-    public void setCustomer(Customer customer) {
+    private void setCustomer(Customer customer) {
         this.customer = customer;
 
         this.banknoteHandler.setCustomer(customer);
@@ -49,6 +60,23 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.checkout.setCustomer(customer);
         this.receipt.setCustomer(customer);
+    }
+    
+    private void setAttendant(Attendant attendant) {
+    	this.attendant = attendant;
+    	
+    	// attendant must be accompanied by customer to process items
+    	// but an attedant alone can service the station
+    	// TODO: consider if components need to be altered do to the presence of an attendant
+    	
+    }
+    
+    public void removeUser(User user) {
+    	if (user instanceof Customer) {
+    		customer = null;
+    	} else if (user instanceof Attendant) {
+    		attendant = null;
+    	}
     }
 
     public SelfCheckoutStation getSelfCheckoutStation() {

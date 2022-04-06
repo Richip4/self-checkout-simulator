@@ -3,6 +3,7 @@ package user;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.Product;
 
+import application.AppControl;
 import store.Inventory;
 
 import java.math.BigDecimal;
@@ -98,6 +99,17 @@ public class Customer extends User {
 		this.numOfPlasticBags = numOfPlasticBags;
 	}
 
+	@Override
+	public int getUserType() {
+		return AppControl.CUSTOMER;
+	}
+
+	@Override
+	public int getUserType() {
+		return AppControl.CUSTOMER;
+	}
+
+}
 	public int getPlasticBags()
 	{
 		return numOfPlasticBags;

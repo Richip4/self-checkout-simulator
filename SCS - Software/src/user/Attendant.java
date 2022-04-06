@@ -1,9 +1,9 @@
 package user;
 
 import org.lsmr.selfcheckout.PriceLookupCode;
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
+import application.AppControl;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
 
@@ -35,6 +35,11 @@ public class Attendant extends User {
 		}
 		else {}//TODO Display an error on the GUI that the product is invalid
 		
+	}
+
+	@Override
+	public int getUserType() {
+		return AppControl.ATTENDANT;
 	}
 
 	/**
@@ -76,4 +81,5 @@ public class Attendant extends User {
 	}
 
 	///////////////////// SupervisionSoftware.java /////////////////////
+
 }

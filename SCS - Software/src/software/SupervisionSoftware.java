@@ -3,7 +3,6 @@ package software;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
 
@@ -46,7 +45,6 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
     public SupervisionStation getSupervisionStation() {
         return this.svs;
     }
-    
     
     public Attendant getAttendant() {
     	return this.attendant;
