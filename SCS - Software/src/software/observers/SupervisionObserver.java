@@ -20,4 +20,5 @@ public interface SupervisionObserver extends Observer {
     public Void receiptPrinterOutOfPaper(SelfCheckoutSoftware scs);
 
     public Void receiptPrinterOutOfInk(SelfCheckoutSoftware scs);
+
 }
