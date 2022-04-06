@@ -189,11 +189,8 @@ public final class Main {
         String password1 = "1234";
         String password2 = "123password";
 
-        Account account1 = new Account(username1, password1);
-        Account account2 = new Account(username2, password2);
-
-        CredentialsSystem.addAccount(account1);
-        CredentialsSystem.addAccount(account2);
+        CredentialsSystem.addAccount(username1, password1);
+        CredentialsSystem.addAccount(username2, password2);
         
         Attendant a1 = new Attendant();
         a1.setLogin(username1, password1);

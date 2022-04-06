@@ -1,12 +1,12 @@
 package store.credentials;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class CredentialsSystem {
 	
-	private static final List<Account> ACCOUNTS = new ArrayList<Account>();
+	private static final Map<String, String> ACCOUNTS = new HashMap<String, String>();
 
 	/**
 	 * Instances of this class are not needed, so the constructor is private.
@@ -14,15 +14,12 @@ public class CredentialsSystem {
 	private CredentialsSystem(){
 	}
 
-	public static void addAccount(Account account) {
-		for (Account a : ACCOUNTS)
-			if (a.getUsername().equals(account.getUsername()))
-				return;
-		CredentialsSystem.ACCOUNTS.add(account);
+	public static void addAccount(String username, String password) {
+		CredentialsSystem.ACCOUNTS.put(username, password);
 	}
 	
-	public static void removeAccount(Account account) {
-		CredentialsSystem.ACCOUNTS.remove(account);
+	public static void removeAccount(String username) {
+		CredentialsSystem.ACCOUNTS.remove(username);
 	}
 	
 	/**
@@ -32,12 +29,8 @@ public class CredentialsSystem {
 	 * @return false if check failed; true if the check succeeded. 
 	 */
 	public static boolean checkLogin(String username, String password) {
-
-		Account other = new Account(username, password);
-		for (Account a : ACCOUNTS)
-			if (a.equals(other)) 
-				return true;
-		return false;
+		String actualPassword = ACCOUNTS.get(username);
+		return password.equals(actualPassword);
 	}
 
 }
