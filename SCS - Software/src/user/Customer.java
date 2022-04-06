@@ -46,7 +46,7 @@ public class Customer extends User {
 	 * Both the customer and attendant would be using this method
 	 */
 	public void lookupProduct(PriceLookupCode plu) {
-		if (Inventory.getProduct(plu) != null) { 
+		if (Inventory.getProduct(plu) != null) {
 			addToCart(Inventory.getProduct(plu));
 		} else {
 			// TODO Display an error on the GUI that the product is invalid
@@ -83,8 +83,9 @@ public class Customer extends User {
 		return waitingToBag;
 	}
 
-	//set and get methods for own bags
-	//the customer should not be calling this it is used by the scale to set the weight of the bags
+	// set and get methods for own bags
+	// the customer should not be calling this it is used by the scale to set the
+	// weight of the bags
 	public void setOwnBagsUsed(boolean ownBagsUsed) {
 		this.ownBagsUsed = ownBagsUsed;
 	}
@@ -93,9 +94,8 @@ public class Customer extends User {
 		return ownBagsUsed;
 	}
 
-	//set and get methods for plastic bags
-	public void setPlasticBags(int numOfPlasticBags)
-	{
+	// set and get methods for plastic bags
+	public void setPlasticBags(int numOfPlasticBags) {
 		this.numOfPlasticBags = numOfPlasticBags;
 	}
 
@@ -104,14 +104,7 @@ public class Customer extends User {
 		return AppControl.CUSTOMER;
 	}
 
-	@Override
-	public int getUserType() {
-		return AppControl.CUSTOMER;
-	}
-
-}
-	public int getPlasticBags()
-	{
+	public int getPlasticBags() {
 		return numOfPlasticBags;
 	}
 }
