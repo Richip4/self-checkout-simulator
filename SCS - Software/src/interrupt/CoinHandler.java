@@ -17,6 +17,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinTrayObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import user.Customer;
 
 /**
@@ -168,6 +169,8 @@ public class CoinHandler extends Handler
 	@Override
 	public void coinsFull(CoinStorageUnit unit) {
 		this.scs.coinSlot.disable();
+		SupervisionSoftware svs = scss.getSupervisionSoftware();
+		svs.notifyObservers(observer -> observer.coinStorageFull(scss));
 	}
 
 	// if coin dispenser is full & coin is valid;

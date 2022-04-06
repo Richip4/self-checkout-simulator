@@ -3,7 +3,9 @@ package software;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
+
 
 import store.credentials.AuthorizationRequiredException;
 import store.credentials.CredentialsSystem;
@@ -33,7 +35,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
     private Attendant attendant;
     private boolean logged_in;
     private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
-
+    private Attendant attendant;
+    
     public SupervisionSoftware(SupervisionStation svs) {
         this.svs = svs;
 
@@ -42,6 +45,14 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
     public SupervisionStation getSupervisionStation() {
         return this.svs;
+    }
+    
+    public void setAttendant(Attendant attendant) {
+    	this.attendant = attendant;
+    }
+    
+    public Attendant getAttendant() {
+    	return this.attendant;
     }
 
     public void add(SelfCheckoutSoftware software) {
@@ -57,6 +68,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
     public List<SelfCheckoutSoftware> getSoftwareList() {
         return this.softwareList;
     }
+    
+    
 
     /**
 	 * Sets the attendant. It's here because sometimes we don't have an immediate attendant

@@ -1,6 +1,7 @@
 package user;
 
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
@@ -75,5 +76,4 @@ public class Attendant extends User {
 	}
 
 	///////////////////// SupervisionSoftware.java /////////////////////
-
 }
