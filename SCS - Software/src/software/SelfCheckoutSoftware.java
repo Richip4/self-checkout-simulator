@@ -138,4 +138,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.notifyObservers(observer -> observer.softwareStopped(this));
     }
+    
+    public void blockSystem() {
+		this.disableHardware();
+    	this.notifyObservers(observer -> observer.touchScreenBlocked());
+    }
 }

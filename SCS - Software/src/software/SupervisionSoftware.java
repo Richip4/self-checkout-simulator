@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
+import store.credentials.AuthorizationRequiredException;
 import store.credentials.CredentialsSystem;
+import store.credentials.IncorrectCredentialException;
 import user.Attendant;
 import software.observers.SupervisionObserver;
 
@@ -28,11 +30,8 @@ import software.observers.SupervisionObserver;
  */
 public class SupervisionSoftware extends Software<SupervisionObserver> {
     private final SupervisionStation svs;
-    private Attendant attendant; // TODO: Expecting a Attendant class in the
-    
+    private Attendant attendant;
     private boolean logged_in;
-    // private Attendant attendant; // TODO: Expecting a Attendant class in the
-    // future development
     private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
 
     public SupervisionSoftware(SupervisionStation svs) {
@@ -75,28 +74,23 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * loggedIn flag.
 	 * @return T/F whether we've logged in successfully
 	 */
-	public boolean login() {
-		this.notifyObservers(observer -> observer.loginRequired());	
-		
-		//the above has to be completed.
+	public void login() throws IncorrectCredentialException {
 		String username = attendant.getUsername();
 		String password = attendant.getPassword();
 		
 		if(CredentialsSystem.checkLogin(username, password)) {
 			this.logged_in = true;
-			return true;
-		}else 
-			return false;		
+		} else {
+			throw new IncorrectCredentialException("Attendant credential is invalid");
+		}
 	}
 	
 	/**
 	 * Logout method to make sure that someone has logged out.
 	 * @return true if it successfully logs out
 	 */
-	public boolean logout() {
+	public void logout() {
 		this.logged_in = false;
-		this.notifyObservers(observer -> observer.logoutSuccessful());	
-		return true;
 	}
 
     /**
@@ -108,13 +102,11 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * If it enables hardware, should it before or after? I don't think we do
 	 * because the hardware team should have it enabled?
 	 */
-	public boolean startUpStation(SelfCheckoutSoftware scss)  {
-		if (logged_in) {
+	public void startUpStation(SelfCheckoutSoftware scss) throws AuthorizationRequiredException  {
+		if (this.logged_in) {
 			scss.startSystem();	
-			return true;
 		}else {
-			login();
-			return false;
+			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
 
@@ -124,16 +116,11 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * @return T/F - whether the checkoutStation has been removed. (If false
 	 * the station most likely is not in the HashMap not exist)
 	 */
-	public boolean shutDownStation(SelfCheckoutSoftware scss) {
-        //If we're closing down the software, then the attendant should be forced to login again.
-        logged_in = false;
-        login();
-		if (logged_in) {
+	public void shutDownStation(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
+        if (this.logged_in) {
 			scss.stopSystem();
-            return false;
 		}else {
-			login();
-			return false;
+			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
 
@@ -144,14 +131,11 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * @param scss - the SelfCheckoutSoftware
 	 * @return T/F whether the station has been blocked.
 	 */
-	public boolean blockStation(SelfCheckoutSoftware scss){
-		if (logged_in){
-			scss.disableHardware();
-			scss.notifyObservers(observer -> observer.touchScreenBlocked());
-			return true;
+	public void blockStation(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
+		if (this.logged_in){
+			scss.blockSystem();
 		}else{
-			login();
-			return false;
+			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
 
