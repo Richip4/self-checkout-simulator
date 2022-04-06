@@ -59,7 +59,7 @@ public class Checkout {
 	 * of their items.
 	 * 
 	 */
-	public void readyToCheckout() {
+	public void checkout() {
 		// devices are only configured if there is a customer at the station
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
@@ -187,7 +187,10 @@ public class Checkout {
 
 			if (size >= this.pendingChanges.size()) {
 				// No change is successfully emmited for customer, encounters error, notify
-				// attendant maybe?
+				// attendant
+				this.scss.getSupervisionSoftware()
+						.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
+				return;
 			}
 
 			return;

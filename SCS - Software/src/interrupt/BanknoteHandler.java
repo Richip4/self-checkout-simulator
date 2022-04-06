@@ -13,6 +13,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.*;
 
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import user.Customer;
 
 /**
@@ -44,11 +45,8 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// attaches itself as an observer to all related hardware
-		this.scs.banknoteInput.attach(this);
-		this.scs.banknoteOutput.attach(this);
-		this.scs.banknoteValidator.attach(this);
-		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	/**
@@ -62,6 +60,14 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.banknoteValue = BigDecimal.ZERO;
 	}
 
+	public void attachAll() {
+		// attaches itself as an observer to all related hardware
+		this.scs.banknoteInput.attach(this);
+		this.scs.banknoteOutput.attach(this);
+		this.scs.banknoteValidator.attach(this);
+		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
+	}
+
 	/**
 	 * Gets the current customer using the station
 	 * 
@@ -73,54 +79,49 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	}
 
 	/**
-	 * Check each banknote related device to determine which device to handle
-	 * enable.
-	 * 
-	 * Currently only acknowledges banknote input slot enable, removing the banknote
-	 * slot input disabled notification from the customer.
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
 	 */
-	@Override
-	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		if (device.equals(this.scs.banknoteInput)) {
-			this.scss.notifyObservers(observer -> observer.banknoteInputEnabled());
-		}
-
-		if (device.equals(this.scs.banknoteOutput))
-			/* Nothing happens when banknote output slot is enabled */ ;
-
-		if (device.equals(this.scs.banknoteValidator))
-			/* Nothing happens when banknote validator is enabled */ ;
-
-		this.scs.banknoteDispensers.forEach((k, d) -> {
-			if (device.equals(d))
-				/* Nothing happens when banknote dispenser is enabled */ ;
-		});
+	public void detatchAll() {
+		this.scs.banknoteInput.detach(this);
+		this.scs.banknoteOutput.detach(this);
+		this.scs.banknoteValidator.detach(this);
 	}
 
 	/**
-	 * Check each banknote related device to determine which device to handle
-	 * disable.
-	 * 
-	 * Currently only acknowledges banknote input slot disable, sending a banknote
-	 * slot
-	 * input disable notification to the customer.
+	 * Used to enable all the associated hardware in a single function.
 	 */
+	public void enableHardware() {
+		this.scs.banknoteInput.enable();
+		this.scs.banknoteOutput.enable();
+		this.scs.banknoteStorage.enable();
+		this.scs.banknoteValidator.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware() {
+		this.scs.banknoteInput.disable();
+		this.scs.banknoteOutput.disable();
+		this.scs.banknoteStorage.disable();
+		this.scs.banknoteValidator.disable();
+	}
+
+	public boolean isBanknoteDetected() {
+		return this.banknoteDetected;
+	}
+
+	public BigDecimal getBanknoteValue() {
+		return this.banknoteValue;
+	}
+
+	@Override
+	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+	}
+
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		if (device.equals(this.scs.banknoteInput)) {
-			this.scss.notifyObservers(observer -> observer.banknoteInputDisabled());
-		}
-
-		if (device.equals(this.scs.banknoteOutput))
-			/* Nothing happens when banknote output slot is disabled */ ;
-
-		if (device.equals(this.scs.banknoteValidator))
-			/* Nothing happens when banknote validator is disabled */ ;
-			
-		this.scs.banknoteDispensers.forEach((k, d) -> {
-			if (device.equals(d))
-				/* Nothing happens when banknote dispenser is disabled */ ;
-		});
 	}
 
 	/**
@@ -138,6 +139,8 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	@Override
 	public void invalidBanknoteDetected(BanknoteValidator validator) {
+		this.banknoteDetected = false;
+		this.banknoteValue = BigDecimal.ZERO;
 		this.scss.notifyObservers(observer -> observer.invalidBanknoteDetected());
 	}
 
@@ -147,6 +150,8 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	@Override
 	public void banknotesFull(BanknoteStorageUnit unit) {
 		this.scs.banknoteInput.disable();
+		this.scss.notifyObservers(observer -> observer.banknoteStorageFull());
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.banknoteStorageFull(scss));
 	}
 
 	/**
@@ -155,10 +160,11 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	@Override
 	public void banknoteAdded(BanknoteStorageUnit unit) {
-		if (this.banknoteDetected) {
-			if (customer != null) {
-				this.customer.addCurrency(banknoteValue);
-			}
+		if (customer != null && this.banknoteDetected) {
+			this.customer.addCurrency(banknoteValue);
+
+			// Notify observer so GUI can update current cash balance on display
+			this.scss.notifyObservers(observer -> observer.banknoteAdded());
 		}
 
 		this.banknoteDetected = false;
@@ -170,12 +176,9 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		// We don't currently do anything when banknote storage units are loaded
 	}
 
-	/**
-	 * Enables the banknote input slot
-	 */
 	@Override
 	public void banknotesUnloaded(BanknoteStorageUnit unit) {
-		this.scs.banknoteInput.enable();
+		// We don't currently do anything when banknote storage units are loaded
 	}
 
 	@Override
@@ -185,14 +188,12 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 
 	/**
 	 * An event announcing that one or more banknotes have been returned to the
-	 * user, dangling
-	 * from the slot.
+	 * user, dangling from the slot.
 	 *
 	 * @param slot The device on which the event occurred.
 	 */
 	@Override
 	public void banknotesEjected(BanknoteSlot slot) {
-		this.scss.notifyObservers(observer -> observer.banknoteEjected());
 	}
 
 	/**
@@ -204,16 +205,22 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	@Override
 	public void banknoteRemoved(BanknoteSlot slot) {
+		// Customer removed a banknote from banknote output
+		// And Checkout keep making change to the customer in case there are pending
+		// banknote not returned to customer yet
+		if (slot.equals(this.scs.banknoteOutput)) {
+			this.scss.makeChange();
+		}
 	}
 
 	@Override
 	public void moneyFull(BanknoteDispenser dispenser) {
-		// We don't currently do anything with the banknote dispenser
 	}
 
 	@Override
 	public void banknotesEmpty(BanknoteDispenser dispenser) {
-		// We don't currently do anything with the banknote dispenser
+		this.scss.notifyObservers(observer -> observer.banknoteDispenserEmpty());
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.banknoteDispenserEmpty(this.scss));
 	}
 
 	@Override
@@ -234,13 +241,5 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	@Override
 	public void banknotesUnloaded(BanknoteDispenser dispenser, Banknote... banknotes) {
 		// We don't currently do anything with the banknote dispenser
-	}
-	
-	public boolean isBanknoteDetected() {
-		return banknoteDetected;
-	}
-
-	public BigDecimal getBanknoteValue() {
-		return banknoteValue;
 	}
 }

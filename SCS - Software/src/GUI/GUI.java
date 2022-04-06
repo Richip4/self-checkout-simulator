@@ -5,8 +5,8 @@ import java.awt.Component;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import Application.AppControl;
-import Application.Main.Tangibles;
+import application.AppControl;
+import application.Main.Tangibles;
 import user.Customer;
 import user.User;
 

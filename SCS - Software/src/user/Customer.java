@@ -3,7 +3,7 @@ package user;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.Product;
 
-import Application.AppControl;
+import application.AppControl;
 import store.Inventory;
 
 import java.math.BigDecimal;
@@ -18,6 +18,8 @@ public class Customer extends User {
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean waitingToBag;
 	private boolean removeLastAddedItem;
+	private boolean ownBagsUsed = false;
+	private int numOfPlasticBags = 0;
 	private String memberID;
 
 	public void addCurrency(BigDecimal value) {
@@ -77,25 +79,24 @@ public class Customer extends User {
 		return this.memberID.toString();
 	}
 
-    /*
-     * Asks the customer if they are using their own bags Gets the bags weight in
-     * bagging area scale, so that it can be accounted for in that class.
-     */
-    public boolean askForBags(boolean usingOwnBag)
-    {
-        if (usingOwnBag)
-        {
-
-            return true;
-        } else
-        {
-            return false;
-        }
-
-    }
-
 	public boolean getWaitingToBag() {
 		return waitingToBag;
+	}
+
+	//set and get methods for own bags
+	//the customer should not be calling this it is used by the scale to set the weight of the bags
+	public void setOwnBagsUsed(boolean ownBagsUsed) {
+		this.ownBagsUsed = ownBagsUsed;
+	}
+
+	public boolean getUseOwnBags() {
+		return ownBagsUsed;
+	}
+
+	//set and get methods for plastic bags
+	public void setPlasticBags(int numOfPlasticBags)
+	{
+		this.numOfPlasticBags = numOfPlasticBags;
 	}
 
 	@Override
@@ -103,4 +104,9 @@ public class Customer extends User {
 		return AppControl.CUSTOMER;
 	}
 
+}
+	public int getPlasticBags()
+	{
+		return numOfPlasticBags;
+	}
 }

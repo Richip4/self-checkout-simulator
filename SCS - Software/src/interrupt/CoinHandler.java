@@ -17,6 +17,7 @@ import org.lsmr.selfcheckout.devices.observers.CoinTrayObserver;
 import org.lsmr.selfcheckout.devices.observers.CoinValidatorObserver;
 
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import user.Customer;
 
 /**
@@ -38,33 +39,66 @@ public class CoinHandler extends Handler
 	private Customer customer;
 
 	private boolean coinDetected = false;
-	private boolean coinDetectedIsValid = false;
-	private boolean coinDispenserFull = false;
 	private BigDecimal coinValue;
 
 	public CoinHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		scs.coinTray.attach(this);
-		scs.coinSlot.attach(this);
-		scs.coinValidator.attach(this);
-		scs.coinStorage.attach(this);
-		scs.coinDispensers.forEach((k, v) -> v.attach(this));
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	// Set this.customer
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 		this.coinDetected = false;
-		this.coinDetectedIsValid = false;
-		this.coinDispenserFull = false;
 		this.coinValue = BigDecimal.ZERO;
 	}
 
 	// Get this.customer
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	// Attach all the hardware
+	public void attachAll() {
+		this.scs.coinTray.attach(this);
+		this.scs.coinSlot.attach(this);
+		this.scs.coinValidator.attach(this);
+		this.scs.coinStorage.attach(this);
+		this.scs.coinDispensers.forEach((k, v) -> v.attach(this));
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll() {
+		this.scs.coinTray.detach(this);
+		this.scs.coinSlot.detach(this);
+		this.scs.coinValidator.detach(this);
+		this.scs.coinStorage.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware in a single function.
+	 */
+	public void enableHardware() {
+		this.scs.coinSlot.enable();
+		this.scs.coinTray.enable();
+		this.scs.coinStorage.enable();
+		this.scs.coinValidator.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware() {
+		this.scs.coinSlot.disable();
+		this.scs.coinTray.disable();
+		this.scs.coinStorage.disable();
+		this.scs.coinValidator.disable();
 	}
 
 	@Override
@@ -92,10 +126,7 @@ public class CoinHandler extends Handler
 	// when an inserted coin is valid, set coin-detected-is-valid flag to True
 	@Override
 	public void validCoinDetected(CoinValidator validator, BigDecimal value) {
-		if (this.coinDetected) {
-			this.coinDetectedIsValid = true;
-		}
-
+		this.coinDetected = true;
 		this.coinValue = value;
 	}
 
@@ -103,19 +134,13 @@ public class CoinHandler extends Handler
 		return this.coinValue;
 	}
 
-	public boolean getCoinDetectedIsValid() {
-		return this.coinDetectedIsValid;
-	}
-
 	// when inserted coin is invalid, we notify this.customer that the coin is
 	// invalid
 	@Override
 	public void invalidCoinDetected(CoinValidator validator) {
-		if (this.coinDetected) {
-			this.scss.notifyObservers(observer -> observer.invalidCoinDetected());
-		}
-
-		this.coinDetectedIsValid = false;
+		this.coinDetected = false;
+		this.coinValue = BigDecimal.ZERO;
+		this.scss.notifyObservers(observer -> observer.invalidCoinDetected());
 	}
 
 	@Override
@@ -131,39 +156,54 @@ public class CoinHandler extends Handler
 	@Override
 	public void coinsFull(CoinStorageUnit unit) {
 		this.scs.coinSlot.disable();
+
+		// Notify attendant that the coin storage is full
+		SupervisionSoftware svs = scss.getSupervisionSoftware();
+		svs.notifyObservers(observer -> observer.coinStorageFull(scss));
+
+		this.scss.notifyObservers(observer -> observer.coinStorageFull());
 	}
 
 	// if coin dispenser is full & coin is valid;
 	// this method adds value of coin to the this.customers accumulated currency
 	@Override
 	public void coinAdded(CoinStorageUnit unit) {
-		if (this.customer != null && coinDetectedIsValid == true) {
+		if (this.customer != null && coinDetected == true) {
 			this.customer.addCurrency(coinValue);
+
+			// Notify observer so GUI can update current cash balance on display
+			this.scss.notifyObservers(observer -> observer.coinAdded());
 		}
+
+		this.coinDetected = false;
+		this.coinValue = BigDecimal.ZERO;
 	}
 
-	// when coin dispenser is full; set coin dispenser flag is full to true
 	@Override
 	public void coinsFull(CoinDispenser dispenser) {
-		this.coinDispenserFull = true;
-	}
-
-	public boolean getCoinDispenserFull() {
-		return this.coinDispenserFull;
 	}
 
 	@Override
 	public void coinsEmpty(CoinDispenser dispenser) {
-		// we currently don't do anything when the coin dispenser is empty
+		this.scss.notifyObservers(observer -> observer.coinDispenserEmpty());
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.coinDispenserEmpty(this.scss));
 	}
 
-	// if coin dispenser is not full & coin is valid;
-	// this method adds value of coin to the this.customers accumulated currency
+	/**
+	 * We don't care about the following events:
+	 * - coinAdded
+	 * - coinRemoved
+	 * - coinsLoaded
+	 * - coinsUnloaded
+	 * 
+	 * <p>
+	 * <b>NOTICE: </b>
+	 * {@code coinAdded} event is for: when a coin is being, likely attendant, added
+	 * to the coin dispenser. This event is not for customer inserting coins.
+	 * </p>
+	 */
 	@Override
 	public void coinAdded(CoinDispenser dispenser, Coin coin) {
-		if (this.customer != null && this.coinDetectedIsValid == true) {
-			this.customer.addCurrency(this.coinValue);
-		}
 	}
 
 	@Override
@@ -181,5 +221,4 @@ public class CoinHandler extends Handler
 		// currently we don't do anything when a coin is unloaded from the coin
 		// dispenser
 	}
-
 }
