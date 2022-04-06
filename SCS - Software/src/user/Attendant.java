@@ -37,7 +37,6 @@ public class Attendant extends User {
 		
 	}
 
-
 	@Override
 	public int getUserType() {
 		return AppControl.ATTENDANT;
@@ -82,4 +81,5 @@ public class Attendant extends User {
 	}
 
 	///////////////////// SupervisionSoftware.java /////////////////////
+
 }

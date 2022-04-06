@@ -104,6 +104,11 @@ public class Customer extends User {
 		return AppControl.CUSTOMER;
 	}
 
+	@Override
+	public int getUserType() {
+		return AppControl.CUSTOMER;
+	}
+
 }
 	public int getPlasticBags()
 	{
