@@ -79,6 +79,20 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.checkout.makeChange();
     }
 
+    public void enableHardware() {
+        this.banknoteHandler.enableHardware();
+        this.cardHandler.enableHardware();
+        this.coinHandler.enableHardware();
+        this.processItemHandler.enableHardware();
+    }
+
+    public void disableHardware() {
+        this.banknoteHandler.disableHardware();
+        this.cardHandler.disableHardware();
+        this.coinHandler.disableHardware();
+        this.processItemHandler.disableHardware();   
+    }
+
     /**
      * This method is used for starting or restarting a system.
      * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
@@ -86,21 +100,13 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      */
     public void startSystem(){
         this.banknoteHandler = new BanknoteHandler(this);
-        this.banknoteHandler.enableHardware();
-
         this.cardHandler = new CardHandler(this);
-        this.cardHandler.enableHardware();
-
         this.coinHandler = new CoinHandler(this);
-        this.coinHandler.enableHardware();
-
         this.processItemHandler = new ProcessItemHandler(this);
-        this.processItemHandler.enableHardware();
-
         this.checkout = new Checkout(this);
-
         this.receipt = new Receipt(this);
-        this.receipt.enableHardware();
+        
+        this.enableHardware();
 
         this.notifyObservers(observer -> observer.softwareStarted(this));
     }
@@ -110,27 +116,24 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
      * when something is turned off.
      */
-    public void stopSystem(){
+    public void stopSystem() {
+        this.disableHardware();
+
         this.banknoteHandler.detatchAll();
-        this.banknoteHandler.disableHardware();
         this.banknoteHandler = null;
 
         this.cardHandler.detatchAll();
-        this.cardHandler.disableHardware();
         this.cardHandler = null;
 
         this.coinHandler.detatchAll();
-        this.coinHandler.disableHardware();
         this.coinHandler = null;
         
         this.processItemHandler.detatchAll();
-        this.processItemHandler.disableHardware();
         this.processItemHandler = null;
 
         this.checkout = null;
 
         this.receipt.detatchAll();
-        this.receipt.disableHardware();
         this.receipt = null;
 
         this.notifyObservers(observer -> observer.softwareStopped(this));
