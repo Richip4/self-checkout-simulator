@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Currency;
 import java.util.List;
 
+
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Card;
@@ -23,6 +24,8 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import bank.Bank;
 import store.Membership;
 import store.Store;
+import store.credentials.CredentialsSystem;
+import user.Attendant;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
 import store.Inventory;
@@ -52,6 +55,7 @@ public final class Main {
         Main.initializeProductDatabase();
         Main.initializeStore();
         Main.initializeMembership();
+        Main.initializeCredentialsSytem();
     }
 
     private static void initializeCardAndIssuers() {
@@ -182,6 +186,26 @@ public final class Main {
         Membership.createMembership(card2No, card2Holder);
     }
 
+    private static void initializeCredentialsSytem() {
+        String username1 = "Sharjeel";
+        String username2 = "Richi";
+
+        String password1 = "1234";
+        String password2 = "123password";
+
+        CredentialsSystem.addAccount(username1, password1);
+        CredentialsSystem.addAccount(username2, password2);
+        
+        Attendant a1 = new Attendant();
+        a1.setLogin(username1, password1);
+        
+        Attendant a2 = new Attendant();
+        a2.setLogin(username2, password2);
+        
+        Tangibles.ATTENDANTS.add(a1);
+        Tangibles.ATTENDANTS.add(a2);
+    }
+
     public static Store getStore() {
         if (Main.store == null) {
             Main.main(null);
@@ -227,6 +251,7 @@ public final class Main {
         public static final List<Item> ITEMS = new ArrayList<Item>();
         public static final List<Card> MEMBER_CARDS = new ArrayList<Card>();
         public static final List<Card> PAYMENT_CARDS = new ArrayList<Card>();
+        public static final List<Attendant> ATTENDANTS = new ArrayList<Attendant>();
 
         /**
          * This class is not to be instantiated.

@@ -29,8 +29,8 @@ public class Receipt implements ReceiptPrinterObserver {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// attach observer
-		this.scs.printer.attach(this);
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	public void setCustomer(Customer customer) {
@@ -39,6 +39,32 @@ public class Receipt implements ReceiptPrinterObserver {
 
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	public void attachAll() {
+		this.scs.printer.attach(this);
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.printer.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware.
+	 */
+	public void enableHardware(){
+		this.scs.printer.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware.
+	 */
+	public void disableHardware(){
+		this.scs.printer.disable();
 	}
 	
 
@@ -103,7 +129,6 @@ public class Receipt implements ReceiptPrinterObserver {
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		// we don't currently handle any events when the receipt printer is enabled
 	}
 
 	@Override
