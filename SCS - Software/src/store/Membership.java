@@ -42,13 +42,6 @@ public class Membership {
 		return false;
 	}
 
-	public static boolean isMember(CardData memberCardData) {
-		if(!memberCardData.getType().equals("membership"))
-			throw new IllegalArgumentException("Card is not a membership card.");
-
-		return Membership.isMember(memberCardData.getNumber());
-	}
-
 	public static void createMembership(String memberID, String holder) {
 		Membership.MEMBERS.add(memberID);
 
