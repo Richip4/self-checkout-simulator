@@ -202,11 +202,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		} else {
 			try {
-				//Blocks station, notifys supervision station of screenblocked, unexpected item. Also notify the gui.
-				this.scss.blockSystem();
-				this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.unexpectedItemDetected(scss));
-				this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.touchScreenBlocked(scss));
-				this.scss.notifyObservers(observer -> observer.touchScreenBlocked());
+				
 
 				double weightDiff = weightBeforeBagging - scale.getCurrentWeight(); // changing weight
 				if (weightDiff < discrepancy && weightDiff > -discrepancy) {
@@ -214,6 +210,11 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 					unexpectedItem = false;
 				}
 				else if(unexpectedItem) {
+					//Blocks station, notifys supervision station of screenblocked, unexpected item. Also notify the gui.
+					this.scss.blockSystem();
+					this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.unexpectedItemDetected(scss));
+					this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.touchScreenBlocked(scss));
+					this.scss.notifyObservers(observer -> observer.touchScreenBlocked());
 					if(this.scss.getSupervisionSoftware().getAttendant().getUnexpectedItemDecision()){
 						unexpectedItem = false;					// ignore unexpected item, it was overridden
 						weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
