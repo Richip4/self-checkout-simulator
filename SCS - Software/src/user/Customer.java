@@ -111,13 +111,4 @@ public class Customer extends User {
 	{
 		return numOfPlasticBags;
 	}
-
-	//set and get methods for gift card value
-	public BigDecimal getGiftCardValue() {
-		return giftCardValue;
-	}
-
-	public void setGiftCardValue(BigDecimal giftCardValue) {
-		this.giftCardValue = giftCardValue;
-	}
 }

@@ -47,18 +47,6 @@ public class GiftCard
             return false;
         }
     }
-
-    public static boolean isGiftCard(String type, String number)
-    {
-        if(!type.equals("giftcard"))
-        {
-            throw new IllegalArgumentException("Card is not a gift card.");
-        }
-        else
-        {
-            return GiftCard.isGiftCard(number);
-        } 
-    }
     
     public static void createGiftCard(String cardID, BigDecimal cardValue)
     {
