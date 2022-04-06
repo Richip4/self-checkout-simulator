@@ -155,12 +155,8 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
 				return;
 			}
-
 			this.scss.notifyObservers(observer -> observer.paymentCompleted());
-			
-			}
-			else
-			{
+			} else {
 				this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
 			}
 		} else {

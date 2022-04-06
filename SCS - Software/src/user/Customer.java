@@ -19,7 +19,6 @@ public class Customer extends User {
 	private boolean removeLastAddedItem;
 	private boolean ownBagsUsed = false;
 	private int numOfPlasticBags = 0;
-	private BigDecimal giftCardValue;
 
 	public void addCurrency(BigDecimal value) {
 		accumulatedCurrency = accumulatedCurrency.add(value);

@@ -48,15 +48,15 @@ public class GiftCard
         }
     }
 
-    public static boolean isGiftCard(CardData giftCardData)
+    public static boolean isGiftCard(String type, String number)
     {
-        if(!giftCardData.getType().equals("giftcard"))
+        if(!type.equals("giftcard"))
         {
             throw new IllegalArgumentException("Card is not a gift card.");
         }
         else
         {
-            return GiftCard.isGiftCard(giftCardData.getNumber());
+            return GiftCard.isGiftCard(number);
         } 
     }
     
