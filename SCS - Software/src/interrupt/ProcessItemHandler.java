@@ -37,9 +37,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	private boolean waitingForBagging;
 	private double scaleResetWeight = 0.0;
 	private boolean scaleOverloaded;
-	private double discrepancy = 0.1; // Scales have margins of errors, this is how much we allow
-
-	private boolean ownBagsUsed = false;
+	private double discrepancy = 0.1;		//Scales have margins of errors, this is how much we allow
 	private double ownBagWeight = 0;
 
 	public ProcessItemHandler(SelfCheckoutSoftware scss) {
@@ -63,8 +61,6 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.waitingForBagging = false;
 		this.scaleResetWeight = 0.0;
 		this.scaleOverloaded = false;
-		this.ownBagsUsed = false;
-		this.ownBagWeight = 0;
 	}
 
 	public void attachAll() {
@@ -151,11 +147,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			this.waitingForBagging = true;
 		}
 	}
-
-	public void setownBagsUsed(boolean ownBagsUsed) {
-		this.ownBagsUsed = ownBagsUsed;
-	}
-
+	
 	/**
 	 * When electronic scale weight change event occurs under normal operation
 	 * compare
@@ -175,16 +167,16 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		if (this.customer == null) {
 			return;
 		}
-
+		
 		// Get the weight of the bag and store it, if the customer has said that they
 		// want to use their own bags
-		if (ownBagsUsed) {
+		if (customer.getUseOwnBags()) {
 			ownBagWeight = weightInGrams;
-			ownBagsUsed = false; // reset boolean so this if statement only runs once
-
-			weightBeforeBagging = weightInGrams; // set the weight before bagging to the weight of the bags on scale
-
-			return; // return once weight is set
+			customer.setOwnBagsUsed(false);	// reset boolean so this if statement only runs once
+			
+			weightBeforeBagging = weightInGrams;	// set the weight before bagging to the weight of the bags on scale
+			
+			return;	// return once weight is set
 		}
 
 		if (!(unexpectedItem || scaleOverloaded)) {
@@ -242,13 +234,8 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public boolean getUnexpectedItem() {
 		return this.unexpectedItem;
 	}
-
-	public boolean getUseOwnBags() {
-		return this.ownBagsUsed;
-	}
-
+	
 	public double getWeightBeforeBagging() {
 		return this.weightBeforeBagging;
 	}
-
 }
