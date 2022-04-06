@@ -45,11 +45,8 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// attaches itself as an observer to all related hardware
-		this.scs.banknoteInput.attach(this);
-		this.scs.banknoteOutput.attach(this);
-		this.scs.banknoteValidator.attach(this);
-		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	/**
@@ -63,6 +60,14 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.banknoteValue = BigDecimal.ZERO;
 	}
 
+	public void attachAll() {
+		// attaches itself as an observer to all related hardware
+		this.scs.banknoteInput.attach(this);
+		this.scs.banknoteOutput.attach(this);
+		this.scs.banknoteValidator.attach(this);
+		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
+	}
+
 	/**
 	 * Gets the current customer using the station
 	 * 
@@ -71,6 +76,36 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	 */
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.banknoteInput.detach(this);
+		this.scs.banknoteOutput.detach(this);
+		this.scs.banknoteValidator.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware in a single function.
+	 */
+	public void enableHardware(){
+		this.scs.banknoteInput.enable();
+        this.scs.banknoteOutput.enable();
+        this.scs.banknoteStorage.enable();
+        this.scs.banknoteValidator.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware(){
+		this.scs.banknoteInput.disable();
+        this.scs.banknoteOutput.disable();
+        this.scs.banknoteStorage.disable();
+        this.scs.banknoteValidator.disable();
 	}
 
 	/**
@@ -123,7 +158,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 				/* Nothing happens when banknote dispenser is disabled */ ;
 		});
 	}
-
+	
 	/**
 	 * Sets flag to acknowledge received banknote and updates the current banknotes
 	 * value.
