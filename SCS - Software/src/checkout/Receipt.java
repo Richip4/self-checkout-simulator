@@ -20,7 +20,6 @@ import application.Main.Configurations;
  *
  */
 public class Receipt implements ReceiptPrinterObserver {
-	// declaration of variables used to access methods in control software/hardware
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;
 	private Customer customer;
@@ -49,30 +48,30 @@ public class Receipt implements ReceiptPrinterObserver {
 	 * Used to reboot/shutdown the software. Detatches the handler so that
 	 * we can stop listening or assign a new handler.
 	 */
-	public void detatchAll(){
+	public void detatchAll() {
 		this.scs.printer.detach(this);
 	}
 
 	/**
 	 * Used to enable all the associated hardware.
 	 */
-	public void enableHardware(){
+	public void enableHardware() {
 		this.scs.printer.enable();
 	}
 
 	/**
 	 * Used to disable all the associated hardware.
 	 */
-	public void disableHardware(){
+	public void disableHardware() {
 		this.scs.printer.disable();
 	}
-	
 
 	/**
 	 * Method that iterates through each item in the customer's cart, printing out a
 	 * receipt
 	 * including the description and price of each item, as well as a subtotal at
 	 * the bottom.
+	 * 
 	 * @throws OverloadException
 	 * @throws EmptyException
 	 */
@@ -93,7 +92,7 @@ public class Receipt implements ReceiptPrinterObserver {
 	}
 
 	public void printReceipt() throws EmptyException, OverloadException {
-		// Print Membership 
+		// Print Membership
 		if (this.customer.getMemberID() != null) {
 			String membership = "Member ID: " + this.customer.getMemberID();
 			this.printLine(membership);
@@ -146,7 +145,9 @@ public class Receipt implements ReceiptPrinterObserver {
 	public void outOfPaper(ReceiptPrinter printer) {
 		// disable the receipt printer
 		scs.printer.disable();
-		// future implementation: announce that machine has run out of paper
+
+		// announce that machine has run out of paper
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterOutOfPaper(this.scss));
 	}
 
 	/**
@@ -159,7 +160,9 @@ public class Receipt implements ReceiptPrinterObserver {
 	public void outOfInk(ReceiptPrinter printer) {
 		// disable the receipt printer
 		scs.printer.disable();
-		// future implementation: announce that machine has run out of ink
+
+		// announce that machine has run out of ink
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterOutOfInk(this.scss));
 	}
 
 	@Override

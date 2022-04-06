@@ -37,9 +37,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	private boolean waitingForBagging;
 	private double scaleResetWeight = 0.0;
 	private boolean scaleOverloaded;
-	private double discrepancy = 0.1; // Scales have margins of errors, this is how much we allow
-
-	private boolean ownBagsUsed = false;
+	private double discrepancy = 0.1;		//Scales have margins of errors, this is how much we allow
 	private double ownBagWeight = 0;
 
 	public ProcessItemHandler(SelfCheckoutSoftware scss) {
@@ -63,8 +61,6 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.waitingForBagging = false;
 		this.scaleResetWeight = 0.0;
 		this.scaleOverloaded = false;
-		this.ownBagsUsed = false;
-		this.ownBagWeight = 0;
 	}
 
 	public void attachAll() {
@@ -129,33 +125,32 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		Product product = Inventory.getProduct(barcode);
 
-		if (product != null) {
-			this.scs.mainScanner.disable();
-			this.scs.handheldScanner.disable();
-
-			if (product instanceof BarcodedProduct) {
-				BarcodedProduct barcodedProduct = (BarcodedProduct) product;
-				this.currentItemsWeight = barcodedProduct.getExpectedWeight();
-			} else {
-				this.currentItemsWeight = 0.0;
-			}
-
-			try {
-				this.weightBeforeBagging = this.scs.baggingArea.getCurrentWeight();
-			} catch (OverloadException e) {
-				// TODO Auto-generated catch block
-			}
-
-			this.customer.addToCart(product);
-			this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
-			this.waitingForBagging = true;
+		if (product == null) {
+			this.scss.notifyObservers(observer -> observer.productCannotFound());
+			return;
 		}
-	}
 
-	public void setownBagsUsed(boolean ownBagsUsed) {
-		this.ownBagsUsed = ownBagsUsed;
-	}
+		this.scs.mainScanner.disable();
+		this.scs.handheldScanner.disable();
 
+		if (product instanceof BarcodedProduct) {
+			BarcodedProduct barcodedProduct = (BarcodedProduct) product;
+			this.currentItemsWeight = barcodedProduct.getExpectedWeight();
+		} else {
+			this.currentItemsWeight = 0.0;
+		}
+
+		try {
+			this.weightBeforeBagging = this.scs.baggingArea.getCurrentWeight();
+		} catch (OverloadException e) {
+			// TODO Auto-generated catch block
+		}
+
+		this.customer.addToCart(product);
+		this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
+		this.waitingForBagging = true;
+	}
+	
 	/**
 	 * When electronic scale weight change event occurs under normal operation
 	 * compare
@@ -175,16 +170,16 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		if (this.customer == null) {
 			return;
 		}
-
+		
 		// Get the weight of the bag and store it, if the customer has said that they
 		// want to use their own bags
-		if (ownBagsUsed) {
+		if (customer.getUseOwnBags()) {
 			ownBagWeight = weightInGrams;
-			ownBagsUsed = false; // reset boolean so this if statement only runs once
-
-			weightBeforeBagging = weightInGrams; // set the weight before bagging to the weight of the bags on scale
-
-			return; // return once weight is set
+			customer.setOwnBagsUsed(false);	// reset boolean so this if statement only runs once
+			
+			weightBeforeBagging = weightInGrams;	// set the weight before bagging to the weight of the bags on scale
+			
+			return;	// return once weight is set
 		}
 
 		if (!(unexpectedItem || scaleOverloaded)) {
@@ -212,6 +207,14 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 					this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
 					unexpectedItem = false;
 				}
+				else if(unexpectedItem) {
+					if(this.scss.getSuperVisionSoftware().getAttendant.promptForInput()){
+						unexpectedItem = false;					// ignore unexpected item, it was overridden
+						weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
+						this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
+						}
+					// can add else statement to handle if weight discrepancy is declined
+				}
 			} catch (OverloadException e) {
 
 			}
@@ -221,34 +224,20 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	@Override
 	public void overload(ElectronicScale scale) {
 		this.scaleOverloaded = true;
-		this.scs.mainScanner.disable();
-		this.scs.handheldScanner.disable();
+		this.scss.blockSystem();
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
 		this.scaleOverloaded = false;
-		this.scs.mainScanner.enable();
-		this.scs.handheldScanner.enable();
+		this.scss.blockSystem();
 	}
-
-	/*
-	 * For GUI Usage
-	 */
-	// public void itemNotBagged(ElectronicScale scale) {
-	// customer.notifyPlaceInBaggingArea();
-	// }
 
 	public boolean getUnexpectedItem() {
 		return this.unexpectedItem;
 	}
-
-	public boolean getUseOwnBags() {
-		return this.ownBagsUsed;
-	}
-
+	
 	public double getWeightBeforeBagging() {
 		return this.weightBeforeBagging;
 	}
-
 }

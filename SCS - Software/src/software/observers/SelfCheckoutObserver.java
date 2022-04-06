@@ -8,32 +8,35 @@ import software.SelfCheckoutSoftware;
  * PLEASE NOTICE: When you define the return type, instead of {@code Void},
  * please use its wrapper class {@code Void} object, the one with capital V.
  * 
- * Please notice the naming pattern. It should be noun + verb past tense. 
+ * Please notice the naming pattern. It should be noun + verb past tense.
  * 
  * @author Yunfan Yang
  */
 public interface SelfCheckoutObserver extends Observer {
-    public Void banknoteEjected();
-
-    public Void banknoteInputEnabled();
-
-    public Void banknoteInputDisabled();
-    
-    public Void invalidCardTypeDetected();
-    
-    public Void invalidCoinDetected();
-    
+    // Banknote Handler
     public Void invalidBanknoteDetected();
 
-    public Void placeInBaggingAreaBlocked();
+    public Void banknoteAdded();
 
-    public Void placeInBaggingAreaUnblocked();
+    public Void banknoteStorageFull();
 
-    public Void unexpectedItemInBaggingAreaDetected();
+    public Void banknoteDispenserEmpty();
 
-    public Void unexpectedItemInBaggingAreaRemoved();
+    // Coin Handler
+    public Void invalidCoinDetected();
+
+    public Void coinAdded();
+
+    public Void coinStorageFull();
+
+    public Void coinDispenserEmpty();
+
+    // Card Handler
+    public Void invalidCardTypeDetected();
 
     public Void cardTransactionSucceeded();
+
+    public Void invalidGiftCardDetected();
 
     public Void invalidMembershipCardDetected();
 
@@ -45,11 +48,24 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void paymentCompleted();
 
+    // Process Item Handler
+    public Void placeInBaggingAreaBlocked();
+
+    public Void placeInBaggingAreaUnblocked();
+
+    public Void unexpectedItemInBaggingAreaDetected();
+
+    public Void unexpectedItemInBaggingAreaRemoved();
+
+    public Void productCannotFound();
+
+    // Self-Checkout Software
+
     public Void softwareStarted(SelfCheckoutSoftware scss);
-    
+
     public Void softwareStopped(SelfCheckoutSoftware scss);
 
     public Void touchScreenBlocked();
-    
+
     public Void touchScreenUnblocked();
 }
