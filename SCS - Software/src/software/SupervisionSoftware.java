@@ -6,6 +6,7 @@ import java.util.List;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
 import software.observers.SupervisionObserver;
+import user.Attendant;
 
 /**
  * A software for a supervision station.
@@ -18,7 +19,7 @@ import software.observers.SupervisionObserver;
  */
 public class SupervisionSoftware extends Software<SupervisionObserver> {
     private final SupervisionStation svs;
-    // private Attendant attendant; // TODO: Expecting a Attendant class in the
+    private Attendant attendant; 
     // future development
     private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
 
@@ -26,6 +27,10 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
         this.svs = svs;
 
         // TODO: Initialize handlers that supervision software needs.
+    }
+    
+    public void setAttendant(Attendant attendant) {
+    	this.attendant = attendant;
     }
 
     public SupervisionStation getSupervisionStation() {

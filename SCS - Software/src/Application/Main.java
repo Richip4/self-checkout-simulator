@@ -54,7 +54,7 @@ public final class Main {
         Main.initializeStore();
         Main.initializeMembership();
         
-        new GUI(new AppControl(Tangibles.SUPERVISION_STATION));
+        new GUI(new AppControl());
     }
 
     private static void initializeCardAndIssuers() {

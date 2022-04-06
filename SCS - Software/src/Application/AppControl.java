@@ -1,17 +1,12 @@
 package Application;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
-import interrupt.BanknoteHandler;
-import interrupt.CardHandler;
-import interrupt.CoinHandler;
-import interrupt.ProcessItemHandler;
-import store.Inventory;
+import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import store.Store;
 import user.Attendant;
 import user.Customer;
@@ -24,12 +19,14 @@ public class AppControl {
 	public static final int CUSTOMER = 1;
 	public static final int ATTENDANT = 2;
 	public static final int BOTH = 3;
-	
+		
 	// the attendant station that oversees the self-checkout stations
-	private SupervisionStation supervisor;
+	private static SupervisionStation supervisor;
+	private SupervisionSoftware supervisorSoftware;
 	
 	// list of self-checkout stations
 	private List<SelfCheckoutStation> selfStations;
+	private List<SelfCheckoutSoftware> selfStationSoftwares;
 	
 	// list of people visiting the stations
 	// NOTE: active users not at an actual station are excluded
@@ -41,14 +38,15 @@ public class AppControl {
 	// the user we are actively simulating
 	private User activeUser;
 	
-	public AppControl(SupervisionStation supervisor) {
-		this.supervisor = supervisor;
+	public AppControl() {
+		supervisor = Main.Tangibles.SUPERVISION_STATION;
+		supervisorSoftware = Store.getSupervisionSoftware();
+		
 		selfStations = supervisor.supervisedStations();
+		selfStationSoftwares = supervisorSoftware.getSoftwareList();
+		
 		// max number of users equals number of customer stations + 1 attendant
 		users = new User[selfStations.size() + 1]; 
-//		for (int i = 0; i < users.length; i++) {
-//			users[i] = new Customer(); 
-//		}
 		stationsUserType = new int[selfStations.size() + 1]; 
 	}
 	
@@ -117,6 +115,7 @@ public class AppControl {
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
+		selfStationSoftwares.get(station).setUser(activeUser);
 	}
 	
 	/**
@@ -126,6 +125,7 @@ public class AppControl {
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
 		users[station] = activeUser;
+		selfStationSoftwares.get(station).setUser(activeUser);
 	}
 	
 	/**
@@ -137,6 +137,7 @@ public class AppControl {
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				users[i] = null;
+				selfStationSoftwares.get(station).removeUser(activeUser);
 				return;
 			}
 		}
@@ -151,6 +152,7 @@ public class AppControl {
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				users[i] = null;
+				selfStationSoftwares.get(station).removeUser(activeUser);
 				return;
 			}
 		}
