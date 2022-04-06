@@ -25,24 +25,18 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private SupervisionSoftware svs;
     private Customer customer;
 
-    private final BanknoteHandler banknoteHandler;
-    private final CardHandler cardHandler;
-    private final CoinHandler coinHandler;
-    private final ProcessItemHandler processItemHandler;
+    private BanknoteHandler banknoteHandler;
+    private CardHandler cardHandler;
+    private CoinHandler coinHandler;
+    private ProcessItemHandler processItemHandler;
 
-    private final Checkout checkout; // Controller for processing checkout
-    private final Receipt receipt; // Controller for printing receipt
+    private Checkout checkout; // Controller for processing checkout
+    private Receipt receipt; // Controller for printing receipt
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
-
-        this.banknoteHandler = new BanknoteHandler(this);
-        this.cardHandler = new CardHandler(this);
-        this.coinHandler = new CoinHandler(this);
-        this.processItemHandler = new ProcessItemHandler(this);
         
-        this.checkout = new Checkout(this);
-        this.receipt = new Receipt(this);
+        this.startSystem();
     }
 
     public void setCustomer(Customer customer) {
@@ -79,5 +73,79 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     public SupervisionSoftware getSupervisionSoftware() {
         return this.svs;
+    }
+
+    public void notifyBanknoteEjected() {
+        this.checkout.makeChange();
+    }
+
+    public void enableHardware() {
+        this.banknoteHandler.enableHardware();
+        this.cardHandler.enableHardware();
+        this.coinHandler.enableHardware();
+        this.processItemHandler.enableHardware();
+    }
+
+    public void disableHardware() {
+        this.banknoteHandler.disableHardware();
+        this.cardHandler.disableHardware();
+        this.coinHandler.disableHardware();
+        this.processItemHandler.disableHardware();   
+    }
+
+    /**
+     * This method is used for starting or restarting a system.
+     * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
+     * when something is turned on/off.
+     */
+    public void startSystem(){
+        this.banknoteHandler = new BanknoteHandler(this);
+        this.cardHandler = new CardHandler(this);
+        this.coinHandler = new CoinHandler(this);
+        this.processItemHandler = new ProcessItemHandler(this);
+        this.checkout = new Checkout(this);
+        this.receipt = new Receipt(this);
+        
+        this.enableHardware();
+
+        this.notifyObservers(observer -> observer.softwareStarted(this));
+    }
+
+    /**
+     * Turns off the system by setting everything to null, the Handlers are technically turned off.
+     * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
+     * when something is turned off.
+     */
+    public void stopSystem() {
+        this.disableHardware();
+
+        this.banknoteHandler.detatchAll();
+        this.banknoteHandler = null;
+
+        this.cardHandler.detatchAll();
+        this.cardHandler = null;
+
+        this.coinHandler.detatchAll();
+        this.coinHandler = null;
+        
+        this.processItemHandler.detatchAll();
+        this.processItemHandler = null;
+
+        this.checkout = null;
+
+        this.receipt.detatchAll();
+        this.receipt = null;
+
+        this.notifyObservers(observer -> observer.softwareStopped(this));
+    }
+    
+    protected void blockSystem() {
+		this.disableHardware();
+    	this.notifyObservers(observer -> observer.touchScreenBlocked());
+    }
+    
+    protected void unblockSystem() {
+    	this.enableHardware();
+    	this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
 }

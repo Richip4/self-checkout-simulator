@@ -10,6 +10,7 @@ import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
 import user.Customer;
+import application.Main.Configurations;
 
 /**
  * Handles receipt printing for a customer once the customer has finished
@@ -28,8 +29,8 @@ public class Receipt implements ReceiptPrinterObserver {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 
-		// attach observer
-		this.scs.printer.attach(this);
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	public void setCustomer(Customer customer) {
@@ -38,6 +39,32 @@ public class Receipt implements ReceiptPrinterObserver {
 
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	public void attachAll() {
+		this.scs.printer.attach(this);
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.printer.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware.
+	 */
+	public void enableHardware(){
+		this.scs.printer.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware.
+	 */
+	public void disableHardware(){
+		this.scs.printer.disable();
 	}
 	
 
@@ -85,7 +112,7 @@ public class Receipt implements ReceiptPrinterObserver {
 				itemDescription = pluCodedProduct.getDescription();
 			}
 
-			String line = itemDescription + " $" + currentPrice;
+			String line = itemDescription + " " + Configurations.currency.getSymbol() + currentPrice;
 			this.printLine(line);
 		}
 
@@ -93,7 +120,7 @@ public class Receipt implements ReceiptPrinterObserver {
 		// subtotal header at the bottom
 		// st is used to print out the Subtotal header at the bottom of the receipt
 		BigDecimal subtotal = this.customer.getCartSubtotal();
-		String st = "Subtotal: $" + subtotal.toString();
+		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal.toString();
 		this.printLine(st);
 
 		// cut the receipt so that the customer can easily remove it
@@ -102,7 +129,6 @@ public class Receipt implements ReceiptPrinterObserver {
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
-		// we don't currently handle any events when the receipt printer is enabled
 	}
 
 	@Override
