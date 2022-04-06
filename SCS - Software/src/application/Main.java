@@ -24,7 +24,6 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import bank.Bank;
 import store.Membership;
 import store.Store;
-import store.credentials.Account;
 import store.credentials.CredentialsSystem;
 import user.Attendant;
 import software.SelfCheckoutSoftware;
