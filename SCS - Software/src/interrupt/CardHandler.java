@@ -7,6 +7,7 @@ import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 import org.lsmr.selfcheckout.external.CardIssuer;
 
 import bank.Bank;
+import databases.GiftCard;
 import software.SelfCheckoutSoftware;
 import store.Membership;
 import user.Customer;
@@ -133,6 +134,35 @@ public class CardHandler extends Handler implements CardReaderObserver {
 			}
 
 			this.scss.notifyObservers(observer -> observer.paymentCompleted());
+		} else if(type.equals("gift")){
+			if(GiftCard.isGiftCard(data))
+			{
+				String cardNumber = data.getNumber();
+				CardIssuer issuer = GiftCard.getCardIssuer();
+				int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
+
+			// Fail to hold the authorization
+			if (holdNumber == -1) 
+			{
+				this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
+				return;
+			}
+
+			boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
+
+			// Fail to post transaction
+			if (!posted) {
+				this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
+				return;
+			}
+
+			this.scss.notifyObservers(observer -> observer.paymentCompleted());
+			
+			}
+			else
+			{
+				this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
+			}
 		} else {
 			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}

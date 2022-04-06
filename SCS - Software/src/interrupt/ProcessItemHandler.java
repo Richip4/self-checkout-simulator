@@ -38,8 +38,9 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	private double scaleResetWeight = 0.0;
 	private boolean scaleOverloaded;
 	private double discrepancy = 0.1;		//Scales have margins of errors, this is how much we allow
+	private double ownBagWeight = 0;
 
-	public ProcessItemHandler(SelfCheckoutStation scss) {
+	public ProcessItemHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
 		
@@ -136,7 +137,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		// Get the weight of the bag and store it, if the customer has said that they
 		// want to use their own bags
 		if (customer.getUseOwnBags()) {
-			customer.setOwnBagWeight(weightInGrams);
+			ownBagWeight = weightInGrams;
 			customer.setOwnBagsUsed(false);	// reset boolean so this if statement only runs once
 			
 			weightBeforeBagging = weightInGrams;	// set the weight before bagging to the weight of the bags on scale
@@ -203,5 +204,4 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public double getWeightBeforeBagging() {
 		return this.weightBeforeBagging;
 	}
-
 }
