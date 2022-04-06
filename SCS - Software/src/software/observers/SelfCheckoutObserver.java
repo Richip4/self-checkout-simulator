@@ -8,7 +8,7 @@ import software.SelfCheckoutSoftware;
  * PLEASE NOTICE: When you define the return type, instead of {@code Void},
  * please use its wrapper class {@code Void} object, the one with capital V.
  * 
- * Please notice the naming pattern. It should be noun + verb past tense. 
+ * Please notice the naming pattern. It should be noun + verb past tense.
  * 
  * @author Yunfan Yang
  */
@@ -30,7 +30,7 @@ public interface SelfCheckoutObserver extends Observer {
     public Void coinStorageFull();
 
     public Void coinDispenserEmpty();
-    
+
     // Card Handler
     public Void invalidCardTypeDetected();
 
@@ -57,10 +57,10 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void productCannotFound();
 
-    // Self-Checkout Software 
+    // Self-Checkout Software
 
     public Void softwareStarted(SelfCheckoutSoftware scss);
-    
+
     public Void softwareStopped(SelfCheckoutSoftware scss);
 
     public Void touchScreenBlocked();

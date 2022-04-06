@@ -233,13 +233,6 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scss.blockSystem();
 	}
 
-	/*
-	 * For GUI Usage
-	 */
-	// public void itemNotBagged(ElectronicScale scale) {
-	// customer.notifyPlaceInBaggingArea();
-	// }
-
 	public boolean getUnexpectedItem() {
 		return this.unexpectedItem;
 	}

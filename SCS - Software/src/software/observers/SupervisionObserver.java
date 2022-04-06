@@ -12,7 +12,7 @@ public interface SupervisionObserver extends Observer {
     public Void coinStorageFull(SelfCheckoutSoftware scs);
 
     public Void coinDispenserEmpty(SelfCheckoutSoftware scs);
-    
+
     // Checkout Handler
     public Void dispenseChangeFailed(SelfCheckoutSoftware scs);
 

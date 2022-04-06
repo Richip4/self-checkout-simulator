@@ -35,7 +35,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
-        
+
         this.startSystem();
     }
 
@@ -90,30 +90,33 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.banknoteHandler.disableHardware();
         this.cardHandler.disableHardware();
         this.coinHandler.disableHardware();
-        this.processItemHandler.disableHardware();   
+        this.processItemHandler.disableHardware();
     }
 
     /**
      * This method is used for starting or restarting a system.
-     * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
+     * We do not want to mess with the SelfCheckoutStation because we do not create
+     * new hardware
      * when something is turned on/off.
      */
-    public void startSystem(){
+    public void startSystem() {
         this.banknoteHandler = new BanknoteHandler(this);
         this.cardHandler = new CardHandler(this);
         this.coinHandler = new CoinHandler(this);
         this.processItemHandler = new ProcessItemHandler(this);
         this.checkout = new Checkout(this);
         this.receipt = new Receipt(this);
-        
+
         this.enableHardware();
 
         this.notifyObservers(observer -> observer.softwareStarted(this));
     }
 
     /**
-     * Turns off the system by setting everything to null, the Handlers are technically turned off.
-     * We do not want to mess with the SelfCheckoutStation because we do not create new hardware
+     * Turns off the system by setting everything to null, the Handlers are
+     * technically turned off.
+     * We do not want to mess with the SelfCheckoutStation because we do not create
+     * new hardware
      * when something is turned off.
      */
     public void stopSystem() {
@@ -127,7 +130,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.coinHandler.detatchAll();
         this.coinHandler = null;
-        
+
         this.processItemHandler.detatchAll();
         this.processItemHandler = null;
 
@@ -138,17 +141,17 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.notifyObservers(observer -> observer.softwareStopped(this));
     }
-    
+
     public void blockSystem() {
-		this.disableHardware();
-    	this.notifyObservers(observer -> observer.touchScreenBlocked());
+        this.disableHardware();
+        this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
-    
+
     protected void unblockSystem() {
         this.enableHardware();
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
-    
+
     public void makeChange() {
         this.checkout.makeChange();
     }
