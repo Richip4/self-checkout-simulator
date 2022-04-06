@@ -31,12 +31,42 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	public CardHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
-		this.scs.cardReader.attach(this);
+
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
+
+	public void attachAll() {
+		this.scs.cardReader.attach(this);
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll(){
+		this.scs.cardReader.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware.
+	 */
+	public void enableHardware(){
+		this.scs.cardReader.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware.
+	 */
+	public void disableHardware(){
+		this.scs.cardReader.disable();
+	}
+
+	
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
@@ -50,6 +80,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 		// TODO: Future implementations we may need to warn the customer that this
 		// device does not work.
 	}
+	
 
 	@Override
 	public void cardInserted(CardReader reader) {
@@ -110,7 +141,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				return;
 			}
 
-			this.customer.setMemberID(memberID);
+			this.customer.getMemberID();
 
 			this.scss.notifyObservers(observer -> observer.membershipCardDetected(memberID));
 		} else if (type.equals("debit") || type.equals("credit")) {

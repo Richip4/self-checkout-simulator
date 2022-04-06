@@ -27,4 +27,6 @@ public final class Store {
     public static List<SelfCheckoutSoftware> getSelfCheckoutSoftwareList() {
         return Collections.unmodifiableList(SUPERVISION_SOFTWARE.getSoftwareList());
     }
+
+    
 }

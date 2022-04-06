@@ -43,13 +43,9 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public ProcessItemHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
-		
-		// Attach both scanners
-		this.scs.mainScanner.attach(this);
-		this.scs.handheldScanner.attach(this);
 
-		// Attach bagging area scale; to get notified
-		this.scs.baggingArea.attach(this);
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	/**
@@ -65,6 +61,44 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.waitingForBagging = false;
 		this.scaleResetWeight = 0.0;
 		this.scaleOverloaded = false;
+	}
+
+	public void attachAll() {
+		// Attach both scanners
+		this.scs.mainScanner.attach(this);
+		this.scs.handheldScanner.attach(this);
+
+		// Attach bagging area scale; to get notified
+		this.scs.baggingArea.attach(this);
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll() {
+		this.scs.mainScanner.detach(this);
+		this.scs.handheldScanner.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware in a single function.
+	 */
+	public void enableHardware() {
+		this.scs.mainScanner.enable();
+		this.scs.handheldScanner.enable();
+		this.scs.scanningArea.enable();
+		this.scs.baggingArea.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware in a single function.
+	 */
+	public void disableHardware() {
+		this.scs.mainScanner.disable();
+		this.scs.handheldScanner.disable();
+		this.scs.scanningArea.disable();
+		this.scs.baggingArea.disable();
 	}
 
 	@Override
