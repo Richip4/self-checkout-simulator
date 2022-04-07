@@ -34,8 +34,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         WEIGHING_PLU_ITEM,
         BAGGING_ITEM,
         PLACING_OWN_BAG,
+        
         HAVING_WEIGHT_DISCREPANCY,
-
         BLOCKING,
     };
 
@@ -47,6 +47,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     private Phase phase;
     private boolean isBlocked;
+    private boolean isWeightDiscrepancy;
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
@@ -247,6 +248,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public Phase getPhase() {
         if (this.isBlocked) {
             return Phase.BLOCKING;
+        } else if (this.isWeightDiscrepancy) {
+            return Phase.HAVING_WEIGHT_DISCREPANCY;
         }
 
         return this.phase;
@@ -371,13 +374,12 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     }
 
     public void weightDiscrepancy() {
-        if (this.phase != Phase.BAGGING_ITEM || this.customer == null) {
-            throw new IllegalStateException("Cannot weight discrepancy when the system is not bagging item");
-        }
-
         this.disableHardware();
         this.processItemHandler.enableBaggingArea();
-        this.setPhase(Phase.HAVING_WEIGHT_DISCREPANCY);
+
+        this.isWeightDiscrepancy = true;
+        this.notifyObservers(observer -> observer.phaseChanged(Phase.HAVING_WEIGHT_DISCREPANCY));
+        this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
 
     protected void approveWeightDiscrepancy() {
@@ -387,7 +389,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
 
         this.processItemHandler.overrideWeight();
-        this.processItemHandler.enableBaggingArea();
-        this.setPhase(Phase.BAGGING_ITEM);
+        this.processItemHandler.enableHardware();
+
+        this.isWeightDiscrepancy = false;
+        this.notifyObservers(observer -> observer.phaseChanged(this.phase));
+        this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
 }
