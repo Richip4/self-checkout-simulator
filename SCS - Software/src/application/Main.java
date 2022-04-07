@@ -269,7 +269,7 @@ public final class Main {
      * @author Yunfan Yang
      *
      */
-    public class Configurations {
+    public static class Configurations {
     	public static final Currency currency = Currency.getInstance("CAD");
     	public static final int stations = 6;
     }

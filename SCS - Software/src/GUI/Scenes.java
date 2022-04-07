@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -28,7 +29,6 @@ import javax.swing.border.EtchedBorder;
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
-import software.SelfCheckoutSoftware.Phase;
 import store.Store;
 
 public class Scenes {
@@ -133,13 +133,13 @@ public class Scenes {
 			JPanel content = new JPanel();
 			content.setSize(1280, 670);
 			content.setBackground(defaultBackground);
-			content.setLayout(new BorderLayout());
+			content.setLayout(null);
 			
 			// create panels to mark where the self checkout stations
 			// will be in our scene.  Accompany them with buttons to 
 			// provide a way to select the station.
 			List<SelfCheckoutSoftware> scssList = Store.getSelfCheckoutSoftwareList();
-			int numOfSCS = scssList.size();	// <---- get number from supervision station
+			int numOfSCS = scssList.size();
 			JPanel[] scs = new JPanel[numOfSCS];
 			sbn = new JButton[numOfSCS];
 			
@@ -150,7 +150,7 @@ public class Scenes {
 				scs[i].setBounds((175 * (i+1)) + 50, (60 * i) + 25, 150, 150);
 				scs[i].setBackground(new Color((20 * i) + 100, (10 * i) + 120, 180));
 				
-				// create the button and add it to the stations panel
+				// create a button to select a particular station
 				sbn[i] = new JButton();
 				sbn[i].setText("Station " + (i+1));
 				sbn[i].setBounds(45, 35, 60, 25);
@@ -162,41 +162,37 @@ public class Scenes {
 				// Eg, pass in the self-checkout software object, so action listener can
 				// directly do operation on the software object. Think this would make be
 				// helpful and make a lot of logic easier to follow. -Yunfan FIXME:
-				sbn[i].putClientProperty("station-id", i);
+				sbn[i].putClientProperty("station-id", i+1); // add one to store station not index
 				sbn[i].putClientProperty("station-scss", scssList.get(i));
 
 				// add button to the stations panel
 				scs[i].add(sbn[i]);
 
-				// add station panel to the content as a whole
+				// add station panel to the main content panel
 				content.add(scs[i]);
 			}
 
 			// create a panel for the attendant station
-			// along with a button for accessing it
 			JPanel as = new JPanel();
 			as.setLayout(null);
 			as.setBounds(125, 450, 220, 125);
 			as.setBackground(new Color(190, 200, 180));
 
+			// create a button to select the attendant station
 			abn = new JButton();
 			abn.setText("Attendant Station");
 			abn.setBounds(40, 35, 140, 25);
 			abn.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			abn.addActionListener(this);
-			as.add(abn);
+			as.add(abn); // add attendant selection button to it's panel
 
+			// add the swing components to the main content panel
 			content.add(as);
-
-			// the last component in a panel will try to take
-			// up the remaining space in the panel. Adding
-			// this empty label to essential fill the panels
-			// remaining space with nothing.
-			content.add(new JLabel());
 
 			// add the visual content to the scene
 			scene.add(content);
 
+			// to display frame, make visible after adding all components
 			this.setVisible(true);
 
 			// prompt the user to reply with what type of user they are
@@ -213,15 +209,14 @@ public class Scenes {
 				gui.userApproachesStation(0);
 			} else {
 				// self-checkout stations
+				
+				// since we are accessing Void data and casting it to expected types
+				// there is a possibility that this gets bad data if the ActionEvent
+				// is not a JButton.  Something to keep in mind if an error occurs.
+				int station = (int) ((JButton) e.getSource()).getClientProperty("station-id");
 
-				// Here, the action listener is passed the client property and can just use the
-				// property easily, without having to traverse every single button and see which
-				// button is being clicked and get the station id -Yunfan FIXME:
-				// I recommend to apply the same principle to all the buttons, so that the implementation
-				// is simpler and the performance of the program is better.
-				Integer i = Integer.valueOf(((JButton) e.getSource()).getClientProperty("station-id").toString());
-				setCurrentStation(i + 1);
-				gui.userApproachesStation(i + 1);
+				setCurrentStation(station);
+				gui.userApproachesStation(station);
 			}
 		}
 	}
@@ -260,12 +255,8 @@ public class Scenes {
 				}
 			});
 			
-			// main content panel of the scene
-			// contains the visually interactable 
-			// components in the scene.
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
-			// null layout allows me to place components freely to make background image
 			content.setLayout(null); 
 			
 			// bagging scale
@@ -419,6 +410,7 @@ public class Scenes {
 	// Attendant Station Touch Screen Scene
 	private class AS_Touchscreen_Scene extends JFrame  implements ActionListener {
 		
+		// cosmetic panel colors
 		Color tint_one = new Color(220, 230, 234);
 		Color tint_two = new Color(205, 220, 230);
 		
@@ -428,31 +420,24 @@ public class Scenes {
 		JButton[] station_approve = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 
 		public JFrame getScene() {
-			// init the window
 			JPanel scene = preprocessScene(this, 800, 650);
 
-			// include a banner for navigation
 			JPanel banner = generateBanner(scene);
 			
-			// Closing this scene means this user is no 
-			// longer using the self-checkout station
+			// Closing this scene should not log out the attendant
 			this.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
-					gui.attendantLogsOut();
 					removeDimmingFilter();
 				}
 			});
-			
-			// main content panel of the scene
-			// contains the visually interactable 
-			// components in the scene.
+
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
-			// null layout allows me to place components freely
 			content.setLayout(null); 
 			
 			Border border = BorderFactory.createLineBorder(Color.black, 2, true);
 			
+			// separate each station on it's own pseudo-banner for organization
 			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
 			
 				JPanel station = new JPanel();
@@ -460,6 +445,7 @@ public class Scenes {
 				station.setBounds(0, i * 100, 800, 100);
 				station.setBackground((i % 2 == 0) ? tint_one : tint_two);
 				
+				// display the stations relavent status to the attendant
 				station_status[i] = new JLabel();
 				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
 				station_status[i].setText(gui.stationStatus(i));
@@ -469,12 +455,14 @@ public class Scenes {
 				
 				Color station_light_color = checkStationAttention(i);
 				
+				// station light draws attention to erogenous status'
 				station_light[i] = new JLabel();
 				station_light[i].setBounds(260, 30, 40, 40);
 				station_light[i].setBackground(station_light_color);
 				station_light[i].setOpaque(true);
 				station.add(station_light[i]);
 				
+				// display which station this banner is associated with
 				JLabel station_label = new JLabel();
 				station_label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
 				station_label.setText("STATION " + (i+1));
@@ -485,6 +473,7 @@ public class Scenes {
 				station_label.setOpaque(true);
 				station.add(station_label);
 				
+				// create a button for the attendant to block/unblock a station
 				station_block[i] = new JButton();
 				station_block[i].setBounds(485, 25, 130, 50);
 				station_block[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
@@ -493,6 +482,7 @@ public class Scenes {
 				station_block[i].setFocusable(false);
 				station.add(station_block[i]);
 				
+				// create a button for the attendant to approve relevant erogenous states
 				station_approve[i] = new JButton();
 				station_approve[i].setBounds(635, 25, 130, 50);
 				station_approve[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
@@ -516,6 +506,8 @@ public class Scenes {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			// TODO: time permitting - use setClientProperty to assign 
+			// 		button station id's instead of looping through all stations
 			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
 				if (e.getSource() == station_block[i]) {
 					gui.attendantBlockToggle(i);
@@ -533,8 +525,6 @@ public class Scenes {
 	
 	// Self-Checkout Station Touch Screen Scene
 	
-	// Self-Checkout Station Keyboard Scene
-	
 	// Self-Checkout Station Card Reader Scene
 	private class SCS_Cardreader_Scene extends JFrame  implements MouseListener {
 		
@@ -543,26 +533,20 @@ public class Scenes {
 		JLabel insert;
 		
 		public JFrame getScene() {
-			// init the window
 			JPanel scene = preprocessScene(this, 250, 350);
 
-			// include a banner for navigation
 			JPanel banner = generateBanner(scene);
 			
-			// Closing this scene means this user is no 
-			// longer using the self-checkout station
+			// Closing this scene means this user does not  
+			// wish to use a card 
 			this.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
 					removeDimmingFilter();
 				}
 			});
 			
-			// main content panel of the scene
-			// contains the visually interactable 
-			// components in the scene.
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
-			// null layout allows me to place components freely
 			content.setLayout(null); 
 		
 			// card tap 
@@ -621,21 +605,16 @@ public class Scenes {
 		}
 
 		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void mouseEntered(MouseEvent e) {}
 
 		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void mouseExited(MouseEvent e) {}
 		
 	}
 	
 	// Self-Checkout Station Maintenance Scene
 	
+	// cosmetic status indicator colors
 	Color red_light = new Color(235, 80, 70);
 	Color green_light = new Color(80, 225, 80);
 	
@@ -674,7 +653,7 @@ public class Scenes {
 	 * @return
 	 */
 	private int promptCustomerForCard() {
-		String[] cardTypes = {"CREDIT", "DEBIT", "MEMBERSHIP" };
+		String[] cardTypes = {"CREDIT", "DEBIT", "MEMBERSHIP", "GIFT CARD" };
 		return JOptionPane.showOptionDialog(null, "Which card will you use?", 
 				"Card?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cardTypes, 0); 
 	}
@@ -684,6 +663,8 @@ public class Scenes {
 	 * Accepts literally any sequence of numbers.
 	 */
 	private void promptAttendantForLogIn() {
+		// TODO: change to accept username + password
+		// 		check if attendant is already logged in first
 		new Keypad("ENTER LOG IN NUMBER");
 	}
 	
