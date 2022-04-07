@@ -31,7 +31,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         CHOOSING_PAYMENT_METHOD,
         PROCESSING_PAYMENT,
 
-        PLU_ITEM_WEIGHING,
+        WEIGHING_PLU_ITEM,
         BAGGING_ITEM,
         PLACING_OWN_BAG,
         HAVING_WEIGHT_DISCREPANCY,
