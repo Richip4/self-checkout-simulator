@@ -1,125 +1,101 @@
 package tests.store;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.Numeral;
+import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import store.Inventory;
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
-import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.Item;
-import org.lsmr.selfcheckout.Numeral;
-import org.lsmr.selfcheckout.products.Product;
-
-import store.Inventory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * The JUnit test class for the Inventory class in SCS - Software.
- * 
+ *
  * @author Ricky Bhatti
  * @author Michelle Cheung
  */
-public class InventoryTest {
-    class FakeProduct extends Product {
-        public FakeProduct(BigDecimal price) {
-            super(price, false);
-        }
-    }
-    
-    class FakeItem extends Item {
-        public FakeItem(double weight) {
-            super(weight);
-        }
-    }
+public class InventoryTest
+{
+    // TODO: addProduct(Product p) cannot be reached as the only 2 types of products have their own overloaded method
 
-    Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
-    Barcode barcode = new Barcode(barcodeNumeral);
-    FakeProduct product = new FakeProduct(new BigDecimal("1.00"));
-    FakeItem item = new FakeItem(1.0);
+    // Declare the products
+    BarcodedProduct barcodedProduct;
+    PLUCodedProduct pluCodedProduct;
 
-    @Test
-    public void InventoryTest() {
-        Inventory inventory = new Inventory();
-        assertNotNull(inventory);
-    }
+    // Setup that is run before each test case
+    @Before
+    public void setup()
+    {
+        // Initialize the products
+        barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero}), "N/A", new BigDecimal("5.00"), 15.50);
+        pluCodedProduct = new PLUCodedProduct(new PriceLookupCode("1234"), "N/A", new BigDecimal("10.00"));
 
-    // Purchasble test?
-
-    @Test
-    public void addToInventoryTest() {
-        Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        assertEquals(inventory.getQuantity(barcode), 1);
+        // Resets the inventory
+        Inventory.clear();
     }
 
     @Test
-    public void addToInventoryTest2() {
-        Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        assertEquals(inventory.getQuantity(barcode), 2);
+    public void addAndGetProductTest()
+    {
+        assertNull(Inventory.getProduct(barcodedProduct.getBarcode()));
+        assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
+
+        Inventory.addProduct(barcodedProduct);
+        Inventory.addProduct(pluCodedProduct);
+
+        assertEquals(barcodedProduct, Inventory.getProduct(barcodedProduct.getBarcode()));
+        assertEquals(pluCodedProduct, Inventory.getProduct(pluCodedProduct.getPLUCode()));
     }
 
     @Test
-    public void removeFromInventoryTest() {
-        Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);        
-        assertTrue(inventory.removeInventory(barcode));
+    public void setAndGetQuantityTest()
+    {
+        Inventory.addProduct(barcodedProduct);
+        Inventory.addProduct(pluCodedProduct);
+
+        assertEquals(0, Inventory.getQuantity(barcodedProduct));
+        assertEquals(0, Inventory.getQuantity(pluCodedProduct));
+
+        Inventory.setQuantity(barcodedProduct, 1);
+        Inventory.setQuantity(pluCodedProduct, 2);
+
+        assertEquals(1, Inventory.getQuantity(barcodedProduct));
+        assertEquals(2, Inventory.getQuantity(pluCodedProduct));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setQuantityUnsuccessfullyTest()
+    {
+        Inventory.setQuantity(null, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setQuantityUnsuccessfullyTest2()
+    {
+        Inventory.addProduct(barcodedProduct);
+        Inventory.addProduct(pluCodedProduct);
+
+        Inventory.setQuantity(barcodedProduct, -1);
+        Inventory.setQuantity(pluCodedProduct, -1);
     }
 
     @Test
-    public void removeFromInventoryTest2() {
-        Inventory inventory = new Inventory();
-        assertFalse(inventory.removeInventory(barcode));
-    }
+    public void clearInventoryTest()
+    {
+        assertNull(Inventory.getProduct(barcodedProduct.getBarcode()));
+        assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
 
-    @Test
-    public void checkForItemTest() {
-        Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        assertTrue(inventory.checkForItem(barcode));
-    }
+        Inventory.addProduct(barcodedProduct);
+        Inventory.addProduct(pluCodedProduct);
+        Inventory.clear();
 
-    @Test
-    public void getItemTest() {
-        Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        assertEquals(item, inventory.getItem(barcode));
-    }
-
-    @Test
-    public void getProductTest() {
-        Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        assertEquals(product, inventory.getProduct(barcode));
-    }
-    
-    @Test
-    public void getQuantityTest() {
-    	Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        inventory.removeInventory(barcode);
-        assertEquals(inventory.getQuantity(barcode), 3);
-    }
-    
-    @Test
-    public void getQuantityTest2() {
-    	Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        inventory.addProduct(barcode, product, item);
-        inventory.removeInventory(barcode);
-        assertNotEquals(inventory.getQuantity(barcode), 4);
-    }
-    
-    @Test
-    public void getQuantityTest3() {
-    	Inventory inventory = new Inventory();
-        inventory.addProduct(barcode, product, item);
-        inventory.removeInventory(barcode);
-        assertEquals(inventory.getQuantity(barcode), 0);
+        assertNull(Inventory.getProduct(barcodedProduct.getBarcode()));
+        assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
     }
 }
