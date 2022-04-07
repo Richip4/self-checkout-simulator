@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import application.AppControl;
 import application.Main.Tangibles;
+import software.SelfCheckoutSoftware.Phase;
 import user.User;
 
 public class GUI {
@@ -197,7 +198,7 @@ public class GUI {
 	 * @param station
 	 * @return
 	 */
-	public String stationStatus(int station) {
+	public Phase stationStatus(int station) {
 
 		return ac.getStationState(station);
 	}

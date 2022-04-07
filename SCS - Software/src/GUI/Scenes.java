@@ -34,6 +34,7 @@ import javax.swing.border.EtchedBorder;
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 
 public class Scenes {
 	
@@ -440,7 +441,7 @@ public class Scenes {
 				
 				station_status[i] = new JLabel();
 				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
-				station_status[i].setText(gui.stationStatus(i));
+				// station_status[i].setText(gui.stationStatus(i)); // FIXME: 
 				station_status[i].setBounds(30, 10, 200, 80);
 				station_status[i].setHorizontalAlignment(JLabel.CENTER);
 				station.add(station_status[i]);
@@ -498,11 +499,11 @@ public class Scenes {
 				if (e.getSource() == station_block[i]) {
 					gui.attendantBlockToggle(i);
 					station_block[i].setText(checkBlockStatus(i));
-					station_status[i].setText(gui.stationStatus(i));
+					// station_status[i].setText(gui.stationStatus(i)); // FIXME: 
 					station_light[i].setBackground(checkStationAttention(i));
 				} else if (e.getSource() == station_approve[i]) {
 					gui.attendantApproveStation(i);
-					station_status[i].setText(gui.stationStatus(i));
+					// station_status[i].setText(gui.stationStatus(i)); // FIXME: 
 					station_light[i].setBackground(checkStationAttention(i));
 				}
 			}
@@ -526,7 +527,7 @@ public class Scenes {
 	 * @return
 	 */
 	private Color checkStationAttention(int station) {
-		return (gui.stationStatus(station) == SelfCheckoutSoftware.OKAY_STATUS) 
+		return (gui.stationStatus(station) != Phase.BLOCKING && gui.stationStatus(station) != Phase.HAVING_WEIGHT_DISCREPANCY) 
 					? green_light : red_light;
 	}
 	
@@ -536,7 +537,7 @@ public class Scenes {
 	 * @return
 	 */
 	private String checkBlockStatus(int station) {
-		return (gui.stationStatus(station) == SelfCheckoutSoftware.BLOCKED_STATUS) 
+		return (gui.stationStatus(station) != Phase.BLOCKING) 
 				? "UNBLOCK" : "BLOCK";
 	}
 	
