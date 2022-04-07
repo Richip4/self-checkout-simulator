@@ -163,7 +163,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
 	public void approaveUnexpectedItem(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
 		if (this.logged_in) {
-			scss.approaveUnexpectedItem();
+			scss.approveUnexpectedItem();
 		} else {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}

@@ -390,7 +390,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.BAGGING_ITEM);
     }
 
-    protected void approaveUnexpectedItem() {
+    protected void approveUnexpectedItem() {
         this.unexpectedItemRemoved();
     }
 }
