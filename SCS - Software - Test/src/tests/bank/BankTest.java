@@ -9,7 +9,9 @@ import static org.junit.Assert.*;
 
 public class BankTest
 {
-    // TODO: Double check if new test cases need to be implemented as Bank.java indicates that it is incomplete
+    // Static variables that will be used during testing
+    final String card1Number = "1234";
+    final String card2Number = "5678";
 
     // Declare the card issuers
     CardIssuer cardIssuer1;
@@ -60,6 +62,38 @@ public class BankTest
     }
 
     @Test
+    public void addCardAndGetIssuerTest()
+    {
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
+
+        Bank.addCardIssuer(card1Number, cardIssuer1);
+        Bank.addCardIssuer(card2Number, cardIssuer2);
+
+        assertEquals(cardIssuer1, Bank.getCardIssuer(card1Number));
+        assertEquals(cardIssuer2, Bank.getCardIssuer(card2Number));
+    }
+
+    @Test
+    public void removeCardTest()
+    {
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
+
+        Bank.addCardIssuer(card1Number, cardIssuer1);
+        Bank.addCardIssuer(card2Number, cardIssuer2);
+
+        assertEquals(cardIssuer1, Bank.getCardIssuer(card1Number));
+        assertEquals(cardIssuer2, Bank.getCardIssuer(card2Number));
+
+        Bank.removeCardIssuer(card1Number);
+        Bank.removeCardIssuer(card2Number);
+
+        assertNull(Bank.getCardIssuer(card1Number));
+        assertNull(Bank.getCardIssuer(card2Number));
+    }
+
+    @Test
     public void clearIssuerTest()
     {
         assertFalse(Bank.getIssuers().contains(cardIssuer1));
@@ -73,5 +107,22 @@ public class BankTest
         assertFalse(Bank.getIssuers().contains(cardIssuer1));
         assertFalse(Bank.getIssuers().contains(cardIssuer2));
         assertEquals(0, Bank.getIssuers().size());
+    }
+
+    @Test
+    public void clearCardsTest()
+    {
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
+        Bank.addCardIssuer(card1Number, cardIssuer1);
+        Bank.addCardIssuer(card2Number, cardIssuer2);
+
+        assertEquals(cardIssuer1, Bank.getCardIssuer(card1Number));
+        assertEquals(cardIssuer2, Bank.getCardIssuer(card2Number));
+
+        Bank.clearCardIssuers();
+
+        assertNull(Bank.getCardIssuer(card1Number));
+        assertNull(Bank.getCardIssuer(card2Number));
     }
 }

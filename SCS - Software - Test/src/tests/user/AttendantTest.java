@@ -21,8 +21,6 @@ import static org.junit.Assert.*;
 
 public class AttendantTest
 {
-    // TODO: Add a test for getUnexpectedItemDecision()
-
     // Static variables that will be used during testing
     final Currency currency = Currency.getInstance("CAD");
     final int[] banknoteDenominations = {5, 10, 20, 50};
@@ -87,5 +85,19 @@ public class AttendantTest
         attendant.removeProduct(selfCheckoutSoftware, product1);
 
         assertTrue(selfCheckoutSoftware.getCustomer().getCart().isEmpty());
+    }
+
+    @Test
+    public void setAndGetUnexpectedItemDecisionTest()
+    {
+        assertFalse(attendant.getUnexpectedItemDecision());
+
+        attendant.setUnexpectedItemDecision(true);
+
+        assertTrue(attendant.getUnexpectedItemDecision());
+
+        attendant.setUnexpectedItemDecision(false);
+
+        assertFalse(attendant.getUnexpectedItemDecision());
     }
 }

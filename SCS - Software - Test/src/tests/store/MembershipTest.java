@@ -36,6 +36,13 @@ public class MembershipTest
         assertTrue(Membership.isMember(membership2ID));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void membershipDuplicationSignupTest()
+    {
+        Membership.createMembership(membership1ID, membership1Name);
+        Membership.createMembership(membership1ID, membership2Name);
+    }
+
     @Test
     public void membershipClearTest()
     {

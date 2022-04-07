@@ -14,8 +14,6 @@ import static org.junit.Assert.*;
 
 public class StoreTest
 {
-    // TODO: No way to remove / clear (same for the self checkout stations)
-
     final Currency currency = Currency.getInstance("CAD");
     final int[] banknoteDenominations = {5, 10, 20, 50};
     final BigDecimal[] coinDenominations = {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1.00"), new BigDecimal("2.00")};

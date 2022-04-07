@@ -22,8 +22,6 @@ import static org.junit.Assert.*;
  */
 public class CustomerTest
 {
-    // TODO: Determine what to do with getWaitingToBag()
-
     // Static variables that will be used during testing
     final int[] banknoteDenominations = {5, 10, 20, 50};
     final BigDecimal[] coinDenominations = {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1.00"), new BigDecimal("2.00")};
@@ -55,7 +53,6 @@ public class CustomerTest
         customer.addCurrency(new BigDecimal(banknoteDenominations[0]));
         customer.addCurrency(coinDenominations[0]);
 
-        // TODO: Check if both the following methods should exist (both server the same purpose)
         assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getCurrency());
         assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getAccumulatedCurrency());
     }
