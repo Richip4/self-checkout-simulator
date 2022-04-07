@@ -16,8 +16,6 @@ public class Customer extends User {
 	// in place of a cart class the cart is a list Products
 	private List<Product> cart = new ArrayList<Product>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
-	private boolean waitingToBag;
-	private boolean removeLastAddedItem;
 	private boolean ownBagsUsed = false;
 	private int numOfPlasticBags = 0;
 	private String memberID;
@@ -77,10 +75,6 @@ public class Customer extends User {
 
 	public String getMemberID() {
 		return this.memberID.toString();
-	}
-
-	public boolean getWaitingToBag() {
-		return waitingToBag;
 	}
 
 	// set and get methods for own bags
