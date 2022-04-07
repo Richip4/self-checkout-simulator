@@ -62,8 +62,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		// Attach both scanners
 		this.scs.mainScanner.attach(this);
 		this.scs.handheldScanner.attach(this);
-
-		// Attach bagging area scale; to get notified
+		this.scs.scanningArea.attach(this);
 		this.scs.baggingArea.attach(this);
 	}
 
@@ -74,7 +73,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public void detatchAll() {
 		this.scs.mainScanner.detach(this);
 		this.scs.handheldScanner.detach(this);
-
+		this.scs.scanningArea.detach(this);
 		this.scs.baggingArea.detach(this);
 	}
 
