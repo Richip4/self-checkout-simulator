@@ -54,9 +54,9 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void placeInBaggingAreaUnblocked();
 
-    public Void unexpectedItemInBaggingAreaDetected();
+    public Void weightDiscrepancyInBaggingAreaDetected();
 
-    public Void unexpectedItemInBaggingAreaRemoved();
+    public Void weightDiscrepancyInBaggingAreaResolved();
 
     public Void productCannotFound();
 

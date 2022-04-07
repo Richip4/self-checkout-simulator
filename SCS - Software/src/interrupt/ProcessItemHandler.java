@@ -13,6 +13,7 @@ import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import user.Customer;
 
@@ -27,18 +28,15 @@ import user.Customer;
  */
 public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {
 
+	private static double DISCREPANCY = 0.1; // Scales have margins of errors, this is how much we allow
+
 	private final SelfCheckoutStation scs;
 	private final SelfCheckoutSoftware scss;
 	private Customer customer;
 
-	private double currentItemsWeight = 0.0;
-	private double weightBeforeBagging; // Weight on scale before most recently scanned item is bagged
-	private boolean unexpectedItem = false;
-	private boolean waitingForBagging;
-	private double scaleResetWeight = 0.0;
+	private double currentWeight = 0.0;
+	private double expectedWeight = 0.0;
 	private boolean scaleOverloaded;
-	private double discrepancy = 0.1;		//Scales have margins of errors, this is how much we allow
-	private double ownBagWeight = 0;
 
 	public ProcessItemHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
@@ -55,11 +53,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 */
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		this.currentItemsWeight = 0.0;
-		this.weightBeforeBagging = 0.0;
-		this.unexpectedItem = false;
-		this.waitingForBagging = false;
-		this.scaleResetWeight = 0.0;
+		this.currentWeight = 0.0;
 		this.scaleOverloaded = false;
 	}
 
@@ -137,24 +131,31 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scs.mainScanner.disable();
 		this.scs.handheldScanner.disable();
 
+		// This can only be BarcodedProduct
 		if (product instanceof BarcodedProduct) {
 			BarcodedProduct barcodedProduct = (BarcodedProduct) product;
-			this.currentItemsWeight = barcodedProduct.getExpectedWeight();
-		} else {
-			this.currentItemsWeight = 0.0;
+			this.expectedWeight = barcodedProduct.getExpectedWeight();
 		}
 
-		try {
-			this.weightBeforeBagging = this.scs.baggingArea.getCurrentWeight();
-		} catch (OverloadException e) {
-			// TODO Auto-generated catch block
-		}
+		// TODO: For PLU items, Incorporate this scanning area electronic scale
 
 		this.customer.addToCart(product);
+		this.scss.bagItem();
 		this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
-		this.waitingForBagging = true;
 	}
-	
+
+	/**
+	 * Override the current recorded weight with the actual weight on scale
+	 */
+	public void overrideWeight() {
+		try {
+			this.currentWeight = this.scs.baggingArea.getCurrentWeight();
+			this.expectedWeight = 0.0;
+		} catch (OverloadException e) {
+			// Hopefully not possible
+		}
+	}
+
 	/**
 	 * When electronic scale weight change event occurs under normal operation
 	 * compare
@@ -171,65 +172,57 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 */
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
-		if (this.customer == null) {
+
+		// Get the weight of the bag and store it, if the customer is trying to add
+		// their own bag to the bagging area
+		if (this.scss.getPhase() == Phase.PLACING_OWN_BAG) {
+			this.currentWeight = weightInGrams; // Record the new weight (with the bag)
+			this.scss.addItem(); // go back to add item phase
 			return;
 		}
-		
-		// Get the weight of the bag and store it, if the customer has said that they
-		// want to use their own bags
-		if (customer.getUseOwnBags()) {
-			ownBagWeight = weightInGrams;
-			customer.setOwnBagsUsed(false);	// reset boolean so this if statement only runs once
-			
-			weightBeforeBagging = weightInGrams;	// set the weight before bagging to the weight of the bags on scale
-			
-			return;	// return once weight is set
+
+		// If currently detecting weight discrepancy and required removal
+		// The weight should be back to currentWeight
+		if (this.scss.getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+			// When not adding new item, the weight should be back to currentWeight, which
+			// is 0.0 + currentWeight.
+			// If it's adding new item, the weight should be the item weight + currrent
+			// weight.
+			// this.expectedWeight will always be set to 0.0 when the item is added, so that
+			// it garantees the validity of discrepancy algorithm.
+			double expected = this.currentWeight + this.expectedWeight;
+			double discrepancy = Math.abs(expected - weightInGrams);
+
+			// Discrepancy is resolved
+			if (discrepancy <= DISCREPANCY) {
+				this.scss.resolveWeightDiscrepancy();
+				this.scss.notifyObservers(observer -> observer.weightDiscrepancyInBaggingAreaResolved());
+			}
+			// Else do nothing, the discrepancy phase keeps
+
+			return;
 		}
 
-		if (!(unexpectedItem || scaleOverloaded)) {
-			double weightDiff = currentItemsWeight - (weightInGrams - weightBeforeBagging);
-			if (weightDiff < discrepancy && weightDiff > -discrepancy) { // weightDiff > -discrepancy: weightDiff is
-																			// positive
-				currentItemsWeight = 0.0;
-
-				this.scss.notifyObservers(observer -> observer.placeInBaggingAreaUnblocked());
-				waitingForBagging = false;
-
-				this.scs.mainScanner.enable();
-				this.scs.handheldScanner.enable();
-			}
-
-			else {
-				this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaDetected());
-				unexpectedItem = true;
-			}
-
-		} else {
-			try {
-				
-
-				double weightDiff = weightBeforeBagging - scale.getCurrentWeight(); // changing weight
-				if (weightDiff < discrepancy && weightDiff > -discrepancy) {
-					this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
-					unexpectedItem = false;
-				}
-				else if(unexpectedItem) {
-					//Blocks station, notifys supervision station of screenblocked, unexpected item. Also notify the gui.
-					this.scss.blockSystem();
-					this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.unexpectedItemDetected(scss));
-					this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.touchScreenBlocked(scss));
-					this.scss.notifyObservers(observer -> observer.touchScreenBlocked());
-					if(this.scss.getSupervisionSoftware().getAttendant().getUnexpectedItemDecision()){
-						unexpectedItem = false;					// ignore unexpected item, it was overridden
-						weightBeforeBagging = weightInGrams;	// new weightBeforeBagging is the new weightInGrams
-						this.scss.notifyObservers(observer -> observer.unexpectedItemInBaggingAreaRemoved());
-						}
-					// can add else statement to handle if weight discrepancy is declined
-				}
-			} catch (OverloadException e) {
-
-			}
+		// If the current phase is not bagging item, then there's unexpected item
+		if (this.scss.getPhase() != Phase.BAGGING_ITEM) {
+			this.scss.weightDiscrepancy();
+			this.scss.notifyObservers(observer -> observer.weightDiscrepancyInBaggingAreaDetected());
+			return;
 		}
+
+		// ========= The rest is only for bagging item phase ========= //
+		double expected = this.currentWeight + this.expectedWeight;
+		double discrepancy = Math.abs(expected - weightInGrams);
+
+		// If the discrepancy is too large
+		if (discrepancy > DISCREPANCY) {
+			this.scss.weightDiscrepancy();
+			this.scss.notifyObservers(observer -> observer.weightDiscrepancyInBaggingAreaDetected());
+			return;
+		}
+
+		this.currentWeight = weightInGrams;
+		this.expectedWeight = 0.0;
 	}
 
 	@Override
@@ -247,7 +240,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public boolean getUnexpectedItem() {
 		return this.unexpectedItem;
 	}
-	
+
 	public double getWeightBeforeBagging() {
 		return this.weightBeforeBagging;
 	}

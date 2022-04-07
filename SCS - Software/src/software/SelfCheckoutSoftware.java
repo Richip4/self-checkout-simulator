@@ -34,8 +34,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         PLU_ITEM_WEIGHING,
         BAGGING_ITEM,
         PLACING_OWN_BAG,
-        WAITING_UNEXPECTED_ITEM_REMOVAL,
-        WAITING_WEIGHT_DISCREPANCY_APPROAVAL,
+        HAVING_WEIGHT_DISCREPANCY,
 
         BLOCKING,
     };
@@ -277,12 +276,31 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
 
         this.setCustomer(customer);
+        this.addItem(); // Directly jump to addItem phase
+    }
 
-        // Only enable related hardwares
+    public void addItem() {
         this.disableHardware();
         this.processItemHandler.enableHardware();
 
-        this.setPhase(Phase.SCANNING_ITEM); // Expecting GUI switchs to scanning item view
+        this.setPhase(Phase.SCANNING_ITEM);
+    }
+
+    /**
+     * When customer added a product to their cart, and now they need to bag the item.
+     * 
+     * 1. For barcoded item, this method is called whenever an item is scanned. GUI won't need to call this method.
+     * 2. For PLU coded item, GUI will need to call this method after they selected the product.
+     */
+    public void bagItem() {
+        if (this.phase != Phase.SCANNING_ITEM) {
+            throw new IllegalStateException("Cannot add item when the system is not scanning item");
+        }
+
+        this.disableHardware();
+        this.processItemHandler.enableBaggingArea();
+
+        this.setPhase(Phase.BAGGING_ITEM); // Expecting GUI switchs to bagging item view
     }
 
     /**
@@ -358,39 +376,22 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
 
         this.disableHardware();
-        this.setPhase(Phase.WAITING_WEIGHT_DISCREPANCY_APPROAVAL);
+        this.processItemHandler.enableBaggingArea();
+        this.setPhase(Phase.HAVING_WEIGHT_DISCREPANCY);
     }
 
     protected void approveWeightDiscrepancy() {
-        if (this.phase != Phase.WAITING_WEIGHT_DISCREPANCY_APPROAVAL) {
+        if (this.phase != Phase.HAVING_WEIGHT_DISCREPANCY) {
             throw new IllegalStateException(
                     "Cannot approve weight discrepancy when the system is not waiting for approval");
         }
 
+        this.processItemHandler.overrideWeight();
         this.processItemHandler.enableBaggingArea();
         this.setPhase(Phase.BAGGING_ITEM);
     }
 
-    public void unexpectedItem() {
-        if (this.phase != Phase.BAGGING_ITEM || this.customer == null) {
-            throw new IllegalStateException("Cannot unexpected item when the system is not bagging item");
-        }
-
-        this.disableHardware();
-        this.setPhase(Phase.WAITING_UNEXPECTED_ITEM_REMOVAL);
-    }
-
-    public void unexpectedItemRemoved() {
-        if (this.phase != Phase.WAITING_UNEXPECTED_ITEM_REMOVAL) {
-            throw new IllegalStateException(
-                    "Cannot remove unexpected item when the system is not waiting for removal");
-        }
-
-        this.processItemHandler.enableBaggingArea();
-        this.setPhase(Phase.BAGGING_ITEM);
-    }
-
-    protected void approveUnexpectedItem() {
-        this.unexpectedItemRemoved();
+    public void resolveWeightDiscrepancy() {
+        this.approveWeightDiscrepancy();
     }
 }
