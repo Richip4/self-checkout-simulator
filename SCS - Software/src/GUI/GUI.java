@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import application.AppControl;
 import application.Main.Tangibles;
+import software.SelfCheckoutSoftware.Phase;
 import user.User;
 
 public class GUI {
