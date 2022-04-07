@@ -35,6 +35,7 @@ import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
 import software.SelfCheckoutSoftware.Phase;
+import store.Store;
 
 public class Scenes {
 	
@@ -54,8 +55,8 @@ public class Scenes {
 	private final GUI gui;
 	private JFrame filterFrame;
 	
-	// hard coding 6 self-checkout stations and 1 attendant station
-	private final int totalNumberOfStations = 7;
+	// n self-checkout stations and 1 attendant station
+	private final int totalNumberOfStations = Tangibles.SUPERVISION_STATION.supervisedStationCount() + 1;
 	
 	// reference to the latest station we interact with
 	private int currentStation;
@@ -143,7 +144,8 @@ public class Scenes {
 			// create panels to mark where the self checkout stations
 			// will be in our scene.  Accompany them with buttons to 
 			// provide a way to select the station.
-			int numOfSCS = 6;	// <---- get number from supervision station
+			List<SelfCheckoutSoftware> scssList = Store.getSelfCheckoutSoftwareList();
+			int numOfSCS = scssList.size();	// <---- get number from supervision station
 			JPanel[] scs = new JPanel[numOfSCS];
 			sbn = new JButton[numOfSCS];
 			
@@ -161,44 +163,52 @@ public class Scenes {
 				sbn[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 				sbn[i].addActionListener(this);
 
+
+				// We can actually set client attribute and pass it to action listener
+				// Eg, pass in the self-checkout software object, so action listener can
+				// directly do operation on the software object. Think this would make be
+				// helpful and make a lot of logic easier to follow. -Yunfan FIXME:
+				sbn[i].putClientProperty("station-id", i);
+				sbn[i].putClientProperty("station-scss", scssList.get(i));
+
 				// add button to the stations panel
 				scs[i].add(sbn[i]);
-				
+
 				// add station panel to the content as a whole
 				content.add(scs[i]);
 			}
-			
-			// create a panel for the attendant station 
+
+			// create a panel for the attendant station
 			// along with a button for accessing it
 			JPanel as = new JPanel();
 			as.setLayout(null);
 			as.setBounds(125, 450, 220, 125);
 			as.setBackground(new Color(190, 200, 180));
-			
+
 			abn = new JButton();
 			abn.setText("Attendant Station");
 			abn.setBounds(40, 35, 140, 25);
 			abn.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			abn.addActionListener(this);
 			as.add(abn);
-			
+
 			content.add(as);
-			
+
 			// the last component in a panel will try to take
-			// up the remaining space in the panel.  Adding
+			// up the remaining space in the panel. Adding
 			// this empty label to essential fill the panels
 			// remaining space with nothing.
 			content.add(new JLabel());
-			
+
 			// add the visual content to the scene
 			scene.add(content);
-			
+
 			this.setVisible(true);
-			
+
 			// prompt the user to reply with what type of user they are
 			int newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
 			gui.newUser(newUserType);
-			
+
 			return this;
 		}
 
@@ -208,15 +218,20 @@ public class Scenes {
 				setCurrentStation(0);
 				gui.userApproachesStation(0);
 			} else {
-				for (int i = 0; i < totalNumberOfStations - 1; i++) { // self-checkout stations
-					if (e.getSource() == sbn[i]) {
-						setCurrentStation(i+1);
-						gui.userApproachesStation(i+1);
-					}
-				}
+				// self-checkout stations
+
+				// Here, the action listener is passed the client property and can just use the
+				// property easily, without having to traverse every single button and see which
+				// button is being clicked and get the station id -Yunfan FIXME:
+				// I recommend to apply the same principle to all the buttons, so that the implementation
+				// is simpler and the performance of the program is better.
+				Integer i = Integer.valueOf(((JButton) e.getSource()).getClientProperty("station-id").toString());
+				setCurrentStation(i + 1);
+				gui.userApproachesStation(i + 1);
 			}
 		}
 	}
+
 	
 	// Self-Checkout Station Overview Scene
 	private class SCS_Overview_Scene extends JFrame  implements ActionListener {
