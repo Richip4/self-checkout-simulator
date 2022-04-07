@@ -55,8 +55,8 @@ public class Scenes {
 	private final GUI gui;
 	private JFrame filterFrame;
 	
-	// hard coding 6 self-checkout stations and 1 attendant station
-	private final int totalNumberOfStations = 7;
+	// n self-checkout stations and 1 attendant station
+	private final int totalNumberOfStations = Tangibles.SUPERVISION_STATION.supervisedStationCount() + 1;
 	
 	// reference to the latest station we interact with
 	private int currentStation;
