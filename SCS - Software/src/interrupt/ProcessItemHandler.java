@@ -24,6 +24,7 @@ import user.Customer;
  * 
  * @author joshuaplosz
  * @author Michelle Cheung
+ * @author Yunfan Yang
  *
  */
 public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {
@@ -172,6 +173,9 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 */
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
+		if (this.scaleOverloaded) {
+			return;
+		}
 
 		// Get the weight of the bag and store it, if the customer is trying to add
 		// their own bag to the bagging area
@@ -230,11 +234,13 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public void overload(ElectronicScale scale) {
 		this.scaleOverloaded = true;
 		this.scss.blockSystem();
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.scaleOverloadedDetected(this.scss));
 	}
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
 		this.scaleOverloaded = false;
 		this.scss.blockSystem();
+		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.scaleOverloadedResolved(this.scss));
 	}
 }

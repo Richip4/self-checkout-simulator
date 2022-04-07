@@ -27,4 +27,8 @@ public interface SupervisionObserver extends Observer {
     public Void touchScreenBlocked(SelfCheckoutSoftware scs);
 
     public Void touchScreenUnblocked(SelfCheckoutSoftware scs);
+
+    public Void scaleOverloadedDetected(SelfCheckoutSoftware scs);
+
+    public Void scaleOverloadedResolved(SelfCheckoutSoftware scs);
 }
