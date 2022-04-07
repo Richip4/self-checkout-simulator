@@ -223,6 +223,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		this.currentWeight = weightInGrams;
 		this.expectedWeight = 0.0;
+		this.scss.addItem(); // Go back to add item phase
 	}
 
 	@Override
@@ -235,13 +236,5 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public void outOfOverload(ElectronicScale scale) {
 		this.scaleOverloaded = false;
 		this.scss.blockSystem();
-	}
-
-	public boolean getUnexpectedItem() {
-		return this.unexpectedItem;
-	}
-
-	public double getWeightBeforeBagging() {
-		return this.weightBeforeBagging;
 	}
 }
