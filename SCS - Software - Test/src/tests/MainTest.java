@@ -21,7 +21,7 @@ import org.junit.runners.Suite;
         // All tests under tests.software
 
         // All tests under tests.store
-        tests.store.InventoryTest.class, tests.store.MembershipTest.class, tests.store.StoreTest.class,
+        tests.store.GiftCardTest.class, tests.store.InventoryTest.class, tests.store.MembershipTest.class, tests.store.StoreTest.class,
         // All tests under tests.user
         tests.user.AttendantTest.class, tests.user.CustomerTest.class})
 public class MainTest
