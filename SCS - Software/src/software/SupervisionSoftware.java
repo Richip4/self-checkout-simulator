@@ -160,5 +160,13 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
+
+	public void approveMissingItem(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
+		if (this.logged_in) {
+			scss.approveMissingItem();
+		} else {
+			throw new AuthorizationRequiredException("Attendant needs to log in");
+		}
+	}
 }
 

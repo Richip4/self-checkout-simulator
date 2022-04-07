@@ -198,7 +198,7 @@ public class GUI {
 	 * @param station
 	 * @return
 	 */
-	public Phase stationStatus(int station) {
+	public String stationStatus(int station) {
 
 		return ac.getStationState(station);
 	}

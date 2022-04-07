@@ -9,6 +9,7 @@ import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
 import software.SelfCheckoutSoftware.Phase;
 import store.Store;
+import store.credentials.AuthorizationRequiredException;
 import user.Attendant;
 import user.Customer;
 import user.User;
@@ -220,8 +221,16 @@ public class AppControl {
 	 * @param station
 	 * @return
 	 */
-	public Phase getStationState(int station) {
-		return selfStationSoftwares.get(station).getPhase();
+	public String getStationState(int station) {
+		if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
+			return "BLOCKED";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+			return "WEIGHT DISCREPANCY";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
+			return "MISSING ITEM";
+		} else {
+			return "OKAY";
+		}
 	}
 
 	/**
@@ -230,13 +239,14 @@ public class AppControl {
 	 */
 	public void toggleBlock(int station) {
 		if (selfStationSoftwares.get(station).getPhase() != Phase.BLOCKING) {
-			selfStationSoftwares.get(station).blockSystem();
-			// This operation is supposed to be performed from supervision software
+			try {
+				supervisorSoftware.blockStation(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
+
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
-			// selfStationSoftwares.get(station).unblockSystem();
-			// TODO: This requires an attendant to operate
-			// Authenticate the attendant to supervision software, and then unblock the
-			// system from supervision software
+			try {
+				supervisorSoftware.unblockStation(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
 		}
 	}
 
@@ -245,12 +255,14 @@ public class AppControl {
 	 * @param station
 	 */
 	public void approveStationDiscrepancy(int station) {
-		// if (selfStationSoftwares.get(station).getPhase() ==
-		// SelfCheckoutSoftware.MISSING_ITEM_STATUS ||
-		// selfStationSoftwares.get(station).getPhase() ==
-		// SelfCheckoutSoftware.WEIGHT_DISCREPENCY_STATUS) {
-		// selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
-		// }
-		// This is implemented in SupervisionSoftware, so GUI can just use it
+		if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+			try {
+				supervisorSoftware.approveWeightDiscrepancy(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}			
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
+			try {
+				supervisorSoftware.approveMissingItem(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
+		}
 	}
 }
