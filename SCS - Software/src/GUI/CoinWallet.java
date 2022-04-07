@@ -8,16 +8,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
-
-import java.awt.Button;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JTextField;
 import javax.swing.JLabel;
-import javax.swing.JTextPane;
 
-public class Wallet extends JDialog {
+public class CoinWallet extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 
@@ -26,7 +19,7 @@ public class Wallet extends JDialog {
 	 */
 	public static void main(String[] args) {
 		try {
-			Wallet dialog = new Wallet();
+			CoinWallet dialog = new CoinWallet();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -37,9 +30,8 @@ public class Wallet extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public Wallet() {
-		setResizable(false);
-		setBounds(100, 100, 450, 300);
+	public CoinWallet() {
+		setBounds(100, 100, 135, 600);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -48,84 +40,48 @@ public class Wallet extends JDialog {
 			JLabel nickelLabel = new JLabel("nickel");
 			ImageIcon nickel = new ImageIcon("src/GUI/images/nickel.png");
 			nickelLabel.setIcon(nickel);
-			nickelLabel.setBounds(35, 162, 65, 65);
+			nickelLabel.setBounds(25, 33, 84, 84);
 			contentPanel.add(nickelLabel);
 		}
 		{
-			JLabel dimeLabel = new JLabel("dime");
+			JLabel lblNewLabel_1 = new JLabel("Coin Wallet");
+			lblNewLabel_1.setBounds(31, 6, 91, 16);
+			contentPanel.add(lblNewLabel_1);
+		}
+		{
+			JLabel lblDime = new JLabel("dime");
 			ImageIcon dime = new ImageIcon("src/GUI/images/dime.png");
-			dimeLabel.setIcon(dime);
-			dimeLabel.setBounds(119, 162, 65, 65);
-			contentPanel.add(dimeLabel);
+			lblDime.setIcon(dime);
+			lblDime.setBounds(25, 126, 84, 84);
+			contentPanel.add(lblDime);
 		}
 		{
 			JLabel lblQuarter = new JLabel("quarter");
 			ImageIcon quarter = new ImageIcon("src/GUI/images/quarter.png");
 			lblQuarter.setIcon(quarter);
-			lblQuarter.setBounds(196, 162, 65, 65);
+			lblQuarter.setBounds(25, 219, 84, 84);
 			contentPanel.add(lblQuarter);
 		}
 		{
 			JLabel lblLoonie = new JLabel("loonie");
 			ImageIcon loonie = new ImageIcon("src/GUI/images/loonie.png");
 			lblLoonie.setIcon(loonie);
-			lblLoonie.setBounds(273, 162, 65, 65);
+			lblLoonie.setBounds(25, 317, 84, 84);
 			contentPanel.add(lblLoonie);
 		}
 		{
 			JLabel lblToonie = new JLabel("toonie");
 			ImageIcon toonie = new ImageIcon("src/GUI/images/toonie.png");
 			lblToonie.setIcon(toonie);
-			lblToonie.setBounds(350, 162, 65, 65);
+			lblToonie.setBounds(25, 422, 84, 84);
 			contentPanel.add(lblToonie);
 		}
-		{
-			JLabel lblNewLabel = new JLabel("Wallet");
-			lblNewLabel.setBounds(200, 6, 61, 16);
-			contentPanel.add(lblNewLabel);
-		}
-		{
-			JLabel fiveDollar = new JLabel("fiveDollar");
-			ImageIcon five = new ImageIcon("src/GUI/images/fiveDollar.jpg");
-			fiveDollar.setIcon(five);
-			fiveDollar.setBounds(35, 35, 102, 47);
-			contentPanel.add(fiveDollar);
-		}
-		{
-			JLabel tenDollar = new JLabel("tenDollar");
-			ImageIcon ten = new ImageIcon("src/GUI/images/tenDollar.jpeg");
-			tenDollar.setIcon(ten);
-			tenDollar.setBounds(174, 34, 102, 47);
-			contentPanel.add(tenDollar);
-		}
-		{
-			JLabel twentyDollar = new JLabel("twentyDollar");
-			ImageIcon twenty = new ImageIcon("src/GUI/images/twentyDollar.jpg");
-			twentyDollar.setIcon(twenty);
-			twentyDollar.setBounds(313, 35, 102, 47);
-			contentPanel.add(twentyDollar);
-		}
-		{
-			JLabel fiftyDollar = new JLabel("fiftyDollar");
-			ImageIcon fifty = new ImageIcon("src/GUI/images/fiftyDollar.jpg");
-			fiftyDollar.setIcon(fifty);
-			fiftyDollar.setBounds(111, 94, 102, 47);
-			contentPanel.add(fiftyDollar);
-		}
-		{
-			JLabel hundredDollar = new JLabel("hundredDollar");
-			ImageIcon hundred = new ImageIcon("src/GUI/images/hundredDollar.jpg");
-			hundredDollar.setIcon(hundred);
-			hundredDollar.setBounds(250, 93, 102, 47);
-			contentPanel.add(hundredDollar);
-		}
-		
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
-				JButton okButton = new JButton("OK");
+				JButton okButton = new JButton("Insert");
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
@@ -137,4 +93,5 @@ public class Wallet extends JDialog {
 			}
 		}
 	}
+
 }
