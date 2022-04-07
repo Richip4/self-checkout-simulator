@@ -65,10 +65,17 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
         software.setSupervisionSoftware(this);
     }
 
-    public void remove(SelfCheckoutSoftware software) {
-        this.softwareList.remove(software);
-        software.setSupervisionSoftware(null);
-    }
+	public void remove(SelfCheckoutSoftware software) {
+		this.softwareList.remove(software);
+		software.setSupervisionSoftware(null);
+	}
+	
+	public void clear() {
+		// For each software, remove from list
+		for (SelfCheckoutSoftware software : this.softwareList) {
+			this.remove(software);
+		}
+	}
 
     public List<SelfCheckoutSoftware> getSoftwareList() {
         return this.softwareList;

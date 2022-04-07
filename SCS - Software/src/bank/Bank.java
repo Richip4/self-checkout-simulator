@@ -16,9 +16,7 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  * 
  * Conceptually, each bank is a card issuer.
  * 
- * FIXME: The implementation of this class is not complete, see:
- * https://d2l.ucalgary.ca/d2l/le/422926/discussions/threads/1636487/View
- * 
+ * @see https://d2l.ucalgary.ca/d2l/le/422926/discussions/threads/1636487/View
  * @author Tyler Chen
  * @author Yunfan Yang
  *
