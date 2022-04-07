@@ -199,7 +199,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 			// Discrepancy is resolved
 			if (discrepancy <= DISCREPANCY) {
-				this.scss.resolveWeightDiscrepancy();
+				this.acceptNewWeight(weightInGrams);
 				this.scss.notifyObservers(observer -> observer.weightDiscrepancyInBaggingAreaResolved());
 			}
 			// Else do nothing, the discrepancy phase keeps
@@ -225,6 +225,11 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			return;
 		}
 
+		// Accept new weight
+		this.acceptNewWeight(weightInGrams);
+	}
+	
+	private void acceptNewWeight(double weightInGrams) {
 		this.currentWeight = weightInGrams;
 		this.expectedWeight = 0.0;
 		this.scss.addItem(); // Go back to add item phase

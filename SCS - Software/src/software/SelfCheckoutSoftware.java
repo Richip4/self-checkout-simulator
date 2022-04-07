@@ -390,8 +390,4 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.processItemHandler.enableBaggingArea();
         this.setPhase(Phase.BAGGING_ITEM);
     }
-
-    public void resolveWeightDiscrepancy() {
-        this.approveWeightDiscrepancy();
-    }
 }
