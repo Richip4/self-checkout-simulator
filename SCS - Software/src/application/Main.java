@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Currency;
 import java.util.List;
 
+import javax.swing.JDialog;
 
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
@@ -21,6 +22,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
+import GUI.BanknoteWallet;
+import GUI.CoinWallet;
 import GUI.GUI;
 import bank.Bank;
 import store.Membership;
@@ -59,6 +62,7 @@ public final class Main {
         Main.initializeCredentialsSytem();
         
         new GUI(new AppControl());
+        
     }
 
     private static void initializeCardAndIssuers() {

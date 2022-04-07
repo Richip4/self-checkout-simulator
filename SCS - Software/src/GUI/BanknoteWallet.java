@@ -9,6 +9,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import java.awt.SystemColor;
+import java.awt.Color;
 
 public class BanknoteWallet extends JDialog {
 
@@ -83,11 +85,11 @@ public class BanknoteWallet extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("Insert");
+				okButton.setBackground(Color.WHITE);
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
 		}
 	}
-
 }

@@ -31,6 +31,7 @@ public class CoinWallet extends JDialog {
 	 * Create the dialog.
 	 */
 	public CoinWallet() {
+		setResizable(false);
 		setBounds(100, 100, 135, 600);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
