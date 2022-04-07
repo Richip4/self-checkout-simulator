@@ -70,13 +70,13 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.startSystem();
         this.disableHardware(); // Default by disable all of them
     }
-    
+
     public void setUser(User user) {
-    	if (user instanceof Customer) {
-    		setCustomer((Customer)user);
-    	} else if (user instanceof Attendant) {
-    		setAttendant((Attendant)user);
-    	}
+        if (user instanceof Customer) {
+            setCustomer((Customer) user);
+        } else if (user instanceof Attendant) {
+            setAttendant((Attendant) user);
+        }
     }
 
     private void setCustomer(Customer customer) {
@@ -91,26 +91,27 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.receipt.setCustomer(customer);
         this.screen.setCustomer(customer);
     }
-    
+
     private void setAttendant(Attendant attendant) {
         this.attendant = attendant;
 
         // attendant must be accompanied by customer to process items
         // but an attedant alone can service the station
-        // TODO: consider if components need to be altered do to the presence of an attendant
+        // TODO: consider if components need to be altered do to the presence of an
+        // attendant
 
     }
 
     public Attendant getAttendant() {
         return this.attendant;
     }
-    
+
     public void removeUser(User user) {
-    	if (user instanceof Customer) {
-    		customer = null;
-    	} else if (user instanceof Attendant) {
-    		attendant = null;
-    	}
+        if (user instanceof Customer) {
+            customer = null;
+        } else if (user instanceof Attendant) {
+            attendant = null;
+        }
     }
 
     public SelfCheckoutStation getSelfCheckoutStation() {
@@ -201,7 +202,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.receipt.detatchAll();
         this.receipt = null;
-        
+
         this.checkout = null;
         this.screen = null;
 
@@ -287,7 +288,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     /**
      * Customer wishes to use their own bag
      * 
-     * When they have placed their own bag in the bagging area, the phase will be set back
+     * When they have placed their own bag in the bagging area, the phase will be
+     * set back
      */
     public void addOwnBag() {
         if (this.phase != Phase.SCANNING_ITEM || this.customer == null) {
@@ -300,7 +302,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.setPhase(Phase.PLACING_OWN_BAG);
     }
-    
+
     /**
      * When customer wishes to checkout
      */
@@ -336,7 +338,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * When customer wishes to go back and add more items
      */
     public void cancelCheckout() {
-        // When the phase is not choosing payment method or processing their payment, invalid operation
+        // When the phase is not choosing payment method or processing their payment,
+        // invalid operation
         if ((this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD)
                 || this.customer == null) {
             throw new IllegalStateException("Cannot cancel checkout when the system is not processing payment");
@@ -345,7 +348,49 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         // Relative devices are disabled in checkout
         this.disableHardware();
         this.checkout.cancelCheckout();
-        
+
         this.setPhase(Phase.SCANNING_ITEM);
+    }
+
+    public void weightDiscrepancy() {
+        if (this.phase != Phase.BAGGING_ITEM || this.customer == null) {
+            throw new IllegalStateException("Cannot weight discrepancy when the system is not bagging item");
+        }
+
+        this.disableHardware();
+        this.setPhase(Phase.WAITING_WEIGHT_DISCREPANCY_APPROAVAL);
+    }
+
+    protected void approveWeightDiscrepancy() {
+        if (this.phase != Phase.WAITING_WEIGHT_DISCREPANCY_APPROAVAL) {
+            throw new IllegalStateException(
+                    "Cannot approve weight discrepancy when the system is not waiting for approval");
+        }
+
+        this.processItemHandler.enableBaggingArea();
+        this.setPhase(Phase.BAGGING_ITEM);
+    }
+
+    public void unexpectedItem() {
+        if (this.phase != Phase.BAGGING_ITEM || this.customer == null) {
+            throw new IllegalStateException("Cannot unexpected item when the system is not bagging item");
+        }
+
+        this.disableHardware();
+        this.setPhase(Phase.WAITING_UNEXPECTED_ITEM_REMOVAL);
+    }
+
+    public void unexpectedItemRemoved() {
+        if (this.phase != Phase.WAITING_UNEXPECTED_ITEM_REMOVAL) {
+            throw new IllegalStateException(
+                    "Cannot remove unexpected item when the system is not waiting for removal");
+        }
+
+        this.processItemHandler.enableBaggingArea();
+        this.setPhase(Phase.BAGGING_ITEM);
+    }
+
+    protected void approaveUnexpectedItem() {
+        this.unexpectedItemRemoved();
     }
 }
