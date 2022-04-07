@@ -10,8 +10,6 @@ import static org.junit.Assert.*;
 
 public class GiftCardTest
 {
-    // TODO: Determine if getCardIssuer() is intentional
-
     // Static variables that will be used during testing
     final String giftCard1ID = "1";
     final String giftCard2ID = "2";
