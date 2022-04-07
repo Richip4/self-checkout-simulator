@@ -115,7 +115,7 @@ public class GUI {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
+			scenes.getScene(Scenes.SCS_MAINTENANCE);
 		}
 	}
 
@@ -247,5 +247,45 @@ public class GUI {
 		} if (cardType == AppControl.MEMBERSHIP) {
 			ac.customerInsertMembershipCard();
 		}
+	}
+
+	public void refillBanknoteDispensers() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void refillCoinDispenser() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addPaper() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addInk() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emptyBanknoteStorage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void fillBankStorage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emptyCoinStorage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void fillCoinStorage() {
+		// TODO Auto-generated method stub
+		
 	}
 }

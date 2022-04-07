@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -96,13 +97,15 @@ public class Scenes {
 			return new SCS_Cardreader_Scene().getScene();
 		} else if (scene == SCS_MAINTENANCE) {
 			
-			return null;
+			return new SCS_Maintenance_Scene().getScene();
 		}
 		
 		return null;
 	}
 	
+	// #######################################################################
 	// Self-Checkout Overview Scene
+	// #######################################################################
 	private class SC_Overview_Scene extends JFrame  implements ActionListener {
 	
 		// Self-Checkout Overview interactable componenets
@@ -211,7 +214,9 @@ public class Scenes {
 		}
 	}
 	
+	// #######################################################################
 	// Self-Checkout Station Overview Scene
+	// #######################################################################
 	private class SCS_Overview_Scene extends JFrame  implements ActionListener {
 
 		// actionable components to add to listeners
@@ -400,7 +405,9 @@ public class Scenes {
 		}
 	}
 	
+	// #######################################################################
 	// Attendant Station Touch Screen Scene
+	// #######################################################################
 	private class AS_Touchscreen_Scene extends JFrame  implements ActionListener {
 		
 		Color tint_one = new Color(220, 230, 234);
@@ -515,11 +522,13 @@ public class Scenes {
 		}
 	}
 	
+	// #######################################################################
 	// Self-Checkout Station Touch Screen Scene
+	// #######################################################################
 	
-	// Self-Checkout Station Keyboard Scene
-	
+	// #######################################################################
 	// Self-Checkout Station Card Reader Scene
+	// #######################################################################
 	private class SCS_Cardreader_Scene extends JFrame  implements MouseListener {
 		
 		JLabel tap;
@@ -564,6 +573,7 @@ public class Scenes {
 			swipe.setText("<html>S<br>W<br>I<br>P<br>E</html>");
 			swipe.setOpaque(true);
 			swipe.setHorizontalAlignment(JLabel.CENTER);
+			swipe.setHorizontalTextPosition(JLabel.CENTER);
 			swipe.addMouseListener(this);
 			content.add(swipe);
 			
@@ -618,8 +628,165 @@ public class Scenes {
 		
 	}
 	
+	// #######################################################################
 	// Self-Checkout Station Maintenance Scene
+	// #######################################################################
+	private class SCS_Maintenance_Scene extends JFrame implements ActionListener {
+		
+		JButton refillBnDispensers;
+		JButton addPaper;
+		JButton addInk;
+		JButton refillCoinDispensers;
+		JButton bnEmptyStorage;
+		JButton bnFillStorage;
+		JButton coinEmptyStorage;
+		JButton coinFillStorage;
+		
+		public JFrame getScene() {
+			// init the window
+			JPanel scene = preprocessScene(this, 600, 400);
+
+			// include a banner for navigation
+			JPanel banner = generateBanner(scene);
+			
+			// Closing this scene means this user is no 
+			// longer using the maintenance hatch
+			this.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					removeDimmingFilter();
+				}
+			});
+			
+			// main content panel of the scene
+			// contains the visually interactable 
+			// components in the scene.
+			JPanel content = new JPanel();
+			content.setBackground(defaultBackground);
+			// null layout allows me to place components freely
+			content.setLayout(null); 
+			
+			// banknote dispensers
+			JLabel bnDispensers = new JLabel();
+			bnDispensers.setBounds(40, 30, 120, 125);
+			bnDispensers.setBackground(Color.lightGray);
+			bnDispensers.setOpaque(true);
+			bnDispensers.setHorizontalAlignment(JLabel.CENTER);
+			
+			refillBnDispensers = new JButton();
+			refillBnDispensers.setBounds(10, 10, 100, 105);
+			refillBnDispensers.setText("<html>Refill Banknote<br>Dispsensers</html>");
+			refillBnDispensers.addActionListener(this);
+			bnDispensers.add(refillBnDispensers);
+			
+			content.add(bnDispensers);
+			
+			// receipt printer
+			JPanel printer = new JPanel();
+			printer.setLayout(null);
+			printer.setBounds(170, 30, 260, 125);
+			printer.setBackground(Color.lightGray);
+			printer.setOpaque(true);
+			
+			addPaper = new JButton();
+			addPaper.setBounds(15, 10, 230, 45);
+			addPaper.setText("ADD PAPER");
+			addPaper.addActionListener(this);
+			printer.add(addPaper);
 	
+			addInk = new JButton();
+			addInk.setBounds(15, 70, 230, 45);
+			addInk.setText("ADD INK");
+			addInk.addActionListener(this);
+			printer.add(addInk);
+			
+			content.add(printer);
+			
+			// coin dispensers
+			JLabel coinDispensers = new JLabel();
+			coinDispensers.setBounds(440, 30, 120, 125);
+			coinDispensers.setBackground(Color.lightGray);
+			coinDispensers.setOpaque(true);
+			
+			refillCoinDispensers = new JButton();
+			refillCoinDispensers.setBounds(10, 10, 100, 105);
+			refillCoinDispensers.setText("<html>Refill Coin<br>Dispsensers</html>");
+			refillCoinDispensers.addActionListener(this);
+			coinDispensers.add(refillCoinDispensers);
+			
+			content.add(coinDispensers);
+			
+			// banknote storage
+			JPanel bnStorage = new JPanel();
+			bnStorage.setLayout(null);
+			bnStorage.setBounds(40, 180, 250, 125);
+			bnStorage.setBackground(Color.lightGray);
+			bnStorage.setOpaque(true);
+			
+			bnEmptyStorage = new JButton();
+			bnEmptyStorage.setBounds(15, 10, 230, 45);
+			bnEmptyStorage.setText("EMPTY BANKNOTE STORAGE");
+			bnEmptyStorage.addActionListener(this);
+			bnStorage.add(bnEmptyStorage);
+	
+			bnFillStorage = new JButton();
+			bnFillStorage.setBounds(15, 70, 230, 45);
+			bnFillStorage.setText("FILL BANKNOTE STORAGE");
+			bnFillStorage.addActionListener(this);
+			bnStorage.add(bnFillStorage);
+			
+			content.add(bnStorage);
+			
+			// coin storage
+			JPanel coinStorage = new JPanel();
+			coinStorage.setLayout(null);
+			coinStorage.setBounds(310, 180, 250, 125);
+			coinStorage.setBackground(Color.lightGray);
+			coinStorage.setOpaque(true);
+			
+			coinEmptyStorage = new JButton();
+			coinEmptyStorage.setBounds(15, 10, 230, 45);
+			coinEmptyStorage.setText("EMPTY COIN STORAGE");
+			coinEmptyStorage.addActionListener(this);
+			coinStorage.add(coinEmptyStorage);
+	
+			coinFillStorage = new JButton();
+			coinFillStorage.setBounds(15, 70, 230, 45);
+			coinFillStorage.setText("FILL COIN STORAGE");
+			coinFillStorage.addActionListener(this);
+			coinStorage.add(coinFillStorage);
+			
+			content.add(coinStorage);
+			
+			scene.add(content);
+			
+			this.setVisible(true);
+			
+			return this;
+		}
+
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == refillBnDispensers) {
+				gui.refillBanknoteDispensers();
+			} else if (e.getSource() == refillCoinDispensers) {
+				gui.refillCoinDispenser();
+			} else if (e.getSource() == addPaper) {
+				gui.addPaper();
+			} else if (e.getSource() == addInk) {
+				gui.addInk();
+			} else if (e.getSource() == bnEmptyStorage) {
+				gui.emptyBanknoteStorage();
+			} else if (e.getSource() == bnFillStorage) {
+				gui.fillBankStorage();
+			} else if (e.getSource() == coinEmptyStorage) {
+				gui.emptyCoinStorage();
+			} else if (e.getSource() == coinFillStorage) {
+				gui.fillCoinStorage();
+			}
+		}
+	}
+			
 	Color red_light = new Color(235, 80, 70);
 	Color green_light = new Color(80, 225, 80);
 	
