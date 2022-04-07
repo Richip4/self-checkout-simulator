@@ -23,6 +23,15 @@ import user.User;
  * @author Yunfan Yang
  */
 public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
+	// Several station states used for GUI
+	public static final String OKAY_STATUS = "OKAY";
+	public static final String MISSING_ITEM_STATUS = "MISSING ITEM";
+	public static final String WEIGHT_DISCREPENCY_STATUS = "WEIGHT DISCREPENCY";
+	public static final String BLOCKED_STATUS = "BLOCKED";
+	public static final String OFFLINE_STATUS = "OFFLINE";
+	
+	private String state = OKAY_STATUS;
+	
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
@@ -38,6 +47,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
+        this.state = OKAY_STATUS;
 
         this.startSystem();
     }
@@ -69,6 +79,23 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     	// but an attedant alone can service the station
     	// TODO: consider if components need to be altered do to the presence of an attendant
     	
+    }
+    
+    /**
+     * Sets this stations state to one of the following:
+     * 		SelfCheckoutSoftware.OKAY_STATUS
+     * 		SelfCheckoutSoftware.MISSING_ITEM_STATUS
+     * 		SelfCheckoutSoftware.WEIGHT_DISCREPENCY_STATUS
+     * 		SelfCheckoutSoftware.BLOCKED_STATUS
+     * 		SelfCheckoutSoftware.OFFLINE_STATUS
+     * @param state
+     */
+    public void setState(String state) {
+    	this.state = state;
+    }
+    
+    public String getState() {
+    	return state;
     }
     
     public void removeUser(User user) {

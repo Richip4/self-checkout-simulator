@@ -116,7 +116,7 @@ public class AppControl {
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station).setUser(activeUser);
+		selfStationSoftwares.get(station-1).setUser(activeUser);
 	}
 
 	/**
@@ -127,7 +127,11 @@ public class AppControl {
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station).setUser(activeUser);
+		selfStationSoftwares.get(station-1).setUser(activeUser);
+	}
+	
+	public void attendantUsesSupervisionStation() {
+		
 	}
 
 	/**
@@ -140,7 +144,7 @@ public class AppControl {
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				users[i] = null;
-				selfStationSoftwares.get(station).removeUser(activeUser);
+				selfStationSoftwares.get(station-1).removeUser(activeUser);
 				return;
 			}
 		}
@@ -156,7 +160,7 @@ public class AppControl {
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				users[i] = null;
-				selfStationSoftwares.get(station).removeUser(activeUser);
+				selfStationSoftwares.get(station-1).removeUser(activeUser);
 				return;
 			}
 		}
@@ -207,6 +211,38 @@ public class AppControl {
 			} else if (user == ATTENDANT) {
 				stationsUserType[station] = CUSTOMER;
 			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param station
+	 * @return
+	 */
+	public String getStationState(int station) {
+		return selfStationSoftwares.get(station).getState();
+	}
+
+	/**
+	 * 
+	 * @param station
+	 */
+	public void toggleBlock(int station) {
+		if (selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.OKAY_STATUS) {
+			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.BLOCKED_STATUS);
+		} else if (selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.BLOCKED_STATUS) {
+			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
+		}
+	}
+
+	/**
+	 * 
+	 * @param station
+	 */
+	public void approveStationDiscrepancy(int station) {
+		if (selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.MISSING_ITEM_STATUS ||
+			selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.WEIGHT_DISCREPENCY_STATUS) {
+			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
 		}
 	}
 }

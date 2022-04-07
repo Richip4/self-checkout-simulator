@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -23,10 +24,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+
+import application.AppControl;
+import application.Main.Tangibles;
+import software.SelfCheckoutSoftware;
 
 public class Scenes {
 	
@@ -82,7 +89,8 @@ public class Scenes {
 			
 		} else if (scene == AS_TOUCH) {
 			
-			return null;
+			return new AS_Touchscreen_Scene().getScene();
+			
 		} else if (scene == SCS_OVERVIEW) {
 			
 			return new SCS_Overview_Scene().getScene();
@@ -185,6 +193,10 @@ public class Scenes {
 			scene.add(content);
 			
 			this.setVisible(true);
+			
+			// prompt the user to reply with what type of user they are
+			int newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
+			gui.newUser(newUserType);
 			
 			return this;
 		}
@@ -383,6 +395,119 @@ public class Scenes {
 	}
 	
 	// Attendant Station Touch Screen Scene
+	private class AS_Touchscreen_Scene extends JFrame  implements ActionListener {
+		
+		Color tint_one = new Color(220, 230, 234);
+		Color tint_two = new Color(205, 220, 230);
+		
+		JLabel[] station_status = new JLabel[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JLabel[] station_light = new JLabel[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JButton[] station_block  = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JButton[] station_approve = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+
+		public JFrame getScene() {
+			// init the window
+			JPanel scene = preprocessScene(this, 800, 650);
+
+			// include a banner for navigation
+			JPanel banner = generateBanner(scene);
+			
+			// Closing this scene means this user is no 
+			// longer using the self-checkout station
+			this.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					gui.attendantLogsOut();
+					removeDimmingFilter();
+				}
+			});
+			
+			// main content panel of the scene
+			// contains the visually interactable 
+			// components in the scene.
+			JPanel content = new JPanel();
+			content.setBackground(defaultBackground);
+			// null layout allows me to place components freely
+			content.setLayout(null); 
+			
+			Border border = BorderFactory.createLineBorder(Color.black, 2, true);
+			
+			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
+			
+				JPanel station = new JPanel();
+				station.setLayout(null);
+				station.setBounds(0, i * 100, 800, 100);
+				station.setBackground((i % 2 == 0) ? tint_one : tint_two);
+				
+				station_status[i] = new JLabel();
+				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
+				station_status[i].setText(gui.stationStatus(i));
+				station_status[i].setBounds(30, 10, 200, 80);
+				station_status[i].setHorizontalAlignment(JLabel.CENTER);
+				station.add(station_status[i]);
+				
+				Color station_light_color = checkStationAttention(i);
+				
+				station_light[i] = new JLabel();
+				station_light[i].setBounds(260, 30, 40, 40);
+				station_light[i].setBackground(station_light_color);
+				station_light[i].setOpaque(true);
+				station.add(station_light[i]);
+				
+				JLabel station_label = new JLabel();
+				station_label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+				station_label.setText("STATION " + (i+1));
+				station_label.setBounds(335, 10, 130, 80);
+				station_label.setHorizontalAlignment(JLabel.CENTER);
+				station_label.setBorder(border);
+				station_label.setBackground((i % 2 == 0) ? tint_two : tint_one);
+				station_label.setOpaque(true);
+				station.add(station_label);
+				
+				station_block[i] = new JButton();
+				station_block[i].setBounds(485, 25, 130, 50);
+				station_block[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
+				station_block[i].setText(checkBlockStatus(i));
+				station_block[i].addActionListener(this);
+				station_block[i].setFocusable(false);
+				station.add(station_block[i]);
+				
+				station_approve[i] = new JButton();
+				station_approve[i].setBounds(635, 25, 130, 50);
+				station_approve[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
+				station_approve[i].setText("APPROVE");
+				station_approve[i].addActionListener(this);
+				station_approve[i].setFocusable(false);
+				station.add(station_approve[i]);
+				
+				content.add(station);
+			}
+			
+			scene.add(content);
+			
+			this.setVisible(true);
+			
+			addDimmingFilter();
+			promptAttendantForLogIn();
+			
+			return this;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
+				if (e.getSource() == station_block[i]) {
+					gui.attendantBlockToggle(i);
+					station_block[i].setText(checkBlockStatus(i));
+					station_status[i].setText(gui.stationStatus(i));
+					station_light[i].setBackground(checkStationAttention(i));
+				} else if (e.getSource() == station_approve[i]) {
+					gui.attendantApproveStation(i);
+					station_status[i].setText(gui.stationStatus(i));
+					station_light[i].setBackground(checkStationAttention(i));
+				}
+			}
+		}
+	}
 	
 	// Self-Checkout Station Touch Screen Scene
 	
@@ -391,6 +516,47 @@ public class Scenes {
 	// Self-Checkout Station Card Reader Scene
 	
 	// Self-Checkout Station Maintenance Scene
+	
+	Color red_light = new Color(235, 80, 70);
+	Color green_light = new Color(80, 225, 80);
+	
+	/**
+	 * 
+	 * @param station
+	 * @return
+	 */
+	private Color checkStationAttention(int station) {
+		return (gui.stationStatus(station) == SelfCheckoutSoftware.OKAY_STATUS) 
+					? green_light : red_light;
+	}
+	
+	/**
+	 * 
+	 * @param station
+	 * @return
+	 */
+	private String checkBlockStatus(int station) {
+		return (gui.stationStatus(station) == SelfCheckoutSoftware.BLOCKED_STATUS) 
+				? "UNBLOCK" : "BLOCK";
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private static int promptForUserType() {
+		String[] userTypes = {"Customer", "Attendant" };
+		return JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
+				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0); 
+	}
+	
+	/**
+	 * Prompts the attendant for a log in number.
+	 * Accepts literally any sequence of numbers.
+	 */
+	private void promptAttendantForLogIn() {
+		new Keypad();
+	}
 	
 	/**
 	 * Initializes the scenes window size and attaches
@@ -419,6 +585,7 @@ public class Scenes {
 	
 	/**
 	 * 
+	 * 
 	 * @param p - panel with BorderLayout
 	 * @return the banner created for any further customizations
 	 */
@@ -443,7 +610,14 @@ public class Scenes {
 		return banner;
 	}
 	
+	/**
+	 * 
+	 */
 	private void addDimmingFilter() {
+		if (filterFrame != null) {
+			removeDimmingFilter();
+		}
+		
 		filterFrame = new JFrame();
 		JPanel filter = preprocessScene(filterFrame, xResolution, yResolution);
 		
