@@ -152,35 +152,37 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				return;
 			}
 
+			this.scss.idle(); // Transaction is complete, go to idle state
 			this.scss.notifyObservers(observer -> observer.paymentCompleted());
-		} else if(type.equals("gift")){
-			if(GiftCard.isGiftCard(data.getNumber()))
-			{
+		} else if (type.equals("gift")) {
+			if (GiftCard.isGiftCard(data.getNumber())) {
 				String cardNumber = data.getNumber();
 				CardIssuer issuer = GiftCard.getCardIssuer();
 				int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
-	
+
 				// Fail to hold the authorization
-				if (holdNumber == -1) 
-				{
+				if (holdNumber == -1) {
 					this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
 					return;
 				}
-	
+
 				boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
-	
+
 				// Fail to post transaction
 				if (!posted) {
 					this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
 					return;
 				}
-					this.scss.notifyObservers(observer -> observer.paymentCompleted());
-					return;
-				} else {
-					this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
-				}
+				this.scss.notifyObservers(observer -> observer.paymentCompleted());
+				return;
+			} else {
+				this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
+			}
+
+			this.scss.idle(); // Transaction is complete, go to idle state
+			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else {
-		this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
+			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
 
 		// Re-enable card reader since transaction is complete or failed.
