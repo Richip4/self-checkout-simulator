@@ -74,6 +74,8 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public void detatchAll() {
 		this.scs.mainScanner.detach(this);
 		this.scs.handheldScanner.detach(this);
+
+		this.scs.baggingArea.detach(this);
 	}
 
 	/**
