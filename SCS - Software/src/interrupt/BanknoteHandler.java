@@ -13,7 +13,6 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.observers.*;
 
 import software.SelfCheckoutSoftware;
-import software.SupervisionSoftware;
 import user.Customer;
 
 /**

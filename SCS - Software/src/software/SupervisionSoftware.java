@@ -146,12 +146,19 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	}
 	
 	public void unblockStation(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
-		if (this.logged_in){
+		if (this.logged_in) {
 			scss.unblockSystem();
-		}else{
+		} else {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
 
+	public void approveWeightDiscrepancy(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
+		if (this.logged_in) {
+			scss.approveWeightDiscrepancy();
+		} else {
+			throw new AuthorizationRequiredException("Attendant needs to log in");
+		}
+	}
 }
 
