@@ -28,7 +28,7 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  */
 public class Membership {
 	private static final Set<String> MEMBERS = new HashSet<String>();
-	private static final CardIssuer MEMBERSHIP_ISSUER = new CardIssuer("Membership");
+	private static CardIssuer MEMBERSHIP_ISSUER = new CardIssuer("Membership");
 
 	/**
 	 * Instances of this class are not needed, so the constructor is private.
@@ -56,5 +56,6 @@ public class Membership {
 
 	public static void clear() {
 		Membership.MEMBERS.clear();
+		Membership.MEMBERSHIP_ISSUER = new CardIssuer("Membership");
 	}
 }
