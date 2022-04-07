@@ -43,6 +43,10 @@ public class Membership {
 	}
 
 	public static void createMembership(String memberID, String holder) {
+		if (Membership.MEMBERS.contains(memberID)) {
+			throw new IllegalArgumentException("Member already exists.");
+		}
+
 		Membership.MEMBERS.add(memberID);
 
 		Calendar expiry = Calendar.getInstance();
