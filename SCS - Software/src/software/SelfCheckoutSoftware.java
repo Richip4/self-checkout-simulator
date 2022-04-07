@@ -4,6 +4,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 import checkout.Checkout;
 import checkout.Receipt;
+import checkout.Screen;
 import interrupt.BanknoteHandler;
 import interrupt.CardHandler;
 import interrupt.CoinHandler;
@@ -23,6 +24,31 @@ import user.User;
  * @author Yunfan Yang
  */
 public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
+    // See: https://github.com/ScorpiosCrux/SENG-300-Iteration3/issues/31
+    public static enum Phase {
+        IDLE,
+        SCANNING_ITEM,
+        CHOOSING_PAYMENT_METHOD,
+        PROCESSING_PAYMENT,
+
+        PLU_ITEM_WEIGHING,
+        BAGGING_ITEM,
+        PLACING_OWN_BAG,
+        WAITING_UNEXPECTED_ITEM_REMOVAL,
+        WAITING_WEIGHT_DISCREPANCY_APPROAVAL,
+
+        BLOCKING,
+    };
+
+    public static enum PaymentMethod {
+        CASH,
+        BANK_CARD,
+        GIFT_CARD,
+    };
+
+    private Phase phase;
+    private boolean isBlocked;
+
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
@@ -35,11 +61,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     private Checkout checkout; // Controller for processing checkout
     private Receipt receipt; // Controller for printing receipt
+    private Screen screen; // Controller for displaying messages
 
     public SelfCheckoutSoftware(SelfCheckoutStation scs) {
         this.scs = scs;
+        this.phase = Phase.IDLE;
 
         this.startSystem();
+        this.disableHardware(); // Default by disable all of them
     }
     
     public void setUser(User user) {
@@ -60,15 +89,20 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.checkout.setCustomer(customer);
         this.receipt.setCustomer(customer);
+        this.screen.setCustomer(customer);
     }
     
     private void setAttendant(Attendant attendant) {
-    	this.attendant = attendant;
-    	
-    	// attendant must be accompanied by customer to process items
-    	// but an attedant alone can service the station
-    	// TODO: consider if components need to be altered do to the presence of an attendant
-    	
+        this.attendant = attendant;
+
+        // attendant must be accompanied by customer to process items
+        // but an attedant alone can service the station
+        // TODO: consider if components need to be altered do to the presence of an attendant
+
+    }
+
+    public Attendant getAttendant() {
+        return this.attendant;
     }
     
     public void removeUser(User user) {
@@ -134,8 +168,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.processItemHandler = new ProcessItemHandler(this);
         this.checkout = new Checkout(this);
         this.receipt = new Receipt(this);
+        this.screen = new Screen(this);
 
         this.enableHardware();
+        this.screen.enableHardware();
 
         this.notifyObservers(observer -> observer.softwareStarted(this));
     }
@@ -149,6 +185,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      */
     public void stopSystem() {
         this.disableHardware();
+        this.screen.disableHardware();
 
         this.banknoteHandler.detatchAll();
         this.banknoteHandler = null;
@@ -162,25 +199,153 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.processItemHandler.detatchAll();
         this.processItemHandler = null;
 
-        this.checkout = null;
-
         this.receipt.detatchAll();
         this.receipt = null;
+        
+        this.checkout = null;
+        this.screen = null;
 
         this.notifyObservers(observer -> observer.softwareStopped(this));
     }
 
     public void blockSystem() {
+        // If blocking:
+        // 1. disbale all hardware devices
+        // 2. set isBlocked to true
+        // 3. notify all observers that current phase is BLOCKING
+        // 4. notify GUI that touch screen is blocked
+
         this.disableHardware();
+        this.isBlocked = true;
+        this.notifyObservers(observer -> observer.phaseChanged(Phase.BLOCKING));
         this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
 
     protected void unblockSystem() {
+        // If unblocking:
+        // 1. enable all hardware devices
+        // 2. set isBlocked to false
+        // 3. notify all observers that current phase is the original phase
+        // 4. notify GUI that touch screen is unblocked
+
         this.enableHardware();
+        this.isBlocked = false;
+        this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
 
     public void makeChange() {
         this.checkout.makeChange();
+    }
+
+    // ========== PHASE MANAGEMENT ========== //
+
+    /**
+     * 
+     * @return
+     */
+    public Phase getPhase() {
+        if (this.isBlocked) {
+            return Phase.BLOCKING;
+        }
+
+        return this.phase;
+    }
+
+    private void setPhase(Phase phase) {
+        this.phase = phase;
+        this.notifyObservers(observer -> observer.phaseChanged(this.phase));
+    }
+
+    /**
+     * When the checkout station has no customer using (for purchasing specifically)
+     */
+    public void idle() {
+        this.setCustomer(null);
+        this.setPhase(Phase.IDLE);
+    }
+
+    /**
+     * When a customer approaches the station and pressed start button
+     * 
+     * @param customer
+     */
+    public void start(Customer customer) {
+        if (this.phase != Phase.IDLE) {
+            throw new IllegalStateException("Cannot start a new customer when the system is not idle");
+        }
+
+        this.setCustomer(customer);
+
+        // Only enable related hardwares
+        this.disableHardware();
+        this.processItemHandler.enableHardware();
+
+        this.setPhase(Phase.SCANNING_ITEM); // Expecting GUI switchs to scanning item view
+    }
+
+    /**
+     * Customer wishes to use their own bag
+     * 
+     * When they have placed their own bag in the bagging area, the phase will be set back
+     */
+    public void addOwnBag() {
+        if (this.phase != Phase.SCANNING_ITEM || this.customer == null) {
+            throw new IllegalStateException("Cannot add own bag when the system is not scanning item");
+        }
+
+        // Only enable bagging area
+        this.disableHardware();
+        this.processItemHandler.enableBaggingArea();
+
+        this.setPhase(Phase.PLACING_OWN_BAG);
+    }
+    
+    /**
+     * When customer wishes to checkout
+     */
+    public void checkout() {
+        if (this.phase != Phase.SCANNING_ITEM || this.customer == null) {
+            throw new IllegalStateException("Cannot checkout when the system is not scanning item");
+        }
+
+        // No devices enabled
+        this.disableHardware();
+
+        this.setPhase(Phase.CHOOSING_PAYMENT_METHOD);
+    }
+
+    /**
+     * When customer has choosen their payment method and they are ready to pay
+     * 
+     * @param method
+     */
+    public void checkout(PaymentMethod method) {
+        if (this.phase != Phase.CHOOSING_PAYMENT_METHOD) {
+            throw new IllegalStateException("Cannot checkout when the system is not choosing payment method");
+        }
+
+        this.setPhase(Phase.PROCESSING_PAYMENT);
+
+        // Relative devices are enabled in checkout
+        this.disableHardware();
+        this.checkout.checkout(method);
+    }
+
+    /**
+     * When customer wishes to go back and add more items
+     */
+    public void cancelCheckout() {
+        // When the phase is not choosing payment method or processing their payment, invalid operation
+        if ((this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD)
+                || this.customer == null) {
+            throw new IllegalStateException("Cannot cancel checkout when the system is not processing payment");
+        }
+
+        // Relative devices are disabled in checkout
+        this.disableHardware();
+        this.checkout.cancelCheckout();
+        
+        this.setPhase(Phase.SCANNING_ITEM);
     }
 }

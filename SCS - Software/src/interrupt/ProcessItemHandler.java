@@ -101,6 +101,10 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scs.baggingArea.disable();
 	}
 
+	public void enableBaggingArea() {
+		this.scs.baggingArea.enable();
+	}
+
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// do nothing when barcode scanner or electronic scale is enabled

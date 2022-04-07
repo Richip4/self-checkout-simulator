@@ -1,6 +1,7 @@
 package software.observers;
 
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 
 /**
  * The Observer class for SelfCheckoutSoftware.
@@ -68,4 +69,9 @@ public interface SelfCheckoutObserver extends Observer {
     public Void touchScreenBlocked();
 
     public Void touchScreenUnblocked();
+
+    // Phase
+    public Void phaseChanged(Phase phase);
+
+    
 }

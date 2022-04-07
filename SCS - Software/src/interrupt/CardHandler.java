@@ -7,8 +7,8 @@ import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
 import org.lsmr.selfcheckout.external.CardIssuer;
 
 import bank.Bank;
-import databases.GiftCard;
 import software.SelfCheckoutSoftware;
+import store.GiftCard;
 import store.Membership;
 import user.Customer;
 

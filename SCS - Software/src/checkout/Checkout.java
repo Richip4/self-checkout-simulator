@@ -11,6 +11,7 @@ import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.PaymentMethod;
 import user.Customer;
 
 /**
@@ -59,21 +60,18 @@ public class Checkout {
 	 * of their items.
 	 * 
 	 */
-	public void checkout() {
+	public void checkout(PaymentMethod method) {
 		// devices are only configured if there is a customer at the station
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
 		}
 
-		// disable the barcode scanner and electronic scale
-		scs.mainScanner.disable();
-		scs.handheldScanner.disable();
-		scs.baggingArea.disable();
-		scs.scanningArea.disable();
-
-		this.enableCardReader();
-		this.enableBanknoteInput();
-		this.enableCoinInput();
+		if (method == PaymentMethod.BANK_CARD) {
+			this.enableCardReader();
+		} else if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
+			this.enableBanknoteInput();
+			this.enableCoinInput();
+		}
 	}
 
 	/**
@@ -98,11 +96,6 @@ public class Checkout {
 				&& subtotal.compareTo(BigDecimal.ZERO) != 0) {
 			throw new IllegalStateException("Customer has paid clear");
 		}
-
-		// enable the barcode scanner and electronic scale
-		this.scs.mainScanner.enable();
-		this.scs.handheldScanner.enable();
-		this.scs.scanningArea.enable();
 
 		this.disableCardReader();
 		this.disableBanknoteInput();
