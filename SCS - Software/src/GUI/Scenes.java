@@ -5,20 +5,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -99,7 +93,7 @@ public class Scenes {
 			return null;
 		} else if (scene == SCS_CARDREADER) {
 			
-			return null;
+			return new SCS_Cardreader_Scene().getScene();
 		} else if (scene == SCS_MAINTENANCE) {
 			
 			return null;
@@ -264,6 +258,7 @@ public class Scenes {
 			bagScale.setText("Bagging Area");
 			bagScale.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 			bagScale.addActionListener(this);
+			bagScale.setFocusable(false);
 			content.add(bagScale);
 			
 			// banknote input slot
@@ -272,6 +267,7 @@ public class Scenes {
 			bnInSlot.setText("Banknote In");
 			bnInSlot.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			bnInSlot.addActionListener(this);
+			bnInSlot.setFocusable(false);
 			content.add(bnInSlot);
 			
 			// banknote output slot
@@ -280,6 +276,7 @@ public class Scenes {
 			bnOutSlot.setText("Banknote Out");
 			bnOutSlot.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			bnOutSlot.addActionListener(this);
+			bnOutSlot.setFocusable(false);
 			content.add(bnOutSlot);
 			
 			// maintenance hatch
@@ -288,6 +285,7 @@ public class Scenes {
 			maintenance.setText("Maintenance Hatch");
 			maintenance.setBorder(BorderFactory.createLineBorder(Color.black, 1, false));
 			maintenance.addActionListener(this);
+			maintenance.setFocusable(false);
 			content.add(maintenance);
 			
 			// coin input slot
@@ -296,6 +294,7 @@ public class Scenes {
 			coinInSlot.setText("Coin In");
 			coinInSlot.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			coinInSlot.addActionListener(this);
+			coinInSlot.setFocusable(false);
 			content.add(coinInSlot);
 			
 			// coin tray
@@ -304,6 +303,7 @@ public class Scenes {
 			coinTray.setText("Coin Tray");
 			coinTray.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			coinTray.addActionListener(this);
+			coinTray.setFocusable(false);
 			content.add(coinTray);
 			
 			// item weigh scale
@@ -312,6 +312,7 @@ public class Scenes {
 			weighScale.setText("Item Weigh Scale");
 			weighScale.setBorder(BorderFactory.createLineBorder(Color.black, 3, true));
 			weighScale.addActionListener(this);
+			weighScale.setFocusable(false);
 			content.add(weighScale);
 			
 			// stationary barcode scanner
@@ -320,6 +321,7 @@ public class Scenes {
 			scanner.setText("Barcode Scanner");
 			scanner.setBorder(BorderFactory.createLineBorder(Color.black, 3, true));
 			scanner.addActionListener(this);
+			scanner.setFocusable(false);
 			content.add(scanner);
 			
 			// handheld barcode scanner
@@ -328,6 +330,7 @@ public class Scenes {
 			handScanner.setText("<html>Handheld<br>Scanner</html>");
 			handScanner.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			handScanner.addActionListener(this);
+			handScanner.setFocusable(false);
 			content.add(handScanner);
 			
 			// card reader
@@ -336,6 +339,7 @@ public class Scenes {
 			cardReader.setText("<html>Card<br>Reader</html>");
 			cardReader.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			cardReader.addActionListener(this);
+			cardReader.setFocusable(false);
 			content.add(cardReader);
 			
 			// receipt printer
@@ -344,6 +348,7 @@ public class Scenes {
 			printer.setText("Receipt");
 			printer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			printer.addActionListener(this);
+			printer.setFocusable(false);
 			content.add(printer);
 			
 			// touchscreen
@@ -352,6 +357,7 @@ public class Scenes {
 			touchscreen.setText("Touchscreen");
 			touchscreen.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			touchscreen.addActionListener(this);
+			touchscreen.setFocusable(false);
 			content.add(touchscreen);
 			
 			// import self-checkout station model
@@ -514,6 +520,103 @@ public class Scenes {
 	// Self-Checkout Station Keyboard Scene
 	
 	// Self-Checkout Station Card Reader Scene
+	private class SCS_Cardreader_Scene extends JFrame  implements MouseListener {
+		
+		JLabel tap;
+		JLabel swipe;
+		JLabel insert;
+		
+		public JFrame getScene() {
+			// init the window
+			JPanel scene = preprocessScene(this, 250, 350);
+
+			// include a banner for navigation
+			JPanel banner = generateBanner(scene);
+			
+			// Closing this scene means this user is no 
+			// longer using the self-checkout station
+			this.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					removeDimmingFilter();
+				}
+			});
+			
+			// main content panel of the scene
+			// contains the visually interactable 
+			// components in the scene.
+			JPanel content = new JPanel();
+			content.setBackground(defaultBackground);
+			// null layout allows me to place components freely
+			content.setLayout(null); 
+		
+			// card tap 
+			tap = new JLabel();
+			tap.setBounds(40, 40, 130, 110);
+			tap.setText("TAP");
+			tap.setOpaque(true);
+			tap.setHorizontalAlignment(JLabel.CENTER);
+			tap.addMouseListener(this);
+			content.add(tap);
+			
+			// card swipe
+			swipe = new JLabel();
+			swipe.setBounds(190, 40, 20, 220);
+			swipe.setText("<html>S<br>W<br>I<br>P<br>E</html>");
+			swipe.setOpaque(true);
+			swipe.setHorizontalAlignment(JLabel.CENTER);
+			swipe.addMouseListener(this);
+			content.add(swipe);
+			
+			// card insert
+			insert = new JLabel();
+			insert.setBounds(40, 190, 130, 70);
+			insert.setText("INSERT");
+			insert.setOpaque(true);
+			insert.setHorizontalAlignment(JLabel.CENTER);
+			insert.addMouseListener(this);
+			content.add(insert);
+			
+			scene.add(content);
+			
+			this.setVisible(true);
+			
+			return this;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {}
+
+		@Override
+		public void mousePressed(MouseEvent e) {}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (e.getSource() == tap) {
+				gui.userTapsCard(promptCustomerForCard());
+				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			} else if (e.getSource() == swipe) {
+				gui.userSwipesCard(promptCustomerForCard());
+				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+			} else if (e.getSource() == insert) {
+				gui.userInsertCard(promptCustomerForCard());
+				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+				
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	
 	// Self-Checkout Station Maintenance Scene
 	
@@ -551,11 +654,25 @@ public class Scenes {
 	}
 	
 	/**
+	 * 
+	 * @return
+	 */
+	private int promptCustomerForCard() {
+		String[] cardTypes = {"CREDIT", "DEBIT", "MEMBERSHIP" };
+		return JOptionPane.showOptionDialog(null, "Which card will you use?", 
+				"Card?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cardTypes, 0); 
+	}
+	
+	/**
 	 * Prompts the attendant for a log in number.
 	 * Accepts literally any sequence of numbers.
 	 */
 	private void promptAttendantForLogIn() {
-		new Keypad();
+		new Keypad("ENTER LOG IN NUMBER");
+	}
+	
+	private void promptCustomerForMemebership() {
+		new Keypad("ENTER MEMBERSHIP NUMBER");
 	}
 	
 	/**

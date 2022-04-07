@@ -165,9 +165,8 @@ public class GUI {
 	}
 
 	public void userAccessCardReader(int currentStation) {
-		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
+			scenes.getScene(Scenes.SCS_CARDREADER);
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
@@ -218,5 +217,35 @@ public class GUI {
 	public void attendantApproveStation(int station) {
 		
 		ac.approveStationDiscrepancy(station);
+	}
+
+	public void userTapsCard(int cardType) {
+		if (cardType == AppControl.CREDIT) {
+			ac.customerTapsCreditCard();
+		} if (cardType == AppControl.DEBIT) {
+			ac.customerTapsDebitCard();
+		} if (cardType == AppControl.MEMBERSHIP) {
+			ac.customerTapsMembershipCard();
+		}
+	}
+
+	public void userSwipesCard(int cardType) {
+		if (cardType == AppControl.CREDIT) {
+			ac.customerSwipesCreditCard();
+		} if (cardType == AppControl.DEBIT) {
+			ac.customerSwipesDebitCard();
+		} if (cardType == AppControl.MEMBERSHIP) {
+			ac.customerSwipesMembershipCard();
+		}
+	}
+
+	public void userInsertCard(int cardType) {
+		if (cardType == AppControl.CREDIT) {
+			ac.customerInsertCreditCard();
+		} if (cardType == AppControl.DEBIT) {
+			ac.customerInsertDebitCard();
+		} if (cardType == AppControl.MEMBERSHIP) {
+			ac.customerInsertMembershipCard();
+		}
 	}
 }

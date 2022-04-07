@@ -19,6 +19,11 @@ public class AppControl {
 	public static final int CUSTOMER = 1;
 	public static final int ATTENDANT = 2;
 	public static final int BOTH = 3;
+	
+	// types of cards a customer can use
+	public static final int CREDIT = 0;
+	public static final int DEBIT = 1;
+	public static final int MEMBERSHIP = 2;
 
 	// the attendant station that oversees the self-checkout stations
 	private static SupervisionStation supervisor;
@@ -244,5 +249,50 @@ public class AppControl {
 			selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.WEIGHT_DISCREPENCY_STATUS) {
 			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
 		}
+	}
+
+	public void customerTapsCreditCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerTapsDebitCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void customerTapsMembershipCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerSwipesCreditCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerSwipesDebitCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerSwipesMembershipCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerInsertCreditCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerInsertDebitCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void customerInsertMembershipCard() {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -16,11 +16,13 @@ public class Keypad {
 	private JFrame frame;
 	private JTextPane display;
 	private String value;
+	private String msg;
 
 	/**
 	 * Create the application.
 	 */
-	public Keypad() {
+	public Keypad(String msg) {
+		this.msg = msg;
 		this.value = "";
 		initialize();
 		frame.setVisible(true);
@@ -57,7 +59,7 @@ public class Keypad {
 		display.setBounds(window_width/2 - textPaneWidth/2, 90, textPaneWidth, 31);
 		frame.getContentPane().add(display);
 		
-		JLabel lblNewLabel = new JLabel("ENTER LOG IN NUMBER");
+		JLabel lblNewLabel = new JLabel(msg);
 		lblNewLabel.setFont(new Font("Lucida Grande", Font.BOLD, 14));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(window_width/2 - textPaneWidth/2, 41, textPaneWidth, 37);
