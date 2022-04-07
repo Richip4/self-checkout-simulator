@@ -7,7 +7,9 @@ import org.lsmr.selfcheckout.devices.SupervisionStation;
 
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Store;
+import store.credentials.AuthorizationRequiredException;
 import user.Attendant;
 import user.Customer;
 import user.User;
@@ -121,7 +123,7 @@ public class AppControl {
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station-1).setUser(activeUser);
+		selfStationSoftwares.get(station - 1).setUser(activeUser);
 	}
 
 	/**
@@ -132,11 +134,11 @@ public class AppControl {
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station-1).setUser(activeUser);
+		selfStationSoftwares.get(station - 1).setUser(activeUser);
 	}
-	
+
 	public void attendantUsesSupervisionStation() {
-		
+
 	}
 
 	/**
@@ -149,7 +151,7 @@ public class AppControl {
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				users[i] = null;
-				selfStationSoftwares.get(station-1).removeUser(activeUser);
+				selfStationSoftwares.get(station - 1).removeUser(activeUser);
 				return;
 			}
 		}
@@ -165,7 +167,7 @@ public class AppControl {
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				users[i] = null;
-				selfStationSoftwares.get(station-1).removeUser(activeUser);
+				selfStationSoftwares.get(station - 1).removeUser(activeUser);
 				return;
 			}
 		}
@@ -225,7 +227,15 @@ public class AppControl {
 	 * @return
 	 */
 	public String getStationState(int station) {
-		return selfStationSoftwares.get(station).getState();
+		if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
+			return "BLOCKED";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+			return "WEIGHT DISCREPANCY";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
+			return "MISSING ITEM";
+		} else {
+			return "OKAY";
+		}
 	}
 
 	/**
@@ -233,10 +243,15 @@ public class AppControl {
 	 * @param station
 	 */
 	public void toggleBlock(int station) {
-		if (selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.OKAY_STATUS) {
-			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.BLOCKED_STATUS);
-		} else if (selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.BLOCKED_STATUS) {
-			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
+		if (selfStationSoftwares.get(station).getPhase() != Phase.BLOCKING) {
+			try {
+				supervisorSoftware.blockStation(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
+
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
+			try {
+				supervisorSoftware.unblockStation(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
 		}
 	}
 
@@ -245,9 +260,14 @@ public class AppControl {
 	 * @param station
 	 */
 	public void approveStationDiscrepancy(int station) {
-		if (selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.MISSING_ITEM_STATUS ||
-			selfStationSoftwares.get(station).getState() == SelfCheckoutSoftware.WEIGHT_DISCREPENCY_STATUS) {
-			selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
+		if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+			try {
+				supervisorSoftware.approveWeightDiscrepancy(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}			
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
+			try {
+				supervisorSoftware.approveMissingItem(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
 		}
 	}
 
