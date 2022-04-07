@@ -98,7 +98,7 @@ public class CustomerTest
         Inventory.addProduct(product1);
         Inventory.addProduct(product2);
         customer.lookupProduct(product2.getPLUCode());
-        customer.lookupProduct(new PriceLookupCode(product2.getPLUCode().toString() + "1234"));
+        customer.lookupProduct(new PriceLookupCode(product2.getPLUCode().toString() + "1"));
 
         assertTrue(customer.getCart().contains(product2));
         assertEquals(1, customer.getCart().size());

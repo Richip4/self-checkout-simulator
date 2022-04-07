@@ -67,7 +67,7 @@ public class AttendantTest
         attendant.setLogin(username, password);
 
         assertEquals(username, attendant.getUsername());
-        assertEquals(username, attendant.getPassword());
+        assertEquals(password, attendant.getPassword());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class AttendantTest
         Inventory.addProduct(product1);
         Inventory.addProduct(product2);
         attendant.lookupProduct(selfCheckoutSoftware, product2.getPLUCode());
-        attendant.lookupProduct(selfCheckoutSoftware, new PriceLookupCode(product2.getPLUCode().toString() + "1234"));
+        attendant.lookupProduct(selfCheckoutSoftware, new PriceLookupCode(product2.getPLUCode().toString() + "1"));
 
         assertTrue(selfCheckoutSoftware.getCustomer().getCart().contains(product2));
         assertEquals(1, selfCheckoutSoftware.getCustomer().getCart().size());
