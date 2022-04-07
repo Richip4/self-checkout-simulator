@@ -234,7 +234,7 @@ public class AppControl {
 			// This operation is supposed to be performed from supervision software
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
 			// selfStationSoftwares.get(station).unblockSystem();
-			// TODO: This requires an attendant to operate
+			// FIXME: This requires an attendant to operate
 			// Authenticate the attendant to supervision software, and then unblock the
 			// system from supervision software
 		}
@@ -251,6 +251,6 @@ public class AppControl {
 		// SelfCheckoutSoftware.WEIGHT_DISCREPENCY_STATUS) {
 		// selfStationSoftwares.get(station).setState(SelfCheckoutSoftware.OKAY_STATUS);
 		// }
-		// This is implemented in SupervisionSoftware, so GUI can just use it
+		// FIXME: This is implemented in SupervisionSoftware, so GUI can just use it
 	}
 }
