@@ -4,20 +4,17 @@ import interrupt.ProcessItemHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Barcode;
-import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
-import org.lsmr.selfcheckout.products.Product;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
 import user.Customer;
 
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -30,8 +27,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProcessItemHandlerTest
 {
-    // TODO: Double check exactly what attach / detach and enable / disable should touch, also double check older test cases for correctness
-
     // Static variables that will be used during testing
     final Currency currency = Currency.getInstance("CAD");
     final int[] banknoteDenominations = {5, 10, 20, 50};
@@ -112,118 +107,117 @@ public class ProcessItemHandlerTest
         assertFalse(selfCheckoutStation.baggingArea.isDisabled());
     }
 
-    @Test
-    public void customerWantsToUseOwnBags()
-    {
-        customer.setOwnBagsUsed(true);
-
-        double weightOfBags = 3.1;
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, weightOfBags);
-        assertTrue("Weight of bags should be updated.", processItemHandler.getWeightBeforeBagging() == weightOfBags);
-    }
-
-
-    @Test
-    public void barcodeScannedInInvTest()
-    {
-        assertTrue(customer.getCart().isEmpty());
-
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-
-        List <Product> items = customer.getCart();
-        assertTrue("Item scanned does not match barcode inputted", product1.equals(items.get(0)));
-    }
-
-    @Test
-    public void barcodeScannedInNotInvTest()
-    {
-        assertTrue(customer.getCart().isEmpty());
-
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-
-        List <Product> items = customer.getCart();
-        assertTrue("Item scanned does not match barcode inputted", items.isEmpty());
-    }
-
-
-    // TODO: getWaitingToBag() is never updated / used so check if it is needed
-    @Test
-    public void weightChangedTest()
-    {
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-        assertTrue("Customer should be notified to move item to bagging area.", customer.getWaitingToBag());
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 1.0);
-        assertFalse("Customer should be no longer be notified to place item in bagging area.", customer.getWaitingToBag());
-    }
-
-
-    @Test
-    public void weightChangedTooHeavy()
-    {
-        assertFalse("Customer should be notified that", customer.getWaitingToBag());
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), 3.0));
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 3.0); // Causes the item to be set as "unexpectedItem"
-        assertTrue("Unexpected Item flag should be true", processItemHandler.getUnexpectedItem());
-    }
-
-    @Test
-    public void weightChangedTooLight()
-    {
-        assertFalse("Customer should be notified that", customer.getWaitingToBag());
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), 3.0));
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 0.1); // Causes the item to be set as "unexpectedItem"
-        assertTrue("Unexpected Item flag should be true", processItemHandler.getUnexpectedItem());
-    }
-
-
     //    @Test
-    //    public void weightChangedOverload()
+    //    public void customerWantsToUseOwnBags()
     //    {
-    //        Inventory.addProduct(barcode3, product3, item3);
+    //        customer.setOwnBagsUsed(true);
     //
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, barcode);
-    //        selfCheckoutStation.baggingArea.add(item);
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, item.getWeight());
-    //
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, barcode3);
-    //        selfCheckoutStation.baggingArea.add(item3);
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, item.getWeight() + item3.getWeight());
-    //        selfCheckoutStation.baggingArea.remove(item3);
-    //
-    //        //Comparing the weight of the non-overloaded item to the weight after removing the overloaded item.
-    //        assertEquals("Weight should be the close to what the weight was.", item.getWeight(), processItemHandler.getWeightBeforeBagging(), 0.1);
+    //        double weightOfBags = 3.1;
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, weightOfBags);
+    //        assertTrue("Weight of bags should be updated.", processItemHandler.getWeightBeforeBagging() == weightOfBags);
     //    }
-
-
-    @Test
-    public void weightChangedUnexpectedItem()
-    {
-
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
-
-        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 4.0);        //3g addition
-
-        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
-
-        assertFalse("Weight should be the close to what the weight was.", processItemHandler.getUnexpectedItem());
-    }
-
-
-    @Test
-    public void overloadTest()
-    {
-        processItemHandler.overload(selfCheckoutStation.baggingArea);
-        assertTrue(selfCheckoutStation.mainScanner.isDisabled());
-    }
-
-    @Test
-    public void outOfOverloadTest()
-    {
-        processItemHandler.outOfOverload(selfCheckoutStation.baggingArea);
-        assertFalse(selfCheckoutStation.mainScanner.isDisabled());
-    }
+    //
+    //
+    //    @Test
+    //    public void barcodeScannedInInvTest()
+    //    {
+    //        assertTrue(customer.getCart().isEmpty());
+    //
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //
+    //        List <Product> items = customer.getCart();
+    //        assertTrue("Item scanned does not match barcode inputted", product1.equals(items.get(0)));
+    //    }
+    //
+    //    @Test
+    //    public void barcodeScannedInNotInvTest()
+    //    {
+    //        assertTrue(customer.getCart().isEmpty());
+    //
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //
+    //        List <Product> items = customer.getCart();
+    //        assertTrue("Item scanned does not match barcode inputted", items.isEmpty());
+    //    }
+    //
+    //
+    //    @Test
+    //    public void weightChangedTest()
+    //    {
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //        assertTrue("Customer should be notified to move item to bagging area.", customer.getWaitingToBag());
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 1.0);
+    //        assertFalse("Customer should be no longer be notified to place item in bagging area.", customer.getWaitingToBag());
+    //    }
+    //
+    //
+    //    @Test
+    //    public void weightChangedTooHeavy()
+    //    {
+    //        assertFalse("Customer should be notified that", customer.getWaitingToBag());
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), 3.0));
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 3.0); // Causes the item to be set as "unexpectedItem"
+    //        assertTrue("Unexpected Item flag should be true", processItemHandler.getUnexpectedItem());
+    //    }
+    //
+    //    @Test
+    //    public void weightChangedTooLight()
+    //    {
+    //        assertFalse("Customer should be notified that", customer.getWaitingToBag());
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), 3.0));
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 0.1); // Causes the item to be set as "unexpectedItem"
+    //        assertTrue("Unexpected Item flag should be true", processItemHandler.getUnexpectedItem());
+    //    }
+    //
+    //
+    //    //    @Test
+    //    //    public void weightChangedOverload()
+    //    //    {
+    //    //        Inventory.addProduct(barcode3, product3, item3);
+    //    //
+    //    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, barcode);
+    //    //        selfCheckoutStation.baggingArea.add(item);
+    //    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, item.getWeight());
+    //    //
+    //    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, barcode3);
+    //    //        selfCheckoutStation.baggingArea.add(item3);
+    //    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, item.getWeight() + item3.getWeight());
+    //    //        selfCheckoutStation.baggingArea.remove(item3);
+    //    //
+    //    //        //Comparing the weight of the non-overloaded item to the weight after removing the overloaded item.
+    //    //        assertEquals("Weight should be the close to what the weight was.", item.getWeight(), processItemHandler.getWeightBeforeBagging(), 0.1);
+    //    //    }
+    //
+    //
+    //    @Test
+    //    public void weightChangedUnexpectedItem()
+    //    {
+    //
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
+    //
+    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 4.0);        //3g addition
+    //
+    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
+    //
+    //        assertFalse("Weight should be the close to what the weight was.", processItemHandler.getUnexpectedItem());
+    //    }
+    //
+    //
+    //    @Test
+    //    public void overloadTest()
+    //    {
+    //        processItemHandler.overload(selfCheckoutStation.baggingArea);
+    //        assertTrue(selfCheckoutStation.mainScanner.isDisabled());
+    //    }
+    //
+    //    @Test
+    //    public void outOfOverloadTest()
+    //    {
+    //        processItemHandler.outOfOverload(selfCheckoutStation.baggingArea);
+    //        assertFalse(selfCheckoutStation.mainScanner.isDisabled());
+    //    }
 }
