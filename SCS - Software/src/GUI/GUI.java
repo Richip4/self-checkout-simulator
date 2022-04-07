@@ -1,13 +1,10 @@
 package GUI;
 
-import java.awt.Component;
-
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import application.AppControl;
 import application.Main.Tangibles;
-import user.Customer;
+import software.SelfCheckoutSoftware.Phase;
 import user.User;
 
 public class GUI {
@@ -20,10 +17,6 @@ public class GUI {
 		
 		// Initializes the openning scene, Self-Checkout Overview 
 		scenes.getScene(Scenes.SC_OVERVIEW);
-		
-		// prompt the user to reply with what type of user they are
-		int newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
-		newUser(newUserType);
 	}
 	
 	/**
@@ -32,7 +25,7 @@ public class GUI {
 	 * 
 	 * @param newUserType
 	 */
-	private void newUser(int newUserType) {
+	public void newUser(int newUserType) {
 		if (newUserType == AppControl.CUSTOMER) {
 			ac.addNewCustomer();
 		} else if (newUserType == AppControl.ATTENDANT) {
@@ -72,16 +65,16 @@ public class GUI {
 				scenes.getScene(Scenes.SCS_OVERVIEW);
 			}
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			ac.attendantUsesStation(station);
-			
-			if (station == 0) {
+			if (station == 0) { // this is the attendant's station
+				ac.attendantUsesSupervisionStation();
 				scenes.getScene(Scenes.AS_TOUCH);
 			} else {
+				ac.attendantUsesStation(station);
 				scenes.getScene(Scenes.SCS_OVERVIEW);				
 			}
 		}
 	}
-	
+
 	public void userLeavesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			ac.customerLeavesStation(station);
@@ -194,9 +187,37 @@ public class GUI {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
 	
-	private static int promptForUserType() {
-		String[] userTypes = {"Customer", "Attendant" };
-		return JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
-				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0); 
+
+	public void attendantLogsOut() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 
+	 * @param station
+	 * @return
+	 */
+	public String stationStatus(int station) {
+
+		return ac.getStationState(station);
+	}
+
+	/**
+	 * 
+	 * @param station
+	 */
+	public void attendantBlockToggle(int station) {
+		
+		ac.toggleBlock(station);
+	}
+
+	/**
+	 * 
+	 * @param station
+	 */
+	public void attendantApproveStation(int station) {
+		
+		ac.approveStationDiscrepancy(station);
 	}
 }

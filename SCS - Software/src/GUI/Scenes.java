@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -23,10 +24,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+
+import application.AppControl;
+import application.Main.Tangibles;
+import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
+import store.Store;
 
 public class Scenes {
 	
@@ -46,8 +55,8 @@ public class Scenes {
 	private final GUI gui;
 	private JFrame filterFrame;
 	
-	// hard coding 6 self-checkout stations and 1 attendant station
-	private final int totalNumberOfStations = 7;
+	// n self-checkout stations and 1 attendant station
+	private final int totalNumberOfStations = Tangibles.SUPERVISION_STATION.supervisedStationCount() + 1;
 	
 	// reference to the latest station we interact with
 	private int currentStation;
@@ -82,7 +91,8 @@ public class Scenes {
 			
 		} else if (scene == AS_TOUCH) {
 			
-			return null;
+			return new AS_Touchscreen_Scene().getScene();
+			
 		} else if (scene == SCS_OVERVIEW) {
 			
 			return new SCS_Overview_Scene().getScene();
@@ -134,7 +144,8 @@ public class Scenes {
 			// create panels to mark where the self checkout stations
 			// will be in our scene.  Accompany them with buttons to 
 			// provide a way to select the station.
-			int numOfSCS = 6;	// <---- get number from supervision station
+			List<SelfCheckoutSoftware> scssList = Store.getSelfCheckoutSoftwareList();
+			int numOfSCS = scssList.size();	// <---- get number from supervision station
 			JPanel[] scs = new JPanel[numOfSCS];
 			sbn = new JButton[numOfSCS];
 			
@@ -152,40 +163,52 @@ public class Scenes {
 				sbn[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 				sbn[i].addActionListener(this);
 
+
+				// We can actually set client attribute and pass it to action listener
+				// Eg, pass in the self-checkout software object, so action listener can
+				// directly do operation on the software object. Think this would make be
+				// helpful and make a lot of logic easier to follow. -Yunfan FIXME:
+				sbn[i].putClientProperty("station-id", i);
+				sbn[i].putClientProperty("station-scss", scssList.get(i));
+
 				// add button to the stations panel
 				scs[i].add(sbn[i]);
-				
+
 				// add station panel to the content as a whole
 				content.add(scs[i]);
 			}
-			
-			// create a panel for the attendant station 
+
+			// create a panel for the attendant station
 			// along with a button for accessing it
 			JPanel as = new JPanel();
 			as.setLayout(null);
 			as.setBounds(125, 450, 220, 125);
 			as.setBackground(new Color(190, 200, 180));
-			
+
 			abn = new JButton();
 			abn.setText("Attendant Station");
 			abn.setBounds(40, 35, 140, 25);
 			abn.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			abn.addActionListener(this);
 			as.add(abn);
-			
+
 			content.add(as);
-			
+
 			// the last component in a panel will try to take
-			// up the remaining space in the panel.  Adding
+			// up the remaining space in the panel. Adding
 			// this empty label to essential fill the panels
 			// remaining space with nothing.
 			content.add(new JLabel());
-			
+
 			// add the visual content to the scene
 			scene.add(content);
-			
+
 			this.setVisible(true);
-			
+
+			// prompt the user to reply with what type of user they are
+			int newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
+			gui.newUser(newUserType);
+
 			return this;
 		}
 
@@ -195,15 +218,20 @@ public class Scenes {
 				setCurrentStation(0);
 				gui.userApproachesStation(0);
 			} else {
-				for (int i = 0; i < totalNumberOfStations - 1; i++) { // self-checkout stations
-					if (e.getSource() == sbn[i]) {
-						setCurrentStation(i+1);
-						gui.userApproachesStation(i+1);
-					}
-				}
+				// self-checkout stations
+
+				// Here, the action listener is passed the client property and can just use the
+				// property easily, without having to traverse every single button and see which
+				// button is being clicked and get the station id -Yunfan FIXME:
+				// I recommend to apply the same principle to all the buttons, so that the implementation
+				// is simpler and the performance of the program is better.
+				Integer i = Integer.valueOf(((JButton) e.getSource()).getClientProperty("station-id").toString());
+				setCurrentStation(i + 1);
+				gui.userApproachesStation(i + 1);
 			}
 		}
 	}
+
 	
 	// Self-Checkout Station Overview Scene
 	private class SCS_Overview_Scene extends JFrame  implements ActionListener {
@@ -383,6 +411,119 @@ public class Scenes {
 	}
 	
 	// Attendant Station Touch Screen Scene
+	private class AS_Touchscreen_Scene extends JFrame  implements ActionListener {
+		
+		Color tint_one = new Color(220, 230, 234);
+		Color tint_two = new Color(205, 220, 230);
+		
+		JLabel[] station_status = new JLabel[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JLabel[] station_light = new JLabel[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JButton[] station_block  = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JButton[] station_approve = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+
+		public JFrame getScene() {
+			// init the window
+			JPanel scene = preprocessScene(this, 800, 650);
+
+			// include a banner for navigation
+			JPanel banner = generateBanner(scene);
+			
+			// Closing this scene means this user is no 
+			// longer using the self-checkout station
+			this.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent e) {
+					gui.attendantLogsOut();
+					removeDimmingFilter();
+				}
+			});
+			
+			// main content panel of the scene
+			// contains the visually interactable 
+			// components in the scene.
+			JPanel content = new JPanel();
+			content.setBackground(defaultBackground);
+			// null layout allows me to place components freely
+			content.setLayout(null); 
+			
+			Border border = BorderFactory.createLineBorder(Color.black, 2, true);
+			
+			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
+			
+				JPanel station = new JPanel();
+				station.setLayout(null);
+				station.setBounds(0, i * 100, 800, 100);
+				station.setBackground((i % 2 == 0) ? tint_one : tint_two);
+				
+				station_status[i] = new JLabel();
+				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
+				station_status[i].setText(gui.stationStatus(i));
+				station_status[i].setBounds(30, 10, 200, 80);
+				station_status[i].setHorizontalAlignment(JLabel.CENTER);
+				station.add(station_status[i]);
+				
+				Color station_light_color = checkStationAttention(i);
+				
+				station_light[i] = new JLabel();
+				station_light[i].setBounds(260, 30, 40, 40);
+				station_light[i].setBackground(station_light_color);
+				station_light[i].setOpaque(true);
+				station.add(station_light[i]);
+				
+				JLabel station_label = new JLabel();
+				station_label.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+				station_label.setText("STATION " + (i+1));
+				station_label.setBounds(335, 10, 130, 80);
+				station_label.setHorizontalAlignment(JLabel.CENTER);
+				station_label.setBorder(border);
+				station_label.setBackground((i % 2 == 0) ? tint_two : tint_one);
+				station_label.setOpaque(true);
+				station.add(station_label);
+				
+				station_block[i] = new JButton();
+				station_block[i].setBounds(485, 25, 130, 50);
+				station_block[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
+				station_block[i].setText(checkBlockStatus(i));
+				station_block[i].addActionListener(this);
+				station_block[i].setFocusable(false);
+				station.add(station_block[i]);
+				
+				station_approve[i] = new JButton();
+				station_approve[i].setBounds(635, 25, 130, 50);
+				station_approve[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
+				station_approve[i].setText("APPROVE");
+				station_approve[i].addActionListener(this);
+				station_approve[i].setFocusable(false);
+				station.add(station_approve[i]);
+				
+				content.add(station);
+			}
+			
+			scene.add(content);
+			
+			this.setVisible(true);
+			
+			addDimmingFilter();
+			promptAttendantForLogIn();
+			
+			return this;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
+				if (e.getSource() == station_block[i]) {
+					gui.attendantBlockToggle(i);
+					station_block[i].setText(checkBlockStatus(i));
+					station_status[i].setText(gui.stationStatus(i)); 
+					station_light[i].setBackground(checkStationAttention(i));
+				} else if (e.getSource() == station_approve[i]) {
+					gui.attendantApproveStation(i);
+					station_status[i].setText(gui.stationStatus(i)); 
+					station_light[i].setBackground(checkStationAttention(i));
+				}
+			}
+		}
+	}
 	
 	// Self-Checkout Station Touch Screen Scene
 	
@@ -391,6 +532,47 @@ public class Scenes {
 	// Self-Checkout Station Card Reader Scene
 	
 	// Self-Checkout Station Maintenance Scene
+	
+	Color red_light = new Color(235, 80, 70);
+	Color green_light = new Color(80, 225, 80);
+	
+	/**
+	 * 
+	 * @param station
+	 * @return
+	 */
+	private Color checkStationAttention(int station) {
+		return (gui.stationStatus(station) != "BLOCKED" && gui.stationStatus(station) != "WEIGHT DISCREPANCY" &&
+				gui.stationStatus(station) != "MISSING ITEM") ? green_light : red_light;
+	}
+	
+	/**
+	 * 
+	 * @param station
+	 * @return
+	 */
+	private String checkBlockStatus(int station) {
+		return (gui.stationStatus(station) == "BLOCKED") 
+				? "UNBLOCK" : "BLOCK";
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private static int promptForUserType() {
+		String[] userTypes = {"Customer", "Attendant" };
+		return JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
+				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0); 
+	}
+	
+	/**
+	 * Prompts the attendant for a log in number.
+	 * Accepts literally any sequence of numbers.
+	 */
+	private void promptAttendantForLogIn() {
+		new Keypad();
+	}
 	
 	/**
 	 * Initializes the scenes window size and attaches
@@ -419,6 +601,7 @@ public class Scenes {
 	
 	/**
 	 * 
+	 * 
 	 * @param p - panel with BorderLayout
 	 * @return the banner created for any further customizations
 	 */
@@ -443,7 +626,14 @@ public class Scenes {
 		return banner;
 	}
 	
+	/**
+	 * 
+	 */
 	private void addDimmingFilter() {
+		if (filterFrame != null) {
+			removeDimmingFilter();
+		}
+		
 		filterFrame = new JFrame();
 		JPanel filter = preprocessScene(filterFrame, xResolution, yResolution);
 		
