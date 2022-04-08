@@ -12,24 +12,34 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Item;
+import org.lsmr.selfcheckout.PLUCodedItem;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
+import store.Inventory;
 import store.Store;
 
 public class Scenes {
@@ -48,7 +58,7 @@ public class Scenes {
 	private static final int yResolution = 720;
 	
 	private final GUI gui;
-	private JFrame filterFrame;
+	private static JFrame filterFrame = new JFrame();
 	
 	// n self-checkout stations and 1 attendant station
 	private final int totalNumberOfStations = Tangibles.SUPERVISION_STATION.supervisedStationCount() + 1;
@@ -60,6 +70,7 @@ public class Scenes {
 
 	public Scenes(GUI gui) {
 		this.gui = gui;
+		initDimmingFilter();
 	}
 	
 	public int getCurrentStation() {
@@ -78,7 +89,7 @@ public class Scenes {
 	 * @return
 	 */
 	public JFrame getScene(int scene) {
-		addDimmingFilter();
+		setDimmingFilter();
 		
 		if (scene == SC_OVERVIEW) {
 			
@@ -93,7 +104,7 @@ public class Scenes {
 			return new SCS_Overview_Scene().getScene();
 		} else if (scene == SCS_TOUCH) {
 			
-			return null;
+			return new SCS_Touch_Scene().getScene();
 		} else if (scene == SCS_CARDREADER) {
 			
 			return new SCS_Cardreader_Scene().getScene();
@@ -165,7 +176,7 @@ public class Scenes {
 				// Eg, pass in the self-checkout software object, so action listener can
 				// directly do operation on the software object. Think this would make be
 				// helpful and make a lot of logic easier to follow. -Yunfan FIXME:
-				sbn[i].putClientProperty("station-id", i+1); // add one to store station not index
+				sbn[i].putClientProperty("station-id", i+1); // add one to record station instead of index
 				sbn[i].putClientProperty("station-scss", scssList.get(i));
 
 				// add button to the stations panel
@@ -245,10 +256,8 @@ public class Scenes {
 		JButton touchscreen;
 		
 		public JFrame getScene() {
-			// init the window
 			JPanel scene = preprocessScene(this, 900, 600);
 
-			// include a banner for navigation
 			JPanel banner = generateBanner(scene);
 			
 			// Closing this scene means this user is no 
@@ -256,7 +265,6 @@ public class Scenes {
 			this.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
 					gui.userLeavesStation(getCurrentStation());
-					removeDimmingFilter();
 				}
 			});
 			
@@ -430,13 +438,6 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, 800, 650);
 
 			JPanel banner = generateBanner(scene);
-			
-			// Closing this scene should not log out the attendant
-			this.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					removeDimmingFilter();
-				}
-			});
 
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -505,7 +506,7 @@ public class Scenes {
 			
 			this.setVisible(true);
 			
-			addDimmingFilter();
+			setDimmingFilter();
 			promptAttendantForLogIn();
 			
 			return this;
@@ -530,10 +531,123 @@ public class Scenes {
 		}
 	}
 	
+	private static boolean expectingPLUCode = false;
+	private static boolean expectingMembershipNum = false;
+	
 	// #######################################################################
 	// Self-Checkout Station Touch Screen Scene
 	// #######################################################################
-	
+	private class SCS_Touch_Scene extends JFrame implements ActionListener {
+		
+		JButton search;
+		JButton plu_code;
+		JButton checkout;
+		JButton attendant;
+		JButton ownBags;
+		JButton membership;
+		
+		public JFrame getScene() {
+			JPanel scene = preprocessScene(this, 750, 500);
+
+			JPanel banner = generateBanner(scene);
+			
+			JPanel content = new JPanel();
+			content.setBackground(defaultBackground);
+			content.setLayout(null); 
+		
+			// search for product
+			search = new JButton();
+			search.setBounds(50, 50, 200, 60);
+			search.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
+			search.setText("SEARCH FOR ITEM");
+			search.setHorizontalTextPosition(JButton.CENTER);
+			search.addActionListener(this);
+			search.setFocusable(false);
+			content.add(search);
+			
+			// enter plu code
+			plu_code = new JButton();
+			plu_code.setBounds(50, 140, 200, 60);
+			plu_code.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
+			plu_code.setText("ENTER PLU CODE");
+			plu_code.setHorizontalTextPosition(JButton.CENTER);
+			plu_code.addActionListener(this);
+			plu_code.setFocusable(false);
+			content.add(plu_code);
+			
+			// proceed to checkout
+			checkout = new JButton();
+			checkout.setBounds(140, 300, 280, 100);
+			checkout.setFont(new Font("Lucida Grande", Font.BOLD, 18));
+			checkout.setText("PROCEED TO CHECKOUT");
+			checkout.setHorizontalTextPosition(JButton.CENTER);
+			checkout.addActionListener(this);
+			checkout.setFocusable(false);
+			content.add(checkout);
+			
+			// attedant options
+			attendant = new JButton();
+			attendant.setBounds(550, 340, 150, 60);
+			attendant.setFont(new Font("Lucida Grande", Font.BOLD, 14));
+			attendant.setText("ATTENDANT");
+			attendant.setHorizontalTextPosition(JButton.CENTER);
+			attendant.addActionListener(this);
+			attendant.setFocusable(false);
+			content.add(attendant);
+			
+			// use own bags
+			ownBags = new JButton();
+			ownBags.setBounds(500, 50, 200, 60);
+			ownBags.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
+			ownBags.setText("USE OWN BAGS");
+			ownBags.setHorizontalTextPosition(JButton.CENTER);
+			ownBags.addActionListener(this);
+			ownBags.setFocusable(false);
+			content.add(ownBags);
+			
+			// membership number
+			membership = new JButton();
+			membership.setBounds(500, 140, 200, 60);
+			membership.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
+			membership.setText("ENTER MEMBERSHIP #");
+			membership.setHorizontalTextPosition(JButton.CENTER);
+			membership.addActionListener(this);
+			membership.setFocusable(false);
+			content.add(membership);			
+			
+			scene.add(content);
+			
+			this.setVisible(true);
+			
+			return this;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == search) {
+				promptSelectItems();
+			} else if (e.getSource() == plu_code) {
+				expectingPLUCode = true;
+				getNumberFromUser("Enter the PLU code");
+			} else if (e.getSource() == checkout) {
+				gui.proceedToCheckout();
+			} else if (e.getSource() == attendant) {
+				if (gui.stationAttendantAccess()) {
+					int password = 0;// prompt attendant for password
+					// they must already be signed in to the attendant station
+					if (gui.addendantPassword(password)) {
+						stationAttendantOptions();
+					}
+				}
+			} else if (e.getSource() == ownBags) {
+				gui.userUsesOwnBags();
+			} else if (e.getSource() == membership) {
+				expectingMembershipNum = true;
+				getNumberFromUser("Enter you Membership number");
+			} 
+		}
+		
+	}
 	
 	
 	// #######################################################################
@@ -549,14 +663,6 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, 250, 350);
 
 			JPanel banner = generateBanner(scene);
-			
-			// Closing this scene means this user does not  
-			// wish to use a card 
-			this.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					removeDimmingFilter();
-				}
-			});
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -614,7 +720,6 @@ public class Scenes {
 			} else if (e.getSource() == insert) {
 				gui.userInsertCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-				
 			}
 		}
 
@@ -641,26 +746,12 @@ public class Scenes {
 		JButton coinFillStorage;
 		
 		public JFrame getScene() {
-			// init the window
 			JPanel scene = preprocessScene(this, 600, 400);
 
-			// include a banner for navigation
 			JPanel banner = generateBanner(scene);
 			
-			// Closing this scene means this user is no 
-			// longer using the maintenance hatch
-			this.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					removeDimmingFilter();
-				}
-			});
-			
-			// main content panel of the scene
-			// contains the visually interactable 
-			// components in the scene.
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
-			// null layout allows me to place components freely
 			content.setLayout(null); 
 			
 			// banknote dispensers
@@ -801,6 +892,53 @@ public class Scenes {
 	
 	/**
 	 * 
+	 * @param msg
+	 */
+	public void getNumberFromUser(String msg) {
+		new Keypad(msg, this);
+	}
+
+	public void stationAttendantOptions() {
+		JFrame authorizedWindow = new JFrame();
+		
+		JPanel options = preprocessScene(authorizedWindow, 300, 300);
+		
+		// remove previously processed item
+		JButton removeItem = new JButton();
+		removeItem.setBounds(50, 50, 200, 80);
+		removeItem.setFont(new Font("Lucida Grande", Font.BOLD, 18));
+		removeItem.setText("REMOVE ITEM");
+		removeItem.setFocusable(false);
+		removeItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				promptRemoveItems();
+				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		options.add(removeItem);
+		
+		// shutdown station
+		JButton shutdown = new JButton();
+		shutdown.setBounds(50, 170, 200, 80);
+		shutdown.setFont(new Font("Lucida Grande", Font.BOLD, 18));
+		shutdown.setText("SHUTDOWN STATION");
+		shutdown.setFocusable(false);
+		shutdown.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				gui.shutdownStation();
+				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		options.add(shutdown);
+		
+		authorizedWindow.add(options);
+		authorizedWindow.setVisible(true);
+	}
+
+	/**
+	 * 
 	 * @param station
 	 * @return
 	 */
@@ -836,11 +974,6 @@ public class Scenes {
 	private void promptAttendantForLogIn() {
 		// TODO: change to accept username + password
 		// 		check if attendant is already logged in first
-		new Keypad("ENTER LOG IN NUMBER");
-	}
-	
-	private void promptCustomerForMemebership() {
-		new Keypad("ENTER MEMBERSHIP NUMBER");
 	}
 	
 	/**
@@ -898,23 +1031,25 @@ public class Scenes {
 	/**
 	 * 
 	 */
-	private void addDimmingFilter() {
-		if (filterFrame != null) {
-			removeDimmingFilter();
-		}
-		
-		filterFrame = new JFrame();
-		JPanel filter = preprocessScene(filterFrame, xResolution, yResolution);
-		
-		filter.setBackground(Color.black);
-		
-		filterFrame.setOpacity((float) 0.75);
-		filterFrame.setFocusableWindowState(false);
+	private static void setDimmingFilter() {
 		filterFrame.setVisible(true);
 	}
 	
-	private void removeDimmingFilter() {
-		filterFrame.removeAll();
+	/**
+	 * 
+	 */
+	private static void initDimmingFilter() {
+		filterFrame.setSize(xResolution, yResolution);
+		filterFrame.setResizable(false);
+		filterFrame.setUndecorated(true);
+		filterFrame.setLocationRelativeTo(null);
+		
+		JPanel filter = new JPanel();
+		filter.setBackground(Color.black);
+		filterFrame.add(filter);
+		
+		filterFrame.setOpacity((float) 0.75);
+		filterFrame.setFocusableWindowState(false);
 	}
 	
 	/**
@@ -937,6 +1072,106 @@ public class Scenes {
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			g.drawImage(img, 0, 0, null);
+		}
+	}
+
+	public void promptRemoveItems() {
+		List<Item> customersItems = Tangibles.ITEMS;
+		Vector<String> items = new Vector<>();
+		customersItems.forEach(item -> {
+			if (item instanceof PLUCodedItem) {
+				PLUCodedItem pluItem = (PLUCodedItem) item;
+				items.add(Inventory.getProduct(pluItem.getPLUCode()).getDescription());
+			} else if (item instanceof BarcodedItem) {
+				BarcodedItem barItem = (BarcodedItem) item;
+				items.add(Inventory.getProduct(barItem.getBarcode()).getDescription());
+			}
+		});
+		
+		JFrame window = new JFrame();
+		window.addWindowStateListener(new WindowAdapter() {
+			public void windowLostFocus(WindowEvent e) {
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		JPanel panel = preprocessScene(window, 200, 100);
+		panel.setBackground(new Color(210, 207, 210));
+		panel.setLayout(null); 	
+		
+		JComboBox<String> dropMenu = new JComboBox<>(items);
+		dropMenu.setBounds(40, 60, 120, 30);
+		dropMenu.setFont(new Font("Arial", Font.PLAIN, 14));
+		panel.add(dropMenu);
+		
+		JButton remove = new JButton();
+		remove.setBounds(50, 20, 100, 30);
+		remove.setHorizontalAlignment(JButton.CENTER);
+		remove.setFont(new Font("Arial", Font.PLAIN, 16));
+		remove.setText("REMOVE");
+		remove.setFocusable(false);
+		remove.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				gui.removeItem(customersItems.get(dropMenu.getSelectedIndex()));
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		panel.add(remove);
+		
+		window.add(panel);
+		window.setVisible(true);
+	}
+	
+	public void promptSelectItems() {
+		ArrayList<PLUCodedProduct> pluItems = new ArrayList<>(Inventory.getPLUProducts().values());
+		Vector<String> items = new Vector<>();
+		pluItems.forEach(item -> items.add(item.getDescription()));
+		
+		JFrame window = new JFrame();
+		window.addWindowStateListener(new WindowAdapter() {
+			public void windowLostFocus(WindowEvent e) {
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		JPanel panel = preprocessScene(window, 200, 100);
+		panel.setBackground(new Color(210, 207, 210));
+		panel.setLayout(null); 		
+	
+		JComboBox<String> dropMenu = new JComboBox<>(items);
+		dropMenu.setBounds(40, 60, 120, 30);
+		dropMenu.setFont(new Font("Arial", Font.PLAIN, 14));
+		panel.add(dropMenu);
+		
+		JButton select = new JButton();
+		select.setBounds(50, 20, 100, 30);
+		select.setHorizontalAlignment(JButton.CENTER);
+		select.setFont(new Font("Arial", Font.PLAIN, 16));
+		select.setText("SELECT");
+		select.setFocusable(false);
+		select.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				gui.selectedItem(pluItems.get(dropMenu.getSelectedIndex()));
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		panel.add(select);
+		
+		window.add(panel);
+		window.setVisible(true);
+	}
+
+	public void keypadReturnValue(int number) {
+		if (expectingPLUCode) {
+			gui.userEntersPLUCode(number);
+			expectingPLUCode = false;
+		} else if (expectingMembershipNum) {
+			gui.userEntersMembership(number);
+			expectingMembershipNum = false;
 		}
 	}
 }

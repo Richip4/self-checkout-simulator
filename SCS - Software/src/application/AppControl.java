@@ -2,6 +2,7 @@ package application;
 
 import java.util.List;
 
+import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
@@ -312,6 +313,11 @@ public class AppControl {
 	}
 
 	public void customerInsertMembershipCard() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void removeItemFromCustomersCart(Item item) {
 		// TODO Auto-generated method stub
 		
 	}

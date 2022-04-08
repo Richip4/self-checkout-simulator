@@ -2,9 +2,13 @@ package GUI;
 
 import javax.swing.JOptionPane;
 
+import org.lsmr.selfcheckout.Item;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware.Phase;
+import store.Inventory;
 import user.User;
 
 public class GUI {
@@ -175,6 +179,8 @@ public class GUI {
 
 	public void userAccessTouchscreen(int currentStation) {
 		// TODO Auto-generated method stub
+		scenes.getScene(Scenes.SCS_TOUCH);
+		
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
@@ -286,6 +292,53 @@ public class GUI {
 	}
 
 	public void fillCoinStorage() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void proceedToCheckout() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean stationAttendantAccess() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public void userUsesOwnBags() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void userEntersMembership(int num) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * user has selected a particular item from the search menu
+	 * @param pluCodedProduct
+	 */
+	public void selectedItem(PLUCodedProduct pluCodedProduct) {
+		System.out.println(pluCodedProduct.getDescription());
+	}
+
+	public void userEntersPLUCode(int code) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean addendantPassword(int password) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void removeItem(Item item) {
+		ac.removeItemFromCustomersCart(item);
+	}
+
+	public void shutdownStation() {
 		// TODO Auto-generated method stub
 		
 	}

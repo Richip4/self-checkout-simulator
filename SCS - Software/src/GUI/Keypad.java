@@ -17,12 +17,14 @@ public class Keypad {
 	private JTextPane display;
 	private String value;
 	private String msg;
+	private Scenes parent;
 
 	/**
 	 * Create the application.
 	 */
-	public Keypad(String msg) {
+	public Keypad(String msg, Scenes parent) {
 		this.msg = msg;
+		this.parent = parent;
 		this.value = "";
 		initialize();
 		frame.setVisible(true);
@@ -98,7 +100,10 @@ public class Keypad {
 
 		
 		JButton btnEnter = new JButton("ENTER");
-		btnEnter.addActionListener(e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)));
+		btnEnter.addActionListener(e -> {
+			parent.keypadReturnValue(Integer.valueOf(value));
+			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+		});
 		btnEnter.setFont(new Font("Lucida Grande", Font.BOLD, 12));
 		btnEnter.setBounds(numpadDisplacementX + numpadDimension * 2 + spaceBetweenBtns * 2, numpadDisplacementY + numpadDimension * 3, numpadDimension, numpadDimension);
 		frame.getContentPane().add(btnEnter);
