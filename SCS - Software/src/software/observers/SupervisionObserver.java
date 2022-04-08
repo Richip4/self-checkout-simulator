@@ -39,4 +39,6 @@ public interface SupervisionObserver extends Observer {
     public Void scaleOverloadedDetected(SelfCheckoutSoftware scs);
 
     public Void scaleOverloadedResolved(SelfCheckoutSoftware scs);
+
+    public Void customerDoesNotWantToBagItem(SelfCheckoutSoftware scs);
 }
