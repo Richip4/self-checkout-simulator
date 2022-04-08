@@ -46,6 +46,7 @@ public class Attendant extends User {
 	public void addPaper(SelfCheckoutSoftware software, int amount) {
 		try {
 			software.getSelfCheckoutStation().printer.addPaper(amount);
+			software.getReceipt().updatePaperUsed(amount);
 		} catch (OverloadException e) {
 			// notify the attendant that the maximum capacity of paper for the receipt printer has been overloaded
 			software.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterPaperOverloaded(software));
@@ -60,6 +61,7 @@ public class Attendant extends User {
 	public void addInk(SelfCheckoutSoftware software, int amount) {
 		try {
 			software.getSelfCheckoutStation().printer.addInk(amount);
+			software.getReceipt().updateInkUsed(amount);
 		} catch (OverloadException e) {
 			// notify the attendant that the maximum capacity of ink for the receipt printer has been overloaded
 			software.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterInkOverloaded(software));

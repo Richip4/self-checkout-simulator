@@ -25,6 +25,8 @@ public interface SupervisionObserver extends Observer {
 
     public Void receiptPrinterOutOfInk(SelfCheckoutSoftware scs);
     
+    public Void receiptPrinterLowOnInk(SelfCheckoutSoftware scs);
+    
     public Void receiptPrinterInkOverloaded(SelfCheckoutSoftware scs);
 
     //Process Item Handler

@@ -86,6 +86,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public Customer getCustomer() {
         return this.customer;
     }
+    
+    public Receipt getReceipt() {
+    	return this.receipt;
+    }
 
     /**
      * This method should not be used.
