@@ -45,19 +45,19 @@ public class Customer extends User {
 	// List of both PLU and Bar coded products using the triple data type
 	private List<Triple<BarcodedProduct, Double, Integer>> BarCodedProducts = new ArrayList<Triple<BarcodedProduct, Double, Integer>>();
 	private List<Triple<PLUCodedProduct, Double, Integer>> PLUcodedProducts = new ArrayList<Triple<PLUCodedProduct, Double, Integer>>();
-	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
+	private BigDecimal cashBalance = BigDecimal.ZERO;
 	private boolean ownBagsUsed = false;
 	private int numOfPlasticBags = 0;
 	private String memberID;
 	// used to index all of the products added to the customer "cart"
 	private int index = 0;
 
-	public void addCurrency(BigDecimal value) {
-		accumulatedCurrency = accumulatedCurrency.add(value);
+	public void addCashBalance(BigDecimal value) {
+		this.cashBalance = this.cashBalance.add(value);
 	}
 
-	public BigDecimal getCurrency() {
-		return accumulatedCurrency;
+	public BigDecimal getCashBalance() {
+		return new BigDecimal(this.cashBalance.toString());
 	}
 
 	public void addToCart(BarcodedProduct BarcodedProduct) {
@@ -95,10 +95,6 @@ public class Customer extends User {
 				return;
 			}
 		}
-	}
-
-	public BigDecimal getAccumulatedCurrency() {
-		return new BigDecimal(this.accumulatedCurrency.toString());
 	}
 
 	public BigDecimal getCartSubtotal() {
@@ -146,7 +142,7 @@ public class Customer extends User {
 	}
 
 	public String getMemberID() {
-		return this.memberID.toString();
+		return this.memberID == null ? null : this.memberID.toString();
 	}
 
 	// set and get methods for own bags

@@ -60,6 +60,8 @@ public class Inventory {
 			addProduct((BarcodedProduct) p);
 		} else if (p instanceof PLUCodedProduct) {
 			addProduct((PLUCodedProduct) p);
+		} else {
+			throw new IllegalArgumentException("Invalid type of product");
 		}
 	}
 

@@ -24,7 +24,7 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 public class GiftCard
 {
     private static final Set<String> GIFTCARDS = new HashSet<String>();
-	private static final CardIssuer GIFTCARD_ISSUER = new CardIssuer("GiftCard");
+	private static CardIssuer GIFTCARD_ISSUER = new CardIssuer("GiftCard");
 
     private GiftCard()
     {
@@ -45,13 +45,14 @@ public class GiftCard
     {
         GiftCard.GIFTCARDS.add(cardID);
 
-        Calendar expiary = Calendar.getInstance();
-        expiary.add(Calendar.YEAR, 10);
-        GiftCard.GIFTCARD_ISSUER.addCardData(cardID, "", expiary, "", cardValue);
+        Calendar expiry = Calendar.getInstance();
+        expiry.add(Calendar.YEAR, 10);
+        GiftCard.GIFTCARD_ISSUER.addCardData(cardID, cardID, expiry, "000", cardValue);
     }
 
     public static void clear()
     {
         GiftCard.GIFTCARDS.clear();
+        GiftCard.GIFTCARD_ISSUER = new CardIssuer("GiftCard");
     }
 }
