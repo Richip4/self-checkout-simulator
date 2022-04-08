@@ -1,18 +1,24 @@
 package user;
 
-import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.products.Product;
+
+import application.AppControl;
+import store.Inventory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-// @author Abdelhak Khalfallah, Tyler Chen
+import java.util.Collections;
+import java.util.List;
 
-public class Customer {
+public class Customer extends User {
 
-	// in place of a cart class I simply used a list of barcodes
-	private ArrayList<Barcode> barcodedItemsInCart = new ArrayList<Barcode>();
+	// in place of a cart class the cart is a list Products
+	private List<Product> cart = new ArrayList<Product>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
-	private boolean waitingToBag;
-	private boolean removeLastAddedItem;
+	private boolean ownBagsUsed = false;
+	private int numOfPlasticBags = 0;
+	private String memberID;
 
 	public void addCurrency(BigDecimal value) {
 		accumulatedCurrency = accumulatedCurrency.add(value);
@@ -22,118 +28,77 @@ public class Customer {
 		return accumulatedCurrency;
 	}
 
-	public void addToCart(Barcode barcode) {
-		barcodedItemsInCart.add(barcode);
+	public void addToCart(Product product) {
+		cart.add(product);
 	}
 
-	public ArrayList<Barcode> getBarcodedItemsInCart() {
-		return this.barcodedItemsInCart;
+	public void removeProduct(Product p) {
+		cart.remove(p);
 	}
 
-	// following methods are to be implemented with the customer UI
-
-	public void notifyBanknoteInputDisabled() {
-		// TODO notify customer of disabled banknote input slot
+	/**
+	 * The GUI handles the customer using the touch screen to find an item
+	 * This method would match the PLU code and to a PLU code in the inventory.
+	 * If getProduct != null then that means it matches and we would add to cart.
+	 * Then it could proceed normally as if it was another PLU coded item.
+	 * Both the customer and attendant would be using this method
+	 */
+	public void lookupProduct(PriceLookupCode plu) {
+		if (Inventory.getProduct(plu) != null) {
+			addToCart(Inventory.getProduct(plu));
+		} else {
+			// TODO Display an error on the GUI that the product is invalid
+		}
 	}
 
-	public void removeBanknoteInputDisabled() {
-		// TODO remove the disabled banknote input slot notification
+	public BigDecimal getAccumulatedCurrency() {
+		return new BigDecimal(this.accumulatedCurrency.toString());
 	}
 
-	public void notifyBanknoteEjected() {
-		// TODO notify customer of banknote being ejected in the banknote slot
+	public BigDecimal getCartSubtotal() {
+		BigDecimal subtotal = BigDecimal.ZERO;
+
+		for (Product product : this.cart) {
+			subtotal = subtotal.add(product.getPrice());
+		}
+
+		return subtotal;
 	}
 
-	public void removeBanknoteEjected() {
-		// TODO remove the banknote ejected notification
+	public List<Product> getCart() {
+		return Collections.unmodifiableList(this.cart);
 	}
 
-	public void notifyInvalidBanknote() {
-		// TODO notify customer that an invalid banknote was detected
+	public void setMemberID(String memberID) {
+		this.memberID = memberID;
 	}
 
-	public void notifyInvalidCoin() {
-		// TODO notify customer that an invalid coin was detected
+	public String getMemberID() {
+		return this.memberID.toString();
 	}
 
-	public void notifyPlaceInBaggingArea() {
-		// TODO notify customer must place item in bagging area to proceed
-		waitingToBag = true;
-	}
-	
-	public void notifyCustomerTransactionSuccessful() {
-		// TODO notify the customer that their payment was succesful
-	}
-	
-	public void notifyCustomerToTryCardAgain() {
-		// TODO notify the customer to try their card again, as their card does not match any databases.
-	}
-	
-	public void notifyCustomerInvalidCardType() {
-		// TODO either notify them to try again or try a different card.
-	}
-	
-	public void notifyCustomerIsMember() {
-		// Say welcome to the member
-		// TODO in the GUI
+	// set and get methods for own bags
+	// the customer should not be calling this it is used by the scale to set the
+	// weight of the bags
+	public void setOwnBagsUsed(boolean ownBagsUsed) {
+		this.ownBagsUsed = ownBagsUsed;
 	}
 
-	public void removePlaceInBaggingArea() {
-
-		waitingToBag = false;
-
+	public boolean getUseOwnBags() {
+		return ownBagsUsed;
 	}
 
-	public void notifyUnexpectedItemInBaggingArea() {
-		// TODO notify customer to remove unexpected item in bagging area
+	// set and get methods for plastic bags
+	public void setPlasticBags(int numOfPlasticBags) {
+		this.numOfPlasticBags = numOfPlasticBags;
 	}
 
-	public void notifyItemTooLight() {
-		// TODO notify customer to remove unexpected light item in bagging area
+	@Override
+	public int getUserType() {
+		return AppControl.CUSTOMER;
 	}
 
-	public void removeUnexpectedItemInBaggingArea() {
-		// TODO remove the unexpected item notification
-		removeLastAddedItem = true;
+	public int getPlasticBags() {
+		return numOfPlasticBags;
 	}
-
-    /**
-     * We prompt the customer for their memberID if they don't want to tap, insert
-     * or swipe.
-     */
-    public String promptCustomerForMemberID(String rawMemberID)
-    {
-        String memberID = "";
-        try
-        {
-            memberID = String.valueOf(Integer.parseInt(rawMemberID));
-        } catch (NumberFormatException e)
-        {
-
-        }
-
-        return memberID;
-    }
-
-    /*
-     * Asks the customer if they are using their own bags Gets the bags weight in
-     * bagging area scale, so that it can be accounted for in that class.
-     */
-    public boolean askForBags(boolean usingOwnBag)
-    {
-        if (usingOwnBag)
-        {
-
-            return true;
-        } else
-        {
-            return false;
-        }
-
-    }
-
-	public boolean getWaitingToBag() {
-		return waitingToBag;
-	}
-
 }

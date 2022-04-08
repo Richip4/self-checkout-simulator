@@ -3,16 +3,16 @@ package checkout;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
-import interrupt.BanknoteHandler;
-import interrupt.CoinHandler;
-import store.Inventory;
+import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.PaymentMethod;
+import software.SelfCheckoutSoftware.Phase;
 import user.Customer;
 
 /**
@@ -30,47 +30,16 @@ import user.Customer;
  * @author Yunfan Yang
  */
 public class Checkout {
-	private BigDecimal subtotal; // TODO: Let's name this variable the same everywhere... -Yunfan
-
-	private SelfCheckoutStation scs;
-	private Inventory inv;
+	private final SelfCheckoutSoftware scss;
+	private final SelfCheckoutStation scs;
 	private Customer customer;
-	private BanknoteHandler banknoteHandler;
-	private CoinHandler coinHandler; 
-	
-	private ArrayList<Cash> acceptableDenominations = new ArrayList<>();
-	private Cash lowestDenom;
 
-	public Checkout(SelfCheckoutStation scs) {
-		this.scs = scs;
-		
-		// go through all banknote dispensers and record all the accepted notes
-		scs.banknoteDispensers.forEach((value, dispenser) -> {
-			acceptableDenominations.add(new Cash(value));
-		});
-		
-		// same thing with coins
-		scs.coinDispensers.forEach((value, dispenser) -> {
-			acceptableDenominations.add(new Cash(value));
-		});
-		
-		// sort the accepted denominations to get the lowest possible cash value
-		Collections.sort(acceptableDenominations);
-		lowestDenom = acceptableDenominations.get(0);
+	private List<Cash> pendingChanges; // This list contains "banknote" cash objects, the cash object is simply the
+										// denomination of banknotes and coins
 
-		// Connect with interrupts
-		this.banknoteHandler = new BanknoteHandler(scs, this);
-		this.coinHandler = new CoinHandler(scs, this);
-	}
-
-	public Checkout(SelfCheckoutStation scs, Customer customer) {
-		this(scs);
-		this.customer = customer;
-	}
-
-	public Checkout(SelfCheckoutStation scs, Customer customer, Inventory inv) {
-		this(scs, customer);
-		this.inv = inv;
+	public Checkout(SelfCheckoutSoftware scss) {
+		this.scss = scss;
+		this.scs = this.scss.getSelfCheckoutStation();
 	}
 
 	/**
@@ -80,39 +49,30 @@ public class Checkout {
 		this.customer = customer;
 	}
 
-	public BigDecimal getSubtotal() {
-		return new BigDecimal(this.subtotal.toString());
+	public Customer getCustomer() {
+		return customer;
 	}
 
 	/**
-	 * Customer wish ro proceed to checkout.
+	 * Customer wish to proceed to checkout.
 	 * Enables/disables each device in a self checkout station.
 	 * 
 	 * This method will only be invoked after a customer has completed inputting all
 	 * of their items.
 	 * 
 	 */
-	public void readyToCheckout() {
+	public void checkout(PaymentMethod method) {
 		// devices are only configured if there is a customer at the station
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
 		}
 
-		// disable the barcode scanner and electronic scale
-		scs.mainScanner.disable();
-		scs.handheldScanner.disable();
-		scs.baggingArea.disable();
-		scs.scanningArea.disable();
-
-		// Calculate the subtotal of the items in the customer's cart
-		this.subtotal = BigDecimal.ZERO;
-		for (Barcode barcode : this.customer.getBarcodedItemsInCart()) {
-			this.subtotal = this.subtotal.add(inv.getProduct(barcode).getPrice());
+		if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
+			this.enableCardReader();
+		} else if (method == PaymentMethod.CASH) {
+			this.enableBanknoteInput();
+			this.enableCoinInput();
 		}
-
-		this.enableCardReader();
-		this.enableBanknoteInput();
-		this.enableCoinInput();
 	}
 
 	/**
@@ -128,20 +88,17 @@ public class Checkout {
 		// or the customer has not paid clear or the total is just 0
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
-		} else if (this.subtotal.compareTo(customer.getCurrency()) < 1 // x.compareTo(y): returns 1 if x is < y
-														// this may be backwards ^ consider the reverse when testing
-				&& this.subtotal.compareTo(BigDecimal.ZERO) != 0) {
+		}
+
+		BigDecimal subtotal = this.customer.getCartSubtotal();
+
+		if (subtotal.compareTo(customer.getCurrency()) < 1 // x.compareTo(y): returns 1 if x is < y
+															// this may be backwards ^ consider the reverse when testing
+				&& subtotal.compareTo(BigDecimal.ZERO) != 0) {
 			throw new IllegalStateException("Customer has paid clear");
 		}
 
-		// enable the barcode scanner and electronic scale
-		this.scs.mainScanner.enable();
-		this.scs.handheldScanner.enable();
-		this.scs.scanningArea.enable();
-
-		this.disableCardReader();
-		this.disableBanknoteInput();
-		this.disableCoinInput();
+		this.scss.cancelCheckout();
 	}
 
 	private void enableBanknoteInput() {
@@ -181,11 +138,7 @@ public class Checkout {
 		// disable all input/output devices relating to the card reader
 		this.scs.cardReader.disable();
 	}
-	
-	private BigDecimal remainingChange = BigDecimal.ZERO;
-	private boolean doneDispensingChange = true;
-	private ArrayList<Cash> availableDenominations = new ArrayList<>();
-	
+
 	/**
 	 * Returns change to the customer by dispensing banknotes and coins,
 	 * prioritizing the highest denomination value.
@@ -193,99 +146,117 @@ public class Checkout {
 	 * Coins are dispensed consecutively to the coin tray.
 	 * 
 	 * Banknotes are emitted one at a time, in which the BanknoteSlot assigned
-	 * to output will trigger a removedEjectedBanknote event that recursively 
+	 * to output will trigger a removedEjectedBanknote event that recursively
 	 * calls this method until we no longer consider banknotes for dispensing
 	 * change or the change has been fully dispensed.
 	 * 
-	 * @param change - total amount to be returned to the customer
+	 * @param pendingChanges - total amount to be returned to the customer
 	 */
-	public void makeChange(BigDecimal change) {
-		remainingChange = change;
-		
-		// only process available denominations if just beggining to make change
-		if (doneDispensingChange) {
-			doneDispensingChange = false;
-	
-			// go through all banknote dispensers and record all the accepted notes
-			scs.banknoteDispensers.forEach((value, dispenser) -> {
-				if (dispenser.size() > 0) 
-					availableDenominations.add(new Cash(value));
-			});
-			
-			// same thing with coins
-			scs.coinDispensers.forEach((value, dispenser) -> {
-				if (dispenser.size() > 0) 
-					availableDenominations.add(new Cash(value));
-			});
-	
-			// sort the availableDenominations in descending order to prioritize
-			// dispensing highest values first
-			Collections.sort(availableDenominations, Collections.reverseOrder());
+	public void makeChange() {
+		// Dispense remaining pending change to customer
+		if(this.scss.getPhase() != Phase.PROCESSING_PAYMENT){
+			throw new IllegalStateException();
 		}
+
+		if (!this.pendingChanges.isEmpty()) {
+			int size = this.pendingChanges.size();
+			
+			// There's change pending to be returned to customer
+			// start emitting change to slot devices
+			for (Cash cash : this.pendingChanges) {
+				if (cash.type.equals("banknote")) {
+					try {
+						this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
+						this.pendingChanges.remove(cash);
+					} catch (EmptyException | DisabledException | OverloadException e) {
+						continue;
+					}
+				} else if (cash.type.equals("coin")) {
+					try {
+						this.scs.coinDispensers.get(cash.value).emit();
+						this.pendingChanges.remove(cash);
+					} catch (OverloadException | EmptyException | DisabledException e) {
+						continue;
+					}
+				}
+			}
+
+			if (size >= this.pendingChanges.size()) {
+				// No change is successfully emmited for customer, encounters error, notify
+				// attendant
+				this.scss.getSupervisionSoftware()
+						.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
+				return;
+			}
+			if(pendingChanges.isEmpty()) {
+				this.scss.paymentCompleted();
+				return;
+			}
+			return;
+		}
+
+		// Calculate how much change to return to customer
+		BigDecimal change = this.customer.getAccumulatedCurrency().subtract(this.customer.getCartSubtotal());
+
+		// No change needs to be returned to customer
+		if (change.equals(BigDecimal.ZERO)) {
+			this.scss.paymentCompleted();
+			return;
+		}
+
+		// Clear pending change list
+		this.pendingChanges = new ArrayList<Cash>();
+
+		// Establish what banknote and coin denominations are available
+		ArrayList<Cash> availableDenominations = new ArrayList<>();
+		ArrayList<Cash> acceptableDenominations = new ArrayList<>();
+
+		// go through all banknotes and record all the accepted as well as the available
+		// notes
+		this.scs.banknoteDispensers.forEach((value, dispenser) -> {
+			Cash cash = new Cash(value);
+			acceptableDenominations.add(cash);
+
+			if (dispenser.size() > 0) {
+				availableDenominations.add(cash);
+			}
+		});
+
+		// same thing with coins
+		this.scs.coinDispensers.forEach((value, dispenser) -> {
+			Cash cash = new Cash(value);
+			acceptableDenominations.add(cash);
+
+			if (dispenser.size() > 0) {
+				availableDenominations.add(cash);
+			}
+		});
+
+		// sort the accepted and available denominations to get the lowest possible cash
+		// value
+		Collections.sort(acceptableDenominations);
+		Collections.sort(availableDenominations, Collections.reverseOrder());
 
 		// Starting from the highest value available denomination, dispense denomination
 		// to customer
 		// and substract value from 'change' only if the 'change' amount is not less
 		// than it's value.
 		// Otherwise, remove denomination from consideration.
-		while (availableDenominations.size() > 0 && remainingChange.compareTo(BigDecimal.ZERO) > 0) {
+		while (availableDenominations.size() > 0 && change.compareTo(BigDecimal.ZERO) > 0) {
 			Cash cash = availableDenominations.get(0);
-			if (remainingChange.compareTo(cash.value) >= 0) {
-				
-				if (cash.type.equals("banknote")) {
-					try {
-						scs.banknoteDispensers.get(cash.value.intValue()).emit();
-						remainingChange = remainingChange.subtract(cash.value);
-						return; // wait for removedEjectedBanknote event
-					} catch (EmptyException | DisabledException e) {
-						// can no longer emit denominations from this dispenser
-						availableDenominations.remove(0);
-					} catch (OverloadException e) {
-						// banknote in the output.  wait for removedEjectedBanknote event
-						return;
-					}
-					
-				} else if (cash.type.equals("coin")) {
-					try {
-						scs.coinDispensers.get(cash.value).emit();
-						remainingChange = remainingChange.subtract(cash.value);
-					} catch (EmptyException | DisabledException e) {
-						// can no longer emit denominations from this dispenser
-						availableDenominations.remove(0);
-					} catch (OverloadException e) {
-						// currently coinDispenser never throws this exception.  Unnecessary to handle it.
-					}
-				}
-				
+
+			if (change.compareTo(cash.value) >= 0) {
+				// Add this to the pending change list
+				this.pendingChanges.add(cash);
 			} else {
-				// current denomination is bigger than 'change' amount.  Remove it from consideration.
+				// current denomination is bigger than 'change' amount. Remove it from
+				// consideration.
 				availableDenominations.remove(0);
 			}
 		}
-		
-		doneDispensingChange = true;
-	}
-	
-	/**
-	 * Used by banknote slot hardware event 'removedEjectedBanknote' to automatically
-	 * continue dispensing change when a banknote as been dispensed and successfully removed.
-	 * 
-	 * Use makeChange(BigDecimal change) to initiate dispensing change to the customer.
-	 */
-	public void continueMakingChange() {
-		makeChange(remainingChange);
-	}
 
-	/**
-	 * After dispensing all available denominations, when the remaining change is less than
-	 * the smallest acceptable denomination, all change was properly dispensed.
-	 * Otherwise, the dispensers ran out of cash to complete dispensing change.
-	 * 
-	 * @return 	true if change is less than the lowest denomination
-	 * 			false if the dispensers contain inadequate amounts
-	 */
-	public boolean changeComplete() {
-		return (remainingChange.compareTo(lowestDenom.value) < 0) ? true : false;
+		// Start pending change to customer
+		this.makeChange();
 	}
 
 	/**
@@ -314,8 +285,8 @@ public class Checkout {
 			return this.value.compareTo(other.value);
 		}
 	}
-	
-	public boolean isMakingChange() {
-		return !doneDispensingChange;
+
+	public boolean hasPendingChange() {
+		return !this.pendingChanges.isEmpty();
 	}
 }

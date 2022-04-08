@@ -47,7 +47,7 @@ public class CheckoutTest {
     public void readyToCheckoutTest() {
         Customer customer = new Customer();
         Checkout checkout = new Checkout(selfCheckoutStation, customer);
-        checkout.readyToCheckout();
+        checkout.checkout();
 
         assertTrue("Customer wish to checkout, main scanner should be disabled",
                 selfCheckoutStation.mainScanner.isDisabled());
@@ -61,7 +61,7 @@ public class CheckoutTest {
     public void readyToCheckoutTest2() {
         Checkout checkout = new Checkout(selfCheckoutStation);
         try {
-            checkout.readyToCheckout();
+            checkout.checkout();
         } catch (IllegalStateException e) {
             // This is expected because no customer is set.
 
@@ -83,7 +83,7 @@ public class CheckoutTest {
     public void cancelCheckout() {
         Customer customer = new Customer();
         Checkout checkout = new Checkout(selfCheckoutStation, customer);
-        checkout.readyToCheckout();
+        checkout.checkout();
         checkout.cancelCheckout();
 
         assertFalse("Customer wish to checkout, main scanner should be disabled",
@@ -98,7 +98,7 @@ public class CheckoutTest {
     public void cancelCheckout2() {
         Customer customer = new Customer();
         Checkout checkout = new Checkout(selfCheckoutStation, customer);
-        checkout.readyToCheckout();
+        checkout.checkout();
         checkout.setCustomer(null);
 
         try {
@@ -530,12 +530,12 @@ public class CheckoutTest {
 
         checkout.makeChange(change);
         assertFalse("Change is not completed", checkout.changeComplete());
-        assertTrue("Should be making change", checkout.isMakingChange());
+        assertTrue("Should be making change", checkout.hasPendingChange());
 
         BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
         BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
 
-        assertFalse("Should not be making change", checkout.isMakingChange());
+        assertFalse("Should not be making change", checkout.hasPendingChange());
         assertTrue("Change should be completed", checkout.changeComplete());
 
         BigDecimal sum = BigDecimal.ZERO;
@@ -611,12 +611,12 @@ public class CheckoutTest {
         Customer customer = new Customer();
         customer.addToCart(barcode);
 
-        ArrayList<Barcode> cart = customer.getBarcodedItemsInCart();
+        ArrayList<Barcode> cart = customer.getCart();
         assertEquals("cart should have one item", 1, cart.size());
         assertEquals("cart should have the same item", barcode, cart.get(0));
 
         Checkout checkout = new Checkout(selfCheckoutStation, customer, inv);
-        checkout.readyToCheckout();
+        checkout.checkout();
 
         BigDecimal subtotal = checkout.getSubtotal();
         assertEquals("Subtotal should be 1.00", price, subtotal);

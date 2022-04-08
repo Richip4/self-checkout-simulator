@@ -55,6 +55,14 @@ public class Inventory {
 		INVENTORY.put(p, 0);
 	}
 
+	public static void addProduct(Product p) {
+		if (p instanceof BarcodedProduct) {
+			addProduct((BarcodedProduct) p);
+		} else if (p instanceof PLUCodedProduct) {
+			addProduct((PLUCodedProduct) p);
+		}
+	}
+
 	/**
 	 * Change the quantity of inventory of a product
 	 * 
