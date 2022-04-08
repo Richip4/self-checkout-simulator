@@ -199,10 +199,10 @@ public class CoinHandlerTest {
         CoinHandler coinHandler = new CoinHandler(selfCheckoutStation);
         coinHandler.setCustomer(customer);
         coinHandler.coinInserted(coinSlot);
-        BigDecimal original = customer.getCurrency();
+        BigDecimal original = customer.getCashBalance();
         coinHandler.validCoinDetected(coinValidator, new BigDecimal("0.01"));
         coinHandler.coinAdded(coinStorageUnit);
-        BigDecimal newValue = customer.getCurrency();
+        BigDecimal newValue = customer.getCashBalance();
         assertEquals(new BigDecimal("0.01"), newValue.subtract(original));
     }
     
@@ -211,10 +211,10 @@ public class CoinHandlerTest {
         Customer customer = new Customer();
         CoinHandler coinHandler = new CoinHandler(selfCheckoutStation);
         coinHandler.coinInserted(coinSlot);
-        BigDecimal original = customer.getCurrency();
+        BigDecimal original = customer.getCashBalance();
         coinHandler.validCoinDetected(coinValidator, new BigDecimal("0.01"));
         coinHandler.coinAdded(coinStorageUnit);
-        BigDecimal newValue = customer.getCurrency();
+        BigDecimal newValue = customer.getCashBalance();
         assertEquals(new BigDecimal("0"), newValue.subtract(original));
     }
     
@@ -225,9 +225,9 @@ public class CoinHandlerTest {
         coinHandler.setCustomer(customer);
         coinHandler.coinInserted(coinSlot);
         coinHandler.invalidCoinDetected(coinValidator);
-        BigDecimal original = customer.getCurrency();
+        BigDecimal original = customer.getCashBalance();
         coinHandler.coinAdded(coinStorageUnit);
-        BigDecimal newValue = customer.getCurrency();
+        BigDecimal newValue = customer.getCashBalance();
         assertEquals(new BigDecimal("0"), newValue.subtract(original));
     }
 
@@ -259,10 +259,10 @@ public class CoinHandlerTest {
         CoinHandler coinHandler = new CoinHandler(selfCheckoutStation);
         coinHandler.setCustomer(customer);
         coinHandler.coinInserted(coinSlot);
-        BigDecimal original = customer.getCurrency();
+        BigDecimal original = customer.getCashBalance();
         coinHandler.validCoinDetected(coinValidator, new BigDecimal("0.01"));
         coinHandler.coinAdded(coinDispenser, coin);
-        BigDecimal newValue = customer.getCurrency();
+        BigDecimal newValue = customer.getCashBalance();
         assertEquals(new BigDecimal("0.01"), newValue.subtract(original));
     }
 
@@ -271,10 +271,10 @@ public class CoinHandlerTest {
         Customer customer = new Customer();
         CoinHandler coinHandler = new CoinHandler(selfCheckoutStation);
         coinHandler.coinInserted(coinSlot);
-        BigDecimal original = customer.getCurrency();
+        BigDecimal original = customer.getCashBalance();
         coinHandler.validCoinDetected(coinValidator, new BigDecimal("0.01"));
         coinHandler.coinAdded(coinDispenser, coin);
-        BigDecimal newValue = customer.getCurrency();
+        BigDecimal newValue = customer.getCashBalance();
         assertEquals(new BigDecimal("0"), newValue.subtract(original));
     } 
     
@@ -285,9 +285,9 @@ public class CoinHandlerTest {
         coinHandler.setCustomer(customer);
         coinHandler.coinInserted(coinSlot);
         coinHandler.invalidCoinDetected(coinValidator);
-        BigDecimal original = customer.getCurrency();
+        BigDecimal original = customer.getCashBalance();
         coinHandler.coinAdded(coinDispenser, coin);
-        BigDecimal newValue = customer.getCurrency();
+        BigDecimal newValue = customer.getCashBalance();
         assertEquals(new BigDecimal("0"), newValue.subtract(original));
     }
     

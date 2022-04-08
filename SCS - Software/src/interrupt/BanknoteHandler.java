@@ -160,7 +160,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 	@Override
 	public void banknoteAdded(BanknoteStorageUnit unit) {
 		if (customer != null && this.banknoteDetected) {
-			this.customer.addCurrency(banknoteValue);
+			this.customer.addCashBalance(banknoteValue);
 
 			// Notify observer so GUI can update current cash balance on display
 			this.scss.notifyObservers(observer -> observer.banknoteAdded());

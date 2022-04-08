@@ -15,17 +15,17 @@ public class Customer extends User {
 
 	// in place of a cart class the cart is a list Products
 	private List<Product> cart = new ArrayList<Product>();
-	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
+	private BigDecimal cashBalance = BigDecimal.ZERO;
 	private boolean ownBagsUsed = false;
 	private int numOfPlasticBags = 0;
 	private String memberID;
 
-	public void addCurrency(BigDecimal value) {
-		accumulatedCurrency = accumulatedCurrency.add(value);
+	public void addCashBalance(BigDecimal value) {
+		this.cashBalance = this.cashBalance.add(value);
 	}
 
-	public BigDecimal getCurrency() {
-		return accumulatedCurrency;
+	public BigDecimal getCashBalance() {
+		return new BigDecimal(this.cashBalance.toString());
 	}
 
 	public void addToCart(Product product) {
@@ -49,10 +49,6 @@ public class Customer extends User {
 		} else {
 			// TODO Display an error on the GUI that the product is invalid
 		}
-	}
-
-	public BigDecimal getAccumulatedCurrency() {
-		return new BigDecimal(this.accumulatedCurrency.toString());
 	}
 
 	public BigDecimal getCartSubtotal() {
