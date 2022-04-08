@@ -23,6 +23,8 @@ public class Receipt implements ReceiptPrinterObserver {
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;
 	private Customer customer;
+	private int inkUsed = 0;
+	private int paperUsed = 0;
 
 	public Receipt(SelfCheckoutSoftware scss) {
 		this.scss = scss;
@@ -89,6 +91,10 @@ public class Receipt implements ReceiptPrinterObserver {
 			}
 		}
 		this.scs.printer.print('\n');
+		
+		// update the amount of paper and ink that has been used
+		this.paperUsed++;
+		this.inkUsed += line.length();
 	}
 
 	public void printReceipt() throws EmptyException, OverloadException {
@@ -121,13 +127,35 @@ public class Receipt implements ReceiptPrinterObserver {
 		BigDecimal subtotal = this.customer.getCartSubtotal();
 		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal.toString();
 		this.printLine(st);
-
+		
 		// cut the receipt so that the customer can easily remove it
 		scs.printer.cutPaper();
+		
+		// invoke the local checkLowPrinterCapacity() method to notify the attendant if the paper and/or ink in the receipt printer is low
+		checkLowPrinterCapacity();
+	}
+	
+	public void checkLowPrinterCapacity() {
+		// check to see if the amount of paper printed exceeds 90% of the maximum capacity for paper
+		if (this.paperUsed >= (int)((ReceiptPrinter.MAXIMUM_PAPER * 9) / 10)) {
+			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnPaper(this.scss));
+		// check to see if the amount of ink printed exceeds 90% of the maximum capacity for ink
+		} else if (this.inkUsed >= (int)((ReceiptPrinter.MAXIMUM_INK * 9) / 10)) {
+			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnInk(this.scss));
+		}
+	}
+	
+	public void updatePaperUsed(int paperAdded) {
+		this.paperUsed -= paperAdded;
+	}
+	
+	public void updateInkUsed(int inkAdded) {
+		this.inkUsed -= inkAdded;
 	}
 
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
+		// we don't currently handle any events when the receipt printer is enabled
 	}
 
 	@Override
@@ -168,12 +196,10 @@ public class Receipt implements ReceiptPrinterObserver {
 	@Override
 	public void paperAdded(ReceiptPrinter printer) {
 		// we don't currently do anything when paper is added to the device
-		// future implementation: announce that paper has been added
 	}
 
 	@Override
 	public void inkAdded(ReceiptPrinter printer) {
 		// we don't currently do anything when ink is added to the device
-		// future implementation: announce that ink has been added
 	}
 }

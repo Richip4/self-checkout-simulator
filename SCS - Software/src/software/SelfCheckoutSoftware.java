@@ -123,6 +123,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         return this.customer;
     }
 
+    public void updatePaperUsed(int paperAdded) {
+        this.receipt.updatePaperUsed(paperAdded);
+    }
+
+    public void updateInkUsed(int inkAdded) {
+        this.receipt.updateInkUsed(inkAdded);
+    }
+
     /**
      * This method should not be used.
      * If want to set supersivion software for this self-checkout software,
