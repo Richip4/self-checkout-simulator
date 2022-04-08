@@ -74,7 +74,7 @@ public class Customer extends User {
 	}
 
 	public String getMemberID() {
-		return this.memberID.toString();
+		return this.memberID == null ? null : this.memberID.toString();
 	}
 
 	// set and get methods for own bags
