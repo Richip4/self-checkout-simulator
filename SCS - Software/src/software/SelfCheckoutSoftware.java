@@ -363,7 +363,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
 
         this.setPhase(Phase.PAYMENT_COMPLETE);
-        this.checkout
+        this.processItemHandler.resetScale();
     }
 
     /**
