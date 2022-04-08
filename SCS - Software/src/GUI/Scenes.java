@@ -142,7 +142,7 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, xResolution, yResolution);			
 
 			// include a banner for navigation
-			JPanel banner = generateBanner(scene);
+			JPanel banner = generateBanner(scene, false);
 			
 			// This overview scene should be the only scene to 
 			// terminate the actual program.  Set a window
@@ -273,7 +273,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 600);
 
-			JPanel banner = generateBanner(scene);
+			JPanel banner = generateBanner(scene, false);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -444,7 +444,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 800, 650);
 
-			JPanel banner = generateBanner(scene);
+			JPanel banner = generateBanner(scene, false);
 
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -559,7 +559,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 750, 500);
 
-			JPanel banner = generateBanner(scene);
+			JPanel banner = generateBanner(scene, true);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -672,7 +672,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
 
-			JPanel banner = generateBanner(scene);
+			JPanel banner = generateBanner(scene, true);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -758,7 +758,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 600, 400);
 
-			JPanel banner = generateBanner(scene);
+			JPanel banner = generateBanner(scene, true);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -1054,13 +1054,15 @@ public class Scenes {
 	
 	/**
 	 * Creates a banner at the top of the window for navigation 
-	 * and information display.  Allows switching between users.
+	 * and information display.  Allows navigating between current
+	 * users if the banner is not meant for hardware window.
 	 * 
 	 * @param p - panel with BorderLayout
+	 * @param forHardware - whether the banner is meant for a hardware window
 	 * @return the banner created for any further customizations
 	 */
-	private JPanel generateBanner(JPanel p) {
-		// top banner
+	private JPanel generateBanner(JPanel p, boolean forHardware) {
+
 		JPanel banner = new JPanel();
 		banner.setPreferredSize(new Dimension(100, 50));
 		banner.setLayout(new BorderLayout());
@@ -1070,7 +1072,9 @@ public class Scenes {
 		
 		JButton exit = new JButton();
 		exit.addActionListener(e -> {
-			if (getCurrentStation() != -1) {
+			// only leave the station if this banner is neither attached to 
+			// the main overview scene or a hardware window
+			if (getCurrentStation() != -1 && !forHardware) {
 				gui.userLeavesStation(getCurrentStation());
 				setCurrentStation(-1);
 			}
@@ -1080,55 +1084,58 @@ public class Scenes {
 		exit.setText("X");
 		exit.setFocusable(false);
 		
-		JPanel swap = new JPanel();
-		swap.setLayout(new FlowLayout(FlowLayout.CENTER, 2, 2));
-		swap.setOpaque(false);
-		
-		JButton prev = new JButton();
-		prev.setPreferredSize(new Dimension(48, 48));
-		prev.setFont(new Font("Arial", Font.BOLD, 18));
-		prev.setText("<");
-		prev.setFocusable(false);
-		prev.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-				gui.selectPreviousUser();
-			}
-		});
-
-		swap.add(prev);
-		
-		JButton newUser = new JButton();
-		newUser.setPreferredSize(new Dimension(80, 48));
-		newUser.setFont(new Font("Arial", Font.BOLD, 18));
-		newUser.setText("NEW");
-		newUser.setFocusable(false);
-		newUser.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-				int newUserType;
-				do {
-					newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
+		// only add navigation between users if the banner is not meant for hardware windows
+		if (!forHardware) {
+			JPanel swap = new JPanel();
+			swap.setLayout(new FlowLayout(FlowLayout.CENTER, 2, 2));
+			swap.setOpaque(false);
+			
+			JButton prev = new JButton();
+			prev.setPreferredSize(new Dimension(48, 48));
+			prev.setFont(new Font("Arial", Font.BOLD, 18));
+			prev.setText("<");
+			prev.setFocusable(false);
+			prev.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+					gui.selectPreviousUser();
 				}
-				while (!gui.newUser(newUserType));
-			}
-		});
-		swap.add(newUser);
-		
-		JButton next = new JButton();
-		next.setPreferredSize(new Dimension(48, 48));
-		next.setFont(new Font("Arial", Font.BOLD, 18));
-		next.setText(">");
-		next.setFocusable(false);
-		next.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (getCurrentStation() != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-				gui.selectNextUser();
-			}
-		});
-		swap.add(next);
-		
-		banner.add(swap, BorderLayout.WEST);
+			});
+	
+			swap.add(prev);
+			
+			JButton newUser = new JButton();
+			newUser.setPreferredSize(new Dimension(80, 48));
+			newUser.setFont(new Font("Arial", Font.BOLD, 18));
+			newUser.setText("NEW");
+			newUser.setFocusable(false);
+			newUser.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+					int newUserType;
+					do {
+						newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
+					}
+					while (!gui.newUser(newUserType));
+				}
+			});
+			swap.add(newUser);
+			
+			JButton next = new JButton();
+			next.setPreferredSize(new Dimension(48, 48));
+			next.setFont(new Font("Arial", Font.BOLD, 18));
+			next.setText(">");
+			next.setFocusable(false);
+			next.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (getCurrentStation() != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+					gui.selectNextUser();
+				}
+			});
+			swap.add(next);
+			
+			banner.add(swap, BorderLayout.WEST);
+		}
 		banner.add(exit, BorderLayout.EAST);
 		
 		p.add(banner, BorderLayout.NORTH);
