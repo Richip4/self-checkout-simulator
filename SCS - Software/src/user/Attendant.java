@@ -29,15 +29,6 @@ public class Attendant extends User {
 		software.getCustomer().removeProduct(p);
 	}
 	
-	
-	public void lookupProduct(SelfCheckoutSoftware software, PriceLookupCode plu) {
-		if (Inventory.getProduct(plu) != null) { 
-			software.getCustomer().addToCart(Inventory.getProduct(plu));
-		}
-		else {}//TODO Display an error on the GUI that the product is invalid
-		
-	}
-	
 	/**
 	 * Method used to simulate the attendant adding paper to the receipt printer device.
 	 * @param software a SelfCheckoutSoftware object
