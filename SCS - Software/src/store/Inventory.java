@@ -109,7 +109,7 @@ public class Inventory {
 	public static PLUCodedProduct getProduct(PriceLookupCode plu) {
 		return PLU_PRODUCT_DATABASE.get(plu);
 	}
-	
+
 	/**
 	 * Required to display all available PLU products to the customer when searching
 	 * @return the collection of PLU coded products
@@ -118,9 +118,11 @@ public class Inventory {
 		return Inventory.PLU_PRODUCT_DATABASE;
 	}
 
-	public static List<Product> getProducts(){
-		return new ArrayList<Product>(Inventory.BARCODED_PRODUCT_DATABASE.values());
-
+	public static List<Product> getProducts() {
+		List<Product> products = new ArrayList<Product>();
+		products.addAll(PLU_PRODUCT_DATABASE.values());
+		products.addAll(BARCODED_PRODUCT_DATABASE.values());
+		return Collections.unmodifiableList(products);
 	}
 
 	public static void clear() {
