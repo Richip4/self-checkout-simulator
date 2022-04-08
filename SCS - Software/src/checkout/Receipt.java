@@ -93,8 +93,8 @@ public class Receipt implements ReceiptPrinterObserver {
 		this.scs.printer.print('\n');
 		
 		// update the amount of paper and ink that has been used
-		this.paperUsed--;
-		this.inkUsed -= line.length();
+		this.paperUsed++;
+		this.inkUsed += line.length();
 	}
 
 	public void printReceipt() throws EmptyException, OverloadException {
@@ -136,11 +136,11 @@ public class Receipt implements ReceiptPrinterObserver {
 	}
 	
 	public void checkLowPrinterCapacity() {
-		// check to see if the amount of paper printed exceeds 75% of the maximum capacity for paper
-		if (this.paperUsed >= (int)((this.scs.printer.MAXIMUM_PAPER * 9) / 10)) {
+		// check to see if the amount of paper printed exceeds 90% of the maximum capacity for paper
+		if (this.paperUsed >= (int)((ReceiptPrinter.MAXIMUM_PAPER * 9) / 10)) {
 			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnPaper(this.scss));
-		// check to see if the amount of ink printed exceeds 75% of the maximum capacity for ink
-		} else if (this.inkUsed >= (int)((this.scs.printer.MAXIMUM_INK * 9) / 10)) {
+		// check to see if the amount of ink printed exceeds 90% of the maximum capacity for ink
+		} else if (this.inkUsed >= (int)((ReceiptPrinter.MAXIMUM_INK * 9) / 10)) {
 			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnInk(this.scss));
 		}
 	}
