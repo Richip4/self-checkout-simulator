@@ -12,6 +12,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 import software.SelfCheckoutSoftware;
 import software.SelfCheckoutSoftware.PaymentMethod;
+import software.SelfCheckoutSoftware.Phase;
 import user.Customer;
 
 /**
@@ -53,7 +54,7 @@ public class Checkout {
 	}
 
 	/**
-	 * Customer wish ro proceed to checkout.
+	 * Customer wish to proceed to checkout.
 	 * Enables/disables each device in a self checkout station.
 	 * 
 	 * This method will only be invoked after a customer has completed inputting all
@@ -66,9 +67,9 @@ public class Checkout {
 			throw new IllegalStateException("No customer at checkout station.");
 		}
 
-		if (method == PaymentMethod.BANK_CARD) {
+		if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
 			this.enableCardReader();
-		} else if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
+		} else if (method == PaymentMethod.CASH) {
 			this.enableBanknoteInput();
 			this.enableCoinInput();
 		}
@@ -91,15 +92,13 @@ public class Checkout {
 
 		BigDecimal subtotal = this.customer.getCartSubtotal();
 
-		if (subtotal.compareTo(customer.getCurrency()) < 1 // x.compareTo(y): returns 1 if x is < y
+		if (subtotal.compareTo(customer.getCashBalance()) < 1 // x.compareTo(y): returns 1 if x is < y
 															// this may be backwards ^ consider the reverse when testing
 				&& subtotal.compareTo(BigDecimal.ZERO) != 0) {
 			throw new IllegalStateException("Customer has paid clear");
 		}
 
-		this.disableCardReader();
-		this.disableBanknoteInput();
-		this.disableCoinInput();
+		this.scss.cancelCheckout();
 	}
 
 	private void enableBanknoteInput() {
@@ -155,9 +154,13 @@ public class Checkout {
 	 */
 	public void makeChange() {
 		// Dispense remaining pending change to customer
+		if(this.scss.getPhase() != Phase.PROCESSING_PAYMENT){
+			throw new IllegalStateException();
+		}
+
 		if (!this.pendingChanges.isEmpty()) {
 			int size = this.pendingChanges.size();
-
+			
 			// There's change pending to be returned to customer
 			// start emitting change to slot devices
 			for (Cash cash : this.pendingChanges) {
@@ -185,15 +188,19 @@ public class Checkout {
 						.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
 				return;
 			}
-
+			if(pendingChanges.isEmpty()) {
+				this.scss.paymentCompleted();
+				return;
+			}
 			return;
 		}
 
 		// Calculate how much change to return to customer
-		BigDecimal change = this.customer.getAccumulatedCurrency().subtract(this.customer.getCartSubtotal());
+		BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
 
 		// No change needs to be returned to customer
 		if (change.equals(BigDecimal.ZERO)) {
+			this.scss.paymentCompleted();
 			return;
 		}
 

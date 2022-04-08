@@ -30,9 +30,11 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         SCANNING_ITEM,
         CHOOSING_PAYMENT_METHOD,
         PROCESSING_PAYMENT,
+        PAYMENT_COMPLETE,
 
         WEIGHING_PLU_ITEM,
         BAGGING_ITEM,
+        NON_BAGGABLE_ITEM,
         PLACING_OWN_BAG,
         
         HAVING_WEIGHT_DISCREPANCY,
@@ -120,6 +122,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     public Customer getCustomer() {
         return this.customer;
+    }
+
+    public void updatePaperUsed(int paperAdded) {
+        this.receipt.updatePaperUsed(paperAdded);
+    }
+
+    public void updateInkUsed(int inkAdded) {
+        this.receipt.updateInkUsed(inkAdded);
     }
 
     /**
@@ -324,6 +334,18 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.PLACING_OWN_BAG);
     }
 
+    public void notBaggingItem()
+    {
+        if(this.phase != Phase.BAGGING_ITEM)
+        {
+            throw new IllegalStateException("Need to be in the process of bagging an item to choose not to bag and item");
+        }
+
+        this.setPhase(Phase.NON_BAGGABLE_ITEM);
+        SupervisionSoftware svs = this.getSupervisionSoftware();
+        svs.notifyObservers(observer -> observer.customerDoesNotWantToBagItem(this));
+    }
+
     /**
      * When customer wishes to checkout
      */
@@ -353,6 +375,27 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         // Relative devices are enabled in checkout
         this.disableHardware();
         this.checkout.checkout(method);
+    }
+
+    public void paymentCompleted()
+    {
+        if (this.phase != Phase.PROCESSING_PAYMENT) {
+            throw new IllegalStateException("Cannot have a completed payment without a processed payment");
+        }
+        this.disableHardware();
+        this.processItemHandler.enableBaggingArea();
+        this.setPhase(Phase.PAYMENT_COMPLETE);
+    }
+    
+    public void checkoutComplete()
+    {
+        if (this.phase != Phase.PAYMENT_COMPLETE) {
+            throw new IllegalStateException("Cannot have a completed checkout without a completeted payment");
+        }
+
+        this.processItemHandler.resetScale();
+        this.disableHardware();
+        idle();
     }
 
     /**

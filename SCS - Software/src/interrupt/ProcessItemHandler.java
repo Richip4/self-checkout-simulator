@@ -54,7 +54,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 */
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		this.currentWeight = 0.0;
+		resetScale();;
 		this.scaleOverloaded = false;
 	}
 
@@ -141,7 +141,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		// TODO: For PLU items, Incorporate this scanning area electronic scale
 
-		this.customer.addToCart(product);
+		this.customer.addProduct(product);
 		this.scss.bagItem();
 		this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
 	}
@@ -175,6 +175,15 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	@Override
 	public void weightChanged(ElectronicScale scale, double weightInGrams) {
 		if (this.scaleOverloaded) {
+			return;
+		}
+
+		if(this.scss.getPhase() == Phase.PAYMENT_COMPLETE)
+		{
+			if(weightInGrams == 0.0)
+			{
+				this.scss.checkoutComplete();
+			}
 			return;
 		}
 
@@ -234,6 +243,12 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.currentWeight = weightInGrams;
 		this.expectedWeight = 0.0;
 		this.scss.addItem(); // Go back to add item phase
+	}
+
+	public void resetScale()
+	{
+		this.currentWeight = 0.0;
+		this.expectedWeight = 0.0;
 	}
 
 	@Override
