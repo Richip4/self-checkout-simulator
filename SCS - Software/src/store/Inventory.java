@@ -1,5 +1,8 @@
 package store;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.lsmr.selfcheckout.Barcode;
@@ -57,6 +60,8 @@ public class Inventory {
 			addProduct((BarcodedProduct) p);
 		} else if (p instanceof PLUCodedProduct) {
 			addProduct((PLUCodedProduct) p);
+		} else {
+			throw new IllegalArgumentException("Invalid type of product");
 		}
 	}
 
@@ -106,11 +111,16 @@ public class Inventory {
 	}
 	
 	/**
-	 * Required to display all available PLU produts to the customer when searching
+	 * Required to display all available PLU products to the customer when searching
 	 * @return the collection of PLU coded products
 	 */
 	public static Map<PriceLookupCode, PLUCodedProduct> getPLUProducts() {
 		return Inventory.PLU_PRODUCT_DATABASE;
+	}
+
+	public static List<Product> getProducts(){
+		return new ArrayList<Product>(Inventory.BARCODED_PRODUCT_DATABASE.values());
+
 	}
 
 	public static void clear() {

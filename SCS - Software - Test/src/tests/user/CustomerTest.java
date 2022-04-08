@@ -24,8 +24,8 @@ public class CustomerTest
     {
         Customer customer = new Customer();
         BigDecimal value = new BigDecimal(100.0);
-        customer.addCurrency(value);
-        assertEquals(value, customer.getCurrency());
+        customer.addCashBalance(value);
+        assertEquals(value, customer.getCashBalance());
     }
 
     @Test
@@ -36,7 +36,7 @@ public class CustomerTest
         Customer customer = new Customer();
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
-        customer.addToCart(barcode);
+        customer.addProduct(barcode);
         assertTrue(customer.getCart().get(0)==barcode);
     }
 

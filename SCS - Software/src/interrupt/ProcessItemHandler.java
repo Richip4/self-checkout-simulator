@@ -141,7 +141,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		// TODO: For PLU items, Incorporate this scanning area electronic scale
 
-		this.customer.addToCart(product);
+		this.customer.addProduct(product);
 		this.scss.bagItem();
 		this.scss.notifyObservers(observer -> observer.placeInBaggingAreaBlocked());
 	}
