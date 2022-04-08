@@ -139,13 +139,7 @@ public class Customer extends User {
 	 * @return List<Product>
 	 */
 	public List<CartEntry> getCartEntries() {
-		List<CartEntry> list = new ArrayList<CartEntry>();
-
-		for (CartEntry entry : this.cart) {
-			list.add(new CartEntry(entry));
-		}
-
-		return Collections.unmodifiableList(list);
+		return Collections.unmodifiableList(this.cart);
 	}
 
 	public void setMemberID(String memberID) {
