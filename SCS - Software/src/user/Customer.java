@@ -63,7 +63,7 @@ public class Customer extends User {
 
 	public void addToCart(BarcodedProduct BarcodedProduct) {
 		// Double is null and it is not needed to calculate the cost
-		BarCodedProducts.add(new Triple<BarcodedProduct>(BarcodedProduct, null, keyIncrement));
+		BarCodedProducts.add(new Triple<BarcodedProduct>(BarcodedProduct, BarcodedProduct.getExpectedWeight(), keyIncrement));
 		keyIncrement++;
 	}
 
