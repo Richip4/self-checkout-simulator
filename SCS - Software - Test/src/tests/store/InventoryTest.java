@@ -20,26 +20,22 @@ import static org.junit.Assert.*;
  * @author Ricky Bhatti
  * @author Michelle Cheung
  */
-public class InventoryTest {
+public class InventoryTest
+{
     // Declare the products
     BarcodedProduct barcodedProduct;
     PLUCodedProduct pluCodedProduct;
     Product product1;
     Product product2;
 
-    public class OtherProduct extends Product {
-        protected OtherProduct(BigDecimal price, boolean isPerUnit) {
-            super(price, isPerUnit);
-        }
-    }
-
     // Setup that is run before each test case
     @Before
-    public void setup() {
+    public void setup()
+    {
         // Initialize the products
-        barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] { Numeral.zero }), "N/A", new BigDecimal("5.00"), 15.50);
+        barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero}), "N/A", new BigDecimal("5.00"), 15.50);
         pluCodedProduct = new PLUCodedProduct(new PriceLookupCode("1234"), "N/A", new BigDecimal("10.00"));
-        product1 = new BarcodedProduct(new Barcode(new Numeral[] { Numeral.one }), "N/A", new BigDecimal("15.00"), 20.75);
+        product1 = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.one}), "N/A", new BigDecimal("15.00"), 20.75);
         product2 = new PLUCodedProduct(new PriceLookupCode("5678"), "N/A", new BigDecimal("20.00"));
 
         // Resets the inventory
@@ -47,7 +43,8 @@ public class InventoryTest {
     }
 
     @Test
-    public void addAndGetProductTest() {
+    public void addAndGetProductTest()
+    {
         assertNull(Inventory.getProduct(barcodedProduct.getBarcode()));
         assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
         assertNull(Inventory.getProduct(((BarcodedProduct) product1).getBarcode()));
@@ -74,14 +71,9 @@ public class InventoryTest {
         Inventory.addProduct((Product) null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void addInvalidProductTest() {
-        OtherProduct op = new OtherProduct(new BigDecimal(22.0), true);
-        Inventory.addProduct(op);
-    }
-
     @Test
-    public void setAndGetQuantityTest() {
+    public void setAndGetQuantityTest()
+    {
         Inventory.addProduct(barcodedProduct);
         Inventory.addProduct(pluCodedProduct);
 
@@ -96,19 +88,22 @@ public class InventoryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void setQuantityUnsuccessfullyTest() {
+    public void setQuantityUnsuccessfullyTest()
+    {
         Inventory.setQuantity(null, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void setQuantityUnsuccessfullyTest2() {
+    public void setQuantityUnsuccessfullyTest2()
+    {
         Inventory.addProduct(barcodedProduct);
 
         Inventory.setQuantity(barcodedProduct, -1);
     }
 
     @Test
-    public void clearInventoryTest() {
+    public void clearInventoryTest()
+    {
         assertNull(Inventory.getProduct(barcodedProduct.getBarcode()));
         assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
 
