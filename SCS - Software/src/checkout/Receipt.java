@@ -137,10 +137,10 @@ public class Receipt implements ReceiptPrinterObserver {
 	
 	public void checkLowPrinterCapacity() {
 		// check to see if the amount of paper printed exceeds 75% of the maximum capacity for paper
-		if (this.paperUsed >= (int)((this.scs.printer.MAXIMUM_PAPER * 3) / 4)) {
+		if (this.paperUsed >= (int)((this.scs.printer.MAXIMUM_PAPER * 9) / 10)) {
 			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnPaper(this.scss));
 		// check to see if the amount of ink printed exceeds 75% of the maximum capacity for ink
-		} else if (this.inkUsed >= (int)((this.scs.printer.MAXIMUM_INK * 3) / 4)) {
+		} else if (this.inkUsed >= (int)((this.scs.printer.MAXIMUM_INK * 9) / 10)) {
 			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnInk(this.scss));
 		}
 	}
