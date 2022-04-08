@@ -87,43 +87,43 @@ public class CustomerTest
         assertEquals(10, customer.getPlasticBags());
     }
 
-    @Test
-    public void lookupProductTest()
-    {
-        assertTrue(customer.getCart().isEmpty());
+    //    @Test
+    //    public void lookupProductTest()
+    //    {
+    //        assertTrue(customer.getCart().isEmpty());
+    //
+    //        Inventory.addProduct(product1);
+    //        Inventory.addProduct(product2);
+    //        customer.lookupProduct(product2.getPLUCode());
+    //        customer.lookupProduct(new PriceLookupCode(product2.getPLUCode().toString() + "1"));
+    //
+    //        assertTrue(customer.getCart().contains(product2));
+    //        assertEquals(1, customer.getCart().size());
+    //    }
 
-        Inventory.addProduct(product1);
-        Inventory.addProduct(product2);
-        customer.lookupProduct(product2.getPLUCode());
-        customer.lookupProduct(new PriceLookupCode(product2.getPLUCode().toString() + "1"));
-
-        assertTrue(customer.getCart().contains(product2));
-        assertEquals(1, customer.getCart().size());
-    }
-
-    @Test
-    public void cartTest()
-    {
-        assertTrue(customer.getCart().isEmpty());
-        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
-
-        Inventory.addProduct(product1);
-        Inventory.addProduct(product2);
-        customer.addToCart(product1);
-        customer.addToCart(product1);
-        customer.addToCart(product2);
-
-        assertTrue(customer.getCart().contains(product1));
-        assertTrue(customer.getCart().contains(product2));
-        assertEquals(3, customer.getCart().size());
-        assertEquals(product1.getPrice().add(product1.getPrice()).add(product2.getPrice()), customer.getCartSubtotal());
-
-        customer.removeProduct(product1);
-        customer.removeProduct(product2);
-
-        assertTrue(customer.getCart().contains(product1));
-        assertFalse(customer.getCart().contains(product2));
-        assertEquals(1, customer.getCart().size());
-        assertEquals(product1.getPrice(), customer.getCartSubtotal());
-    }
+    //    @Test
+    //    public void cartTest()
+    //    {
+    //        assertTrue(customer.getCart().isEmpty());
+    //        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
+    //
+    //        Inventory.addProduct(product1);
+    //        Inventory.addProduct(product2);
+    //        customer.addToCart(product1);
+    //        customer.addToCart(product1);
+    //        customer.addToCart(product2);
+    //
+    //        assertTrue(customer.getCart().contains(product1));
+    //        assertTrue(customer.getCart().contains(product2));
+    //        assertEquals(3, customer.getCart().size());
+    //        assertEquals(product1.getPrice().add(product1.getPrice()).add(product2.getPrice()), customer.getCartSubtotal());
+    //
+    //        customer.removeProduct(product1);
+    //        customer.removeProduct(product2);
+    //
+    //        assertTrue(customer.getCart().contains(product1));
+    //        assertFalse(customer.getCart().contains(product2));
+    //        assertEquals(1, customer.getCart().size());
+    //        assertEquals(product1.getPrice(), customer.getCartSubtotal());
+    //    }
 }
