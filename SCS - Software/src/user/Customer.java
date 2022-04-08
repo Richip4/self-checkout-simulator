@@ -6,7 +6,6 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
-import store.Inventory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
