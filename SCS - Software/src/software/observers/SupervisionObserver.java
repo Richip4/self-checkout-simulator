@@ -18,8 +18,16 @@ public interface SupervisionObserver extends Observer {
 
     // Receipt Handler
     public Void receiptPrinterOutOfPaper(SelfCheckoutSoftware scs);
+    
+    public Void receiptPrinterLowOnPaper(SelfCheckoutSoftware scs);
+    
+    public Void receiptPrinterPaperOverloaded(SelfCheckoutSoftware scs);
 
     public Void receiptPrinterOutOfInk(SelfCheckoutSoftware scs);
+    
+    public Void receiptPrinterLowOnInk(SelfCheckoutSoftware scs);
+    
+    public Void receiptPrinterInkOverloaded(SelfCheckoutSoftware scs);
 
     //Process Item Handler
     public Void unexpectedItemDetected(SelfCheckoutSoftware scs);
