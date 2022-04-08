@@ -16,7 +16,7 @@ import java.util.Map;
 public class Customer extends User {
 
 	// used to organize list of products
-	private class Triple<T> {
+	private class Triple<T extends Product> {
 		private T product;
 		private Double weight;
 		private Integer key;
