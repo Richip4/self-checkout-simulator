@@ -342,7 +342,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
 
         this.setPhase(Phase.NON_BAGGABLE_ITEM);
-        this.notifyObservers(observer -> observer.customerDoesNotWantToBagItem(this));
+        SupervisionSoftware svs = this.getSupervisionSoftware();
+        svs.notifyObservers(observer -> observer.customerDoesNotWantToBagItem(this));
     }
 
     /**

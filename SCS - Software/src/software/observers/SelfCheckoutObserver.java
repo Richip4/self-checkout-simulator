@@ -60,8 +60,6 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void productCannotFound();
 
-    public Void customerDoesNotWantToBagItem(SelfCheckoutSoftware scs);
-
     // Self-Checkout Software
 
     public Void softwareStarted(SelfCheckoutSoftware scss);
