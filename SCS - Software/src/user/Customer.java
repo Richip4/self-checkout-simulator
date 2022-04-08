@@ -1,6 +1,8 @@
 package user;
 
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
@@ -9,16 +11,47 @@ import store.Inventory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Customer extends User {
 
-	// in place of a cart class the cart is a list Products
-	private List<Product> cart = new ArrayList<Product>();
+	// used to organize list of products
+	private class Triple<A, B, C> {
+		private A key;
+		private B weight;
+		private C index;
+
+		public Triple(A key, B weight, C index) {
+			this.key = key;
+			this.weight = weight;
+			this.index = index;
+		}
+
+		public A getKey() {
+			return this.key;
+		}
+
+		public B getValue() {
+			return this.weight;
+		}
+
+		public C getIndex() {
+			return this.index;
+		}
+
+	}
+
+	// List of both PLU and Bar coded products using the triple data type
+	private List<Triple<BarcodedProduct, Double, Integer>> BarCodedProducts = new ArrayList<Triple<BarcodedProduct, Double, Integer>>();
+	private List<Triple<PLUCodedProduct, Double, Integer>> PLUcodedProducts = new ArrayList<Triple<PLUCodedProduct, Double, Integer>>();
 	private BigDecimal accumulatedCurrency = BigDecimal.ZERO;
 	private boolean ownBagsUsed = false;
 	private int numOfPlasticBags = 0;
 	private String memberID;
+	// used to index all of the products added to the customer "cart"
+	private int index = 0;
 
 	public void addCurrency(BigDecimal value) {
 		accumulatedCurrency = accumulatedCurrency.add(value);
@@ -28,26 +61,40 @@ public class Customer extends User {
 		return accumulatedCurrency;
 	}
 
+	public void addToCart(BarcodedProduct BarcodedProduct) {
+		// Double is null and it is not needed to calculate the cost
+		BarCodedProducts.add(new Triple<BarcodedProduct, Double, Integer>(BarcodedProduct, null, index));
+		index++;
+	}
+
+	public void addToCart(PLUCodedProduct PLU, double Weight) {
+		PLUcodedProducts.add(new Triple<PLUCodedProduct, Double, Integer>(PLU, Weight, index));
+		index++;
+	}
+
 	public void addToCart(Product product) {
-		cart.add(product);
-	}
-
-	public void removeProduct(Product p) {
-		cart.remove(p);
-	}
-
-	/**
-	 * The GUI handles the customer using the touch screen to find an item
-	 * This method would match the PLU code and to a PLU code in the inventory.
-	 * If getProduct != null then that means it matches and we would add to cart.
-	 * Then it could proceed normally as if it was another PLU coded item.
-	 * Both the customer and attendant would be using this method
-	 */
-	public void lookupProduct(PriceLookupCode plu) {
-		if (Inventory.getProduct(plu) != null) {
-			addToCart(Inventory.getProduct(plu));
+		if (product instanceof BarcodedProduct) {
+			this.addToCart((BarcodedProduct) product);
+		} else if (product instanceof PLUCodedProduct) {
+			// Due to the need for PLU products to have a weight
+			throw new IllegalArgumentException("Use proper addToCart for PLU coded items");
 		} else {
-			// TODO Display an error on the GUI that the product is invalid
+			throw new IllegalArgumentException("Not a valid product type");
+		}
+	}
+
+	public void removeProduct(int index) {
+		for (Triple<PLUCodedProduct, Double, Integer> triple : PLUcodedProducts) {
+			if (triple.getIndex() == index) {
+				PLUcodedProducts.remove(triple);
+				return;
+			}
+		}
+		for (Triple<BarcodedProduct, Double, Integer> triple : BarCodedProducts) {
+			if (triple.getIndex() == index) {
+				BarCodedProducts.remove(triple);
+				return;
+			}
 		}
 	}
 
@@ -58,15 +105,41 @@ public class Customer extends User {
 	public BigDecimal getCartSubtotal() {
 		BigDecimal subtotal = BigDecimal.ZERO;
 
-		for (Product product : this.cart) {
-			subtotal = subtotal.add(product.getPrice());
+		for (Triple<BarcodedProduct, Double, Integer> triple : this.BarCodedProducts) {
+			if (triple.getKey().isPerUnit()) {
+				subtotal = subtotal.add(triple.getKey().getPrice());
+			}
+		}
+		for (Triple<PLUCodedProduct, Double, Integer> triple : this.PLUcodedProducts) {
+			BigDecimal b1 = new BigDecimal(triple.getValue().toString());
+			b1 = b1.divide(new BigDecimal(1000));
+			subtotal = subtotal.add(triple.getKey().getPrice().multiply(b1));
 		}
 
 		return subtotal;
 	}
 
 	public List<Product> getCart() {
-		return Collections.unmodifiableList(this.cart);
+		List<Product> list = new ArrayList<Product>();
+		for (Triple<PLUCodedProduct, Double, Integer> triple : PLUcodedProducts) {
+			list.add(triple.getKey());
+		}
+		for (Triple<BarcodedProduct, Double, Integer> triple : BarCodedProducts) {
+			list.add(triple.getKey());
+		}
+
+		return Collections.unmodifiableList(list);
+	}
+
+	public Map<Integer, Product> getCartWithKey() {
+		Map<Integer, Product> map = new HashMap<Integer, Product>();
+		for (Triple<PLUCodedProduct, Double, Integer> triple : PLUcodedProducts) {
+			map.put(triple.getIndex(), triple.getKey());
+		}
+		for (Triple<BarcodedProduct, Double, Integer> triple : BarCodedProducts) {
+			map.put(triple.getIndex(), triple.getKey());
+		}
+		return Collections.unmodifiableMap(map);
 	}
 
 	public void setMemberID(String memberID) {
@@ -101,4 +174,5 @@ public class Customer extends User {
 	public int getPlasticBags() {
 		return numOfPlasticBags;
 	}
+
 }
