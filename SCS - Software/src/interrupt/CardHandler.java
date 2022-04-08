@@ -152,7 +152,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				return;
 			}
 
-			this.scss.idle(); // Transaction is complete, go to idle state
+			this.scss.paymentCompleted(); // Transaction is complete, go to idle state
 			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else if (type.equals("gift")) {
 			if (GiftCard.isGiftCard(data.getNumber())) {
@@ -179,7 +179,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
 			}
 
-			this.scss.idle(); // Transaction is complete, go to idle state
+			this.scss.paymentCompleted(); // Transaction is complete, go to idle state
 			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else {
 			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
