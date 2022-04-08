@@ -45,16 +45,14 @@ public class CustomerTest
     }
 
     @Test
-    public void addAndGetCurrencyTest()
+    public void addAndGetCashBalanceTest()
     {
-        assertEquals(BigDecimal.ZERO, customer.getCurrency());
-        assertEquals(BigDecimal.ZERO, customer.getAccumulatedCurrency());
+        assertEquals(BigDecimal.ZERO, customer.getCashBalance());
 
-        customer.addCurrency(new BigDecimal(banknoteDenominations[0]));
-        customer.addCurrency(coinDenominations[0]);
+        customer.addCashBalance(new BigDecimal(banknoteDenominations[0]));
+        customer.addCashBalance(coinDenominations[0]);
 
-        assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getCurrency());
-        assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getAccumulatedCurrency());
+        assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getCashBalance());
     }
 
     @Test
