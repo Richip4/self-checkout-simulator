@@ -24,8 +24,8 @@ public class CustomerTest
     {
         Customer customer = new Customer();
         BigDecimal value = new BigDecimal(100.0);
-        customer.addCurrency(value);
-        assertEquals(value, customer.getCurrency());
+        customer.addCashBalance(value);
+        assertEquals(value, customer.getCashBalance());
     }
 
     @Test

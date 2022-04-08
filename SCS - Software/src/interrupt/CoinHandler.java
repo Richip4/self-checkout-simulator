@@ -169,7 +169,7 @@ public class CoinHandler extends Handler
 	@Override
 	public void coinAdded(CoinStorageUnit unit) {
 		if (this.customer != null && coinDetected == true) {
-			this.customer.addCurrency(coinValue);
+			this.customer.addCashBalance(coinValue);
 
 			// Notify observer so GUI can update current cash balance on display
 			this.scss.notifyObservers(observer -> observer.coinAdded());
