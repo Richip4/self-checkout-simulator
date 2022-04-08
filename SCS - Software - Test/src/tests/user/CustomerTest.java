@@ -36,7 +36,7 @@ public class CustomerTest
         Customer customer = new Customer();
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
-        customer.addToCart(barcode);
+        customer.addProduct(barcode);
         assertTrue(customer.getCart().get(0)==barcode);
     }
 

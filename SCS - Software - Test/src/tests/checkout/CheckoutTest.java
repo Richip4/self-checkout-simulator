@@ -609,7 +609,7 @@ public class CheckoutTest {
         assertEquals("price should be the same", price, product_test.getPrice());
 
         Customer customer = new Customer();
-        customer.addToCart(barcode);
+        customer.addProduct(barcode);
 
         ArrayList<Barcode> cart = customer.getCart();
         assertEquals("cart should have one item", 1, cart.size());
