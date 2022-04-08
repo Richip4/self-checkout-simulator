@@ -45,9 +45,9 @@ public class GiftCard
     {
         GiftCard.GIFTCARDS.add(cardID);
 
-        Calendar expiary = Calendar.getInstance();
-        expiary.add(Calendar.YEAR, 10);
-        GiftCard.GIFTCARD_ISSUER.addCardData(cardID, "", expiary, "", cardValue);
+        Calendar expiry = Calendar.getInstance();
+        expiry.add(Calendar.YEAR, 10);
+        GiftCard.GIFTCARD_ISSUER.addCardData(cardID, cardID, expiry, "000", cardValue);
     }
 
     public static void clear()
