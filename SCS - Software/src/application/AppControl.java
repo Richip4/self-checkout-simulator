@@ -314,7 +314,7 @@ public class AppControl {
 			} catch (AuthorizationRequiredException e) {}			
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
 			try {
-				supervisorSoftware.approveMissingItem(selfStationSoftwares.get(station));
+				supervisorSoftware.approveItemNotBaggable(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}
 		}
 	}
