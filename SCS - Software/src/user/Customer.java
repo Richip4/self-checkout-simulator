@@ -9,49 +9,36 @@ import application.AppControl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Customer extends User {
 
 	// used to organize list of products
-	public class Triple<T extends Product> {
-		private T product;
+	public class CartEntry {
+		private Product product;
 		private Double weight;
-		private Integer key;
 
-		private Triple(T product, Double weight) {
+		private CartEntry(Product product, Double weight) {
 			this.product = product;
 			this.weight = weight;
 		}
 
-		private Triple(T product, Double weight, Integer key) {
-			this.product = product;
-			this.weight = weight;
-			this.key = key;
+		private CartEntry(CartEntry triple) {
+			this.product = triple.product;
+			this.weight = triple.weight;
 		}
 
-		public T getProduct() {
+		public Product getProduct() {
 			return this.product;
 		}
 
 		public Double getWeight() {
 			return this.weight;
 		}
-
-		public Integer getKey() {
-			return this.key;
-		}
 	}
 
-	// List of both PLU and Bar coded products using the triple data type
-	private List<Triple<BarcodedProduct>> barcodedProducts = new ArrayList<Triple<BarcodedProduct>>();
-	private List<Triple<PLUCodedProduct>> plucodedProducts = new ArrayList<Triple<PLUCodedProduct>>();
-
-	// Used to assign a unique key to all of the products added to the customer
-	// "cart", so customer/attendant can remove item by this unique key
-	private int keyIncrement = 0;
+	// List of both PLU and Bar coded products
+	private List<CartEntry> cart = new ArrayList<CartEntry>();
 
 	private BigDecimal cashBalance = BigDecimal.ZERO;
 	private boolean ownBagsUsed = false;
@@ -67,14 +54,17 @@ public class Customer extends User {
 	}
 
 	public void addToCart(BarcodedProduct product) {
-		// Double is null and it is not needed to calculate the cost
-		barcodedProducts.add(new Triple<BarcodedProduct>(product, product.getExpectedWeight(), keyIncrement));
-		keyIncrement++;
+		this.cart.add(new CartEntry(product, product.getExpectedWeight()));
 	}
 
+	/**
+	 * Weight in grams
+	 * 
+	 * @param product
+	 * @param weight
+	 */
 	public void addToCart(PLUCodedProduct product, double weight) {
-		plucodedProducts.add(new Triple<PLUCodedProduct>(product, weight, keyIncrement));
-		keyIncrement++;
+		this.cart.add(new CartEntry(product, weight));
 	}
 
 	public void addToCart(Product product) {
@@ -88,36 +78,25 @@ public class Customer extends User {
 		}
 	}
 
-	public void removeProduct(int key) {
-		for (Triple<PLUCodedProduct> triple : plucodedProducts) {
-			if (triple.getKey() == key) {
-				plucodedProducts.remove(triple);
-				return;
-			}
-		}
-		for (Triple<BarcodedProduct> triple : barcodedProducts) {
-			if (triple.getKey() == key) {
-				barcodedProducts.remove(triple);
-				return;
-			}
-		}
+	public void removeProduct(int index) {
+		this.cart.remove(index);
+	}
+
+	public void removeProduct(CartEntry product) {
+		this.cart.remove(product);
 	}
 
 	public BigDecimal getCartSubtotal() {
 		BigDecimal subtotal = BigDecimal.ZERO;
 
-		for (Triple<BarcodedProduct> triple : this.barcodedProducts) {
-			if (triple.getProduct().isPerUnit()) {
+		for (CartEntry triple : this.cart) {
+			if (triple.getProduct().isPerUnit()) { // If per-unit (barcoded)
 				subtotal = subtotal.add(triple.getProduct().getPrice());
+			} else { // Else per-kilogram (PLU coded)
+				subtotal = subtotal.add(triple.getProduct().getPrice().multiply(new BigDecimal(triple.getWeight()).divide(new BigDecimal(1000))));
 			}
 		}
 		
-		for (Triple<PLUCodedProduct> triple : this.plucodedProducts) {
-			BigDecimal b1 = new BigDecimal(triple.getWeight().toString());
-			b1 = b1.divide(new BigDecimal(1000));
-			subtotal = subtotal.add(triple.getProduct().getPrice().multiply(b1));
-		}
-
 		return subtotal;
 	}
 
@@ -128,10 +107,8 @@ public class Customer extends User {
 	 */
 	public List<Product> getCart() {
 		List<Product> list = new ArrayList<Product>();
-		for (Triple<PLUCodedProduct> triple : plucodedProducts) {
-			list.add(triple.getProduct());
-		}
-		for (Triple<BarcodedProduct> triple : barcodedProducts) {
+
+		for (CartEntry triple : this.cart) {
 			list.add(triple.getProduct());
 		}
 
@@ -139,35 +116,15 @@ public class Customer extends User {
 	}
 
 	/**
-	 * Returns a map containing the product key and the product itself
+	 * Returns a map containing the product itself and its weight
 	 * 
-	 * @return Map<Integer, Product>
+	 * @return List<Product>
 	 */
-	public Map<Integer, Product> getCartWithKey() {
-		Map<Integer, Product> map = new HashMap<Integer, Product>();
-		for (Triple<PLUCodedProduct> triple : this.plucodedProducts) {
-			map.put(triple.getKey(), triple.getProduct());
-		}
-		for (Triple<BarcodedProduct> triple : this.barcodedProducts) {
-			map.put(triple.getKey(), triple.getProduct());
-		}
-		return Collections.unmodifiableMap(map);
-	}
+	public List<CartEntry> getCartWithWeight() {
+		List<CartEntry> list = new ArrayList<CartEntry>();
 
-	/**
-	 * Returns a triple containing the key of the product, the product itself and the weight of the product
-	 * 
-	 * @return Triple<Product>
-	 */
-	public List<Triple<Product>> getCartWithKeyAndWeight() {
-		List<Triple<Product>> list = new ArrayList<Triple<Product>>();
-
-		for (Triple<PLUCodedProduct> triple : this.plucodedProducts) {
-			list.add(new Triple<Product>(triple.getProduct(), triple.getWeight(), triple.getKey()));
-		}
-
-		for (Triple<BarcodedProduct> triple : this.barcodedProducts) {
-			list.add(new Triple<Product>(triple.getProduct(), triple.getWeight(), triple.getKey()));
+		for (CartEntry triple : this.cart) {
+			list.add(new CartEntry(triple));
 		}
 
 		return Collections.unmodifiableList(list);
