@@ -24,7 +24,7 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 public class GiftCard
 {
     private static final Set<String> GIFTCARDS = new HashSet<String>();
-	private static final CardIssuer GIFTCARD_ISSUER = new CardIssuer("GiftCard");
+	private static CardIssuer GIFTCARD_ISSUER = new CardIssuer("GiftCard");
 
     private GiftCard()
     {
@@ -53,5 +53,6 @@ public class GiftCard
     public static void clear()
     {
         GiftCard.GIFTCARDS.clear();
+        GiftCard.GIFTCARD_ISSUER = new CardIssuer("GiftCard");
     }
 }
