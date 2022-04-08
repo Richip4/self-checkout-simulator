@@ -11,6 +11,8 @@ import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.PaymentMethod;
+import software.SelfCheckoutSoftware.Phase;
 import user.Customer;
 
 /**
@@ -52,28 +54,25 @@ public class Checkout {
 	}
 
 	/**
-	 * Customer wish ro proceed to checkout.
+	 * Customer wish to proceed to checkout.
 	 * Enables/disables each device in a self checkout station.
 	 * 
 	 * This method will only be invoked after a customer has completed inputting all
 	 * of their items.
 	 * 
 	 */
-	public void checkout() {
+	public void checkout(PaymentMethod method) {
 		// devices are only configured if there is a customer at the station
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
 		}
 
-		// disable the barcode scanner and electronic scale
-		scs.mainScanner.disable();
-		scs.handheldScanner.disable();
-		scs.baggingArea.disable();
-		scs.scanningArea.disable();
-
-		this.enableCardReader();
-		this.enableBanknoteInput();
-		this.enableCoinInput();
+		if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
+			this.enableCardReader();
+		} else if (method == PaymentMethod.CASH) {
+			this.enableBanknoteInput();
+			this.enableCoinInput();
+		}
 	}
 
 	/**
@@ -99,14 +98,7 @@ public class Checkout {
 			throw new IllegalStateException("Customer has paid clear");
 		}
 
-		// enable the barcode scanner and electronic scale
-		this.scs.mainScanner.enable();
-		this.scs.handheldScanner.enable();
-		this.scs.scanningArea.enable();
-
-		this.disableCardReader();
-		this.disableBanknoteInput();
-		this.disableCoinInput();
+		this.scss.cancelCheckout();
 	}
 
 	private void enableBanknoteInput() {
@@ -162,9 +154,13 @@ public class Checkout {
 	 */
 	public void makeChange() {
 		// Dispense remaining pending change to customer
+		if(this.scss.getPhase() != Phase.PROCESSING_PAYMENT){
+			throw new IllegalStateException();
+		}
+
 		if (!this.pendingChanges.isEmpty()) {
 			int size = this.pendingChanges.size();
-
+			
 			// There's change pending to be returned to customer
 			// start emitting change to slot devices
 			for (Cash cash : this.pendingChanges) {
@@ -192,7 +188,10 @@ public class Checkout {
 						.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
 				return;
 			}
-
+			if(pendingChanges.isEmpty()) {
+				this.scss.paymentCompleted();
+				return;
+			}
 			return;
 		}
 
@@ -201,6 +200,7 @@ public class Checkout {
 
 		// No change needs to be returned to customer
 		if (change.equals(BigDecimal.ZERO)) {
+			this.scss.paymentCompleted();
 			return;
 		}
 
