@@ -138,7 +138,7 @@ public class Customer extends User {
 	 * 
 	 * @return List<Product>
 	 */
-	public List<CartEntry> getCartWithWeight() {
+	public List<CartEntry> getCartEntries() {
 		List<CartEntry> list = new ArrayList<CartEntry>();
 
 		for (CartEntry entry : this.cart) {
