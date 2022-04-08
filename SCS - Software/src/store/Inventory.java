@@ -110,8 +110,11 @@ public class Inventory {
 		return PLU_PRODUCT_DATABASE.get(plu);
 	}
 	
-	public static List<Product> getProducts(){
-		return new ArrayList<Product>(Inventory.BARCODED_PRODUCT_DATABASE.values());
+	public static List<Product> getProducts() {
+		List<Product> products = new ArrayList<Product>();
+		products.addAll(PLU_PRODUCT_DATABASE.values());
+		products.addAll(BARCODED_PRODUCT_DATABASE.values());
+		return Collections.unmodifiableList(products);
 	}
 
 	public static void clear() {
