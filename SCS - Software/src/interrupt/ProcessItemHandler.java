@@ -180,7 +180,11 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		if(this.scss.getPhase() == Phase.PAYMENT_COMPLETE)
 		{
-			this.scss.idle();
+			if(weightInGrams == 0.0)
+			{
+				this.scss.checkoutComplete();
+			}
+			return;
 		}
 
 		// Get the weight of the bag and store it, if the customer is trying to add
