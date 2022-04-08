@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
-
+import store.Store;
 import store.credentials.AuthorizationRequiredException;
 import store.credentials.CredentialsSystem;
 import store.credentials.IncorrectCredentialException;
@@ -30,10 +30,10 @@ import software.observers.SupervisionObserver;
  * @author Tyler Chen
  */
 public class SupervisionSoftware extends Software<SupervisionObserver> {
-    private final SupervisionStation svs;
+    private SupervisionStation svs;
     private Attendant attendant;
     private boolean logged_in;
-    private final List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
+    private List<SelfCheckoutSoftware> softwareList = new ArrayList<SelfCheckoutSoftware>();
 
     
     public SupervisionSoftware(SupervisionStation svs) {
@@ -41,6 +41,12 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
         // TODO: Initialize handlers that supervision software needs.
     }
+
+	//For restarting a station, we don't want to restart the other stations too.
+	public SupervisionSoftware(SupervisionStation svs, List<SelfCheckoutSoftware> softwareList){
+		this.svs = svs;
+		this.softwareList = softwareList;
+	}
 
     public SupervisionStation getSupervisionStation() {
         return this.svs;
@@ -163,6 +169,39 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	public void approveWeightDiscrepancy(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
 		if (this.logged_in) {
 			scss.approveWeightDiscrepancy();
+		} else {
+			throw new AuthorizationRequiredException("Attendant needs to log in");
+		}
+	}
+
+	/**
+	 * Start up the SupervisionSoftware, only by setting the store
+	 */
+	public void startUp(){
+		Store.setSupervisionSoftware(this);
+	}
+
+	/**
+	 * Should only be used when a full shut down is needed.
+	 * WARNING: Loses all SelfCheckoutSoftware
+	 * @throws AuthorizationRequiredException
+	 */
+	public void shutdown() throws AuthorizationRequiredException{
+		if (this.logged_in) {
+			Store.setSupervisionSoftware(null);
+		} else {
+			throw new AuthorizationRequiredException("Attendant needs to log in");
+		}
+	}
+
+	/**
+	 * Restarts the Supervision Software while keeping the list of SelfCheckoutSoftware
+	 * @throws AuthorizationRequiredException
+	 */
+	public void restart() throws AuthorizationRequiredException{
+		if (this.logged_in){
+			SupervisionSoftware scss = new SupervisionSoftware(svs, softwareList);
+			Store.setSupervisionSoftware(scss);
 		} else {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
