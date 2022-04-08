@@ -138,7 +138,7 @@ public final class Main {
         // Create supervision software for this svs
         // and set it to the store
         SupervisionSoftware svss = new SupervisionSoftware(svs);
-        Store.setSupervisionSoftware(svss);
+        svss.startUp();
 
         // Initialize n self-checkout stations
         // and add them to the supervision station to be supervised
