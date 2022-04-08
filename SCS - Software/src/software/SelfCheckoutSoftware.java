@@ -122,9 +122,13 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public Customer getCustomer() {
         return this.customer;
     }
-    
-    public Receipt getReceipt() {
-    	return this.receipt;
+
+    public void updatePaperUsed(int paperAdded) {
+        this.receipt.updatePaperUsed(paperAdded);
+    }
+
+    public void updateInkUsed(int inkAdded) {
+        this.receipt.updateInkUsed(inkAdded);
     }
 
     /**
