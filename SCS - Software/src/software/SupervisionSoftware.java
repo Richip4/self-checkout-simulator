@@ -44,7 +44,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	// For restarting a station, we don't want to restart the other stations too.
 	public SupervisionSoftware(SupervisionStation svs, List<SelfCheckoutSoftware> softwareList) {
 		this.svs = svs;
-		this.softwareList = softwareList;
+		for (SelfCheckoutSoftware software: softwareList)
+			this.add(software);
 	}
 
 	public SupervisionStation getSupervisionStation() {
@@ -198,6 +199,10 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	public void shutdown() throws AuthorizationRequiredException {
 		if (this.logged_in) {
 			Store.setSupervisionSoftware(null);
+			for (SelfCheckoutSoftware software : softwareList){
+				this.svs.remove(software.getSelfCheckoutStation());
+				software.setSupervisionSoftware(null);
+			}
 		} else {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
@@ -212,6 +217,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	public void restart() throws AuthorizationRequiredException {
 		if (this.logged_in) {
 			SupervisionSoftware scss = new SupervisionSoftware(svs, softwareList);
+			for (SelfCheckoutSoftware software : softwareList)
+				software.setSupervisionSoftware(scss);
 			Store.setSupervisionSoftware(scss);
 		} else {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
