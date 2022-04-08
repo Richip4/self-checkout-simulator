@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class Customer extends User {
-
 	// used to organize list of products
 	public class CartEntry {
 		private Product product;
@@ -23,9 +22,9 @@ public class Customer extends User {
 			this.weight = weight;
 		}
 
-		private CartEntry(CartEntry triple) {
-			this.product = triple.product;
-			this.weight = triple.weight;
+		private CartEntry(CartEntry entry) {
+			this.product = entry.product;
+			this.weight = entry.weight;
 		}
 
 		public Product getProduct() {
@@ -53,15 +52,20 @@ public class Customer extends User {
 		return new BigDecimal(this.cashBalance.toString());
 	}
 
+	/**
+	 * Add barcoded product to cart
+	 * 
+	 * @param product
+	 */
 	public void addProduct(BarcodedProduct product) {
 		this.cart.add(new CartEntry(product, product.getExpectedWeight()));
 	}
 
 	/**
-	 * Weight in grams
+	 * Add PLU coded product to cart
 	 * 
 	 * @param product
-	 * @param weight
+	 * @param weight  the weight of the product in grams
 	 */
 	public void addProduct(PLUCodedProduct product, double weight) {
 		this.cart.add(new CartEntry(product, weight));
@@ -78,10 +82,20 @@ public class Customer extends User {
 		}
 	}
 
+	/**
+	 * Remove a product
+	 * 
+	 * @param index the index in the cart
+	 */
 	public void removeProduct(int index) {
 		this.cart.remove(index);
 	}
 
+	/**
+	 * Remove a product
+	 * 
+	 * @param product the entry in the cart
+	 */
 	public void removeProduct(CartEntry product) {
 		this.cart.remove(product);
 	}
@@ -89,14 +103,18 @@ public class Customer extends User {
 	public BigDecimal getCartSubtotal() {
 		BigDecimal subtotal = BigDecimal.ZERO;
 
-		for (CartEntry triple : this.cart) {
-			if (triple.getProduct().isPerUnit()) { // If per-unit (barcoded)
-				subtotal = subtotal.add(triple.getProduct().getPrice());
+		for (CartEntry entry : this.cart) {
+			if (entry.getProduct().isPerUnit()) { // If per-unit (barcoded)
+				subtotal = subtotal.add(entry.getProduct().getPrice());
 			} else { // Else per-kilogram (PLU coded)
-				subtotal = subtotal.add(triple.getProduct().getPrice().multiply(new BigDecimal(triple.getWeight()).divide(new BigDecimal(1000))));
+				BigDecimal weightKilo = new BigDecimal(entry.getWeight()).divide(new BigDecimal(1000));
+				BigDecimal priceKilo = entry.getProduct().getPrice();
+				BigDecimal price = weightKilo.multiply(priceKilo);
+
+				subtotal = subtotal.add(price);
 			}
 		}
-		
+
 		return subtotal;
 	}
 
@@ -108,8 +126,8 @@ public class Customer extends User {
 	public List<Product> getCart() {
 		List<Product> list = new ArrayList<Product>();
 
-		for (CartEntry triple : this.cart) {
-			list.add(triple.getProduct());
+		for (CartEntry entry : this.cart) {
+			list.add(entry.getProduct());
 		}
 
 		return Collections.unmodifiableList(list);
@@ -123,8 +141,8 @@ public class Customer extends User {
 	public List<CartEntry> getCartWithWeight() {
 		List<CartEntry> list = new ArrayList<CartEntry>();
 
-		for (CartEntry triple : this.cart) {
-			list.add(new CartEntry(triple));
+		for (CartEntry entry : this.cart) {
+			list.add(new CartEntry(entry));
 		}
 
 		return Collections.unmodifiableList(list);
