@@ -12,8 +12,7 @@ import store.Inventory;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * The JUnit test class for the Inventory class in SCS - Software.
@@ -50,6 +49,8 @@ public class InventoryTest
         assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
         assertNull(Inventory.getProduct(((BarcodedProduct) product1).getBarcode()));
         assertNull(Inventory.getProduct(((PLUCodedProduct) product2).getPLUCode()));
+        assertFalse(Inventory.getProducts().contains(product1));
+        assertFalse(Inventory.getProducts().contains(product2));
 
         Inventory.addProduct(barcodedProduct);
         Inventory.addProduct(pluCodedProduct);
@@ -60,6 +61,14 @@ public class InventoryTest
         assertEquals(pluCodedProduct, Inventory.getProduct(pluCodedProduct.getPLUCode()));
         assertEquals(product1, Inventory.getProduct(((BarcodedProduct) product1).getBarcode()));
         assertEquals(product2, Inventory.getProduct(((PLUCodedProduct) product2).getPLUCode()));
+        assertTrue(Inventory.getProducts().contains(product1));
+        assertTrue(Inventory.getProducts().contains(product2));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addInvalidProductTest()
+    {
+        Inventory.addProduct((Product) null);
     }
 
     @Test
