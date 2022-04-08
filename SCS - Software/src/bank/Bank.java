@@ -2,7 +2,9 @@ package bank;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.lsmr.selfcheckout.external.CardIssuer;
 
@@ -14,18 +16,17 @@ import org.lsmr.selfcheckout.external.CardIssuer;
  * 
  * Conceptually, each bank is a card issuer.
  * 
- * FIXME: The implementation of this class is not complete, see:
- * https://d2l.ucalgary.ca/d2l/le/422926/discussions/threads/1636487/View
- * 
+ * @see https://d2l.ucalgary.ca/d2l/le/422926/discussions/threads/1636487/View
  * @author Tyler Chen
  * @author Yunfan Yang
  *
  */
-public class Bank {
+public final class Bank {
 	private static final List<CardIssuer> ISSUERS = new ArrayList<CardIssuer>();
+	private static final Map<String, CardIssuer> CARD_ISSUER = new HashMap<String, CardIssuer>();
 
 	/**
-	 * Instances of this class are not needed, so the constructor is private.
+	 * Instantiation of this class is not needed, so the constructor is private.
 	 */
 	private Bank() {
 	}
@@ -44,5 +45,21 @@ public class Bank {
 
 	public static void clearIssuers() {
 		Bank.ISSUERS.clear();
+	}
+
+	public static CardIssuer getCardIssuer(String cardNumber) {
+		return Bank.CARD_ISSUER.get(cardNumber);
+	}
+
+	public static void addCardIssuer(String cardNumber, CardIssuer issuer) {
+		Bank.CARD_ISSUER.put(cardNumber, issuer);
+	}
+
+	public static void removeCardIssuer(String cardNumber) {
+		Bank.CARD_ISSUER.remove(cardNumber);
+	}
+
+	public static void clearCardIssuers() {
+		Bank.CARD_ISSUER.clear();
 	}
 }

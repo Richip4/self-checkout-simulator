@@ -4,8 +4,11 @@ import org.lsmr.selfcheckout.Card.CardData;
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.CardReaderObserver;
+import org.lsmr.selfcheckout.external.CardIssuer;
 
+import bank.Bank;
 import software.SelfCheckoutSoftware;
+import store.GiftCard;
 import store.Membership;
 import user.Customer;
 
@@ -20,10 +23,6 @@ public class CardHandler extends Handler implements CardReaderObserver {
 
 	private final SelfCheckoutSoftware scss;
 	private final SelfCheckoutStation scs;
-
-	private boolean isSwipe; // if swipe is used, there is no CVV
-	private boolean isMember;
-	
 	private Customer customer;
 
 	/*
@@ -32,16 +31,39 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	public CardHandler(SelfCheckoutSoftware scss) {
 		this.scss = scss;
 		this.scs = this.scss.getSelfCheckoutStation();
-		this.scs.cardReader.attach(this);
 
-		this.isSwipe = false;
-		this.isMember = false;
+		this.attachAll();
+		this.enableHardware();
 	}
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		this.isSwipe = false;
-		this.isMember = false;
+	}
+
+	public void attachAll() {
+		this.scs.cardReader.attach(this);
+	}
+
+	/**
+	 * Used to reboot/shutdown the software. Detatches the handler so that
+	 * we can stop listening or assign a new handler.
+	 */
+	public void detatchAll() {
+		this.scs.cardReader.detach(this);
+	}
+
+	/**
+	 * Used to enable all the associated hardware.
+	 */
+	public void enableHardware() {
+		this.scs.cardReader.enable();
+	}
+
+	/**
+	 * Used to disable all the associated hardware.
+	 */
+	public void disableHardware() {
+		this.scs.cardReader.disable();
 	}
 
 	@Override
@@ -53,48 +75,31 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	@Override
 	public void disabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// we don't have to do anything when the device is disabled
-		// TODO: Future implementations we may need to warn the customer that this
-		// device does not work.
 	}
 
+	/**
+	 * We don't care about the following events:
+	 * - cardInserted
+	 * - cardRemoved
+	 * - cardTapped
+	 * - cardSwiped
+	 * Because we only want to disable the device when a card data is actually read,
+	 * and re-enable the device when the transaction is complete or failed.
+	 */
 	@Override
 	public void cardInserted(CardReader reader) {
-		// we currently do not do anything.
-		// future implementations could have a sound play or a please wait message
-		// appear.
 	}
 
-	/*
-	 * On card removal, we enable the reader to allow it to continue reading cards.
-	 */
 	@Override
 	public void cardRemoved(CardReader reader) {
-		// we currently also do not do anything here
-		// future implementations could revert the card reader screen to it's
-		// normal/ready state.
 	}
 
-	/*
-	 * On card tap, we disable the reader from reading any further cards
-	 * until the transaction with the current tap, insertion, swipe
-	 * has been completed and then we re-enable it.
-	 */
 	@Override
 	public void cardTapped(CardReader reader) {
-		scs.cardReader.disable();
-		// notify the customer that the card has been tapped.
-		// wait for cardDataRead to finish running before allowing more taps.
-		scs.cardReader.enable();
 	}
 
 	@Override
 	public void cardSwiped(CardReader reader) {
-		scs.cardReader.disable();
-		isSwipe = true;
-		// notify the customer that the card has been swiped.
-		// wait for cardDataRead to finish running before allowing more taps.
-		scs.cardReader.enable();
-
 	}
 
 	/**
@@ -108,52 +113,80 @@ public class CardHandler extends Handler implements CardReaderObserver {
 	 */
 	@Override
 	public void cardDataRead(CardReader reader, CardData data) {
+		// The card data is read, so disable the device until the transaction is
+		// complete.
+		this.scs.cardReader.disable();
+
 		// Get the type of card first and strip all whitespace and make it lowercase
 		String type = data.getType().toLowerCase().strip();
 
 		if (type.equals("membership")) {
 			String memberID = data.getNumber();
-			isMember = Membership.isMember(memberID);
+			boolean isMember = Membership.isMember(memberID);
 
-			if (isMember) {
-				for (char s : memberID.toCharArray()) {
-					try {
-						scs.printer.print(s); // assuming that the printer has ink and paper
-					} catch (EmptyException e) {
-						e.printStackTrace();
-					} catch (OverloadException e) {
-						e.printStackTrace();
-					}
-				}
-			} else {
-				customer.notifyCustomerToTryCardAgain();
+			if (!isMember) {
+				this.scss.notifyObservers(observer -> observer.invalidMembershipCardDetected());
+				return;
 			}
 
+			this.customer.getMemberID();
+
+			this.scss.notifyObservers(observer -> observer.membershipCardDetected(memberID));
 		} else if (type.equals("debit") || type.equals("credit")) {
-			String cardNumbers = data.getNumber();
-			String cardHolder = data.getCardholder();
-			String cvv = null;
+			String cardNumber = data.getNumber();
 
-			// if the card wasn't swiped then we want to get the cvv.
-			if (!this.isSwipe) {
-				cvv = data.getCVV();
+			CardIssuer issuer = Bank.getCardIssuer(cardNumber);
+			int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
+
+			// Fail to hold the authorization
+			if (holdNumber == -1) {
+				this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
+				return;
 			}
 
-			// We then bill the account through the bank and if it's completed (checks to
-			// see if the cardHolder matches)
-			// boolean transactionStatus = Bank.billAccount(cardNumbers, cardHolder, total);
-			
-			// if (transactionStatus) {
-				// 	total = BigDecimal.ZERO;
-				// 	customer.notifyCustomerTransactionSuccessful();
-				// } else
-				// 	customer.notifyCustomerToTryCardAgain();
+			boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
 
+			// Fail to post transaction
+			if (!posted) {
+				this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
+				return;
+			}
 
-			// FIXME: Bank transaction needs to be implemented first.
+			this.scss.paymentCompleted(); // Transaction is complete, go to idle state
+			this.scss.notifyObservers(observer -> observer.paymentCompleted());
+		} else if (type.equals("gift")) {
+			if (GiftCard.isGiftCard(data.getNumber())) {
+				String cardNumber = data.getNumber();
+				CardIssuer issuer = GiftCard.getCardIssuer();
+				int holdNumber = issuer.authorizeHold(cardNumber, this.customer.getCartSubtotal());
+
+				// Fail to hold the authorization
+				if (holdNumber == -1) {
+					this.scss.notifyObservers(observer -> observer.paymentHoldingAuthorizationFailed());
+					return;
+				}
+
+				boolean posted = issuer.postTransaction(cardNumber, holdNumber, this.customer.getCartSubtotal());
+
+				// Fail to post transaction
+				if (!posted) {
+					this.scss.notifyObservers(observer -> observer.paymentPostingTransactionFailed());
+					return;
+				}
+				this.scss.notifyObservers(observer -> observer.paymentCompleted());
+				return;
+			} else {
+				this.scss.notifyObservers(observer -> observer.invalidGiftCardDetected());
+			}
+
+			this.scss.paymentCompleted(); // Transaction is complete, go to idle state
+			this.scss.notifyObservers(observer -> observer.paymentCompleted());
 		} else {
-			customer.notifyCustomerInvalidCardType();
+			this.scss.notifyObservers(observer -> observer.invalidCardTypeDetected());
 		}
+
+		// Re-enable card reader since transaction is complete or failed.
+		this.scs.cardReader.enable();
 
 		// Variables will be reset after when the next customer is binded.
 	}
