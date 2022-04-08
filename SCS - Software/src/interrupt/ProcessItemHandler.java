@@ -236,6 +236,11 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.scss.addItem(); // Go back to add item phase
 	}
 
+	public void resetScale()
+	{
+		this.currentWeight = 0.0;
+	}
+
 	@Override
 	public void overload(ElectronicScale scale) {
 		this.scaleOverloaded = true;

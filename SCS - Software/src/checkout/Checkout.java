@@ -53,7 +53,7 @@ public class Checkout {
 	}
 
 	/**
-	 * Customer wish ro proceed to checkout.
+	 * Customer wish to proceed to checkout.
 	 * Enables/disables each device in a self checkout station.
 	 * 
 	 * This method will only be invoked after a customer has completed inputting all
@@ -66,9 +66,9 @@ public class Checkout {
 			throw new IllegalStateException("No customer at checkout station.");
 		}
 
-		if (method == PaymentMethod.BANK_CARD) {
+		if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
 			this.enableCardReader();
-		} else if (method == PaymentMethod.BANK_CARD || method == PaymentMethod.GIFT_CARD) {
+		} else if (method == PaymentMethod.CASH) {
 			this.enableBanknoteInput();
 			this.enableCoinInput();
 		}
