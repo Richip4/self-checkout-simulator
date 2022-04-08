@@ -53,7 +53,7 @@ public class Customer extends User {
 		return new BigDecimal(this.cashBalance.toString());
 	}
 
-	public void addToCart(BarcodedProduct product) {
+	public void addProduct(BarcodedProduct product) {
 		this.cart.add(new CartEntry(product, product.getExpectedWeight()));
 	}
 
@@ -63,13 +63,13 @@ public class Customer extends User {
 	 * @param product
 	 * @param weight
 	 */
-	public void addToCart(PLUCodedProduct product, double weight) {
+	public void addProduct(PLUCodedProduct product, double weight) {
 		this.cart.add(new CartEntry(product, weight));
 	}
 
-	public void addToCart(Product product) {
+	public void addProduct(Product product) {
 		if (product instanceof BarcodedProduct) {
-			this.addToCart((BarcodedProduct) product);
+			this.addProduct((BarcodedProduct) product);
 		} else if (product instanceof PLUCodedProduct) {
 			// Due to the need for PLU products to have a weight
 			throw new IllegalArgumentException("Use proper addToCart for PLU coded items");

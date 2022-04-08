@@ -51,7 +51,7 @@ public class ReceiptTest {
         Inventory inventory = new Inventory();
         inventory.addProduct(barcode, product, item);
         Receipt receipt = new Receipt(selfCheckoutStation, customer, inventory);
-        customer.addToCart(barcode);
+        customer.addProduct(barcode);
         receipt.printReceipt();
         assertNotNull(selfCheckoutStation.printer.removeReceipt());
     }
