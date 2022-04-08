@@ -149,6 +149,25 @@ public class Customer extends User {
 		return Collections.unmodifiableMap(map);
 	}
 
+	/**
+	 * Returns a triple containing the key of the product, the product itself and the weight of the product
+	 * 
+	 * @return Triple<Product>
+	 */
+	public List<Triple<Product>> getCartWithKeyAndWeight() {
+		List<Triple<Product>> list = new ArrayList<Triple<Product>>();
+
+		for (Triple<PLUCodedProduct> triple : this.plucodedProducts) {
+			list.add(new Triple<Product>(triple.getProduct(), triple.getWeight(), triple.getKey()));
+		}
+
+		for (Triple<BarcodedProduct> triple : this.barcodedProducts) {
+			list.add(new Triple<Product>(triple.getProduct(), triple.getWeight(), triple.getKey()));
+		}
+
+		return Collections.unmodifiableList(list);
+	}
+
 	public void setMemberID(String memberID) {
 		this.memberID = memberID;
 	}
