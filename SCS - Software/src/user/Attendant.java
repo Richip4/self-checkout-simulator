@@ -1,12 +1,7 @@
 package user;
 
-import org.lsmr.selfcheckout.PriceLookupCode;
-import org.lsmr.selfcheckout.devices.OverloadException;
-import org.lsmr.selfcheckout.products.Product;
-
 import application.AppControl;
 import software.SelfCheckoutSoftware;
-import store.Inventory;
 
 /**
  * This class represents the attendant and their actions.
