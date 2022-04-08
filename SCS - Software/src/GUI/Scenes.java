@@ -33,9 +33,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import org.lsmr.selfcheckout.BarcodedItem;
-import org.lsmr.selfcheckout.Item;
-import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
@@ -63,9 +60,6 @@ public class Scenes {
 	
 	private final GUI gui;
 	private static JFrame filterFrame = new JFrame();
-	
-	// n self-checkout stations and 1 attendant station
-	private final int totalNumberOfStations = Tangibles.SUPERVISION_STATION.supervisedStationCount() + 1;
 	
 	// reference to the current station we are interacting with
 	// 0 = attendant station; 1-6 = self checkout 1-6; -1 = not at a station
@@ -142,7 +136,7 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, xResolution, yResolution);			
 
 			// include a banner for navigation
-			JPanel banner = generateBanner(scene, false);
+			generateBanner(scene, false);
 			
 			// This overview scene should be the only scene to 
 			// terminate the actual program.  Set a window
@@ -183,11 +177,6 @@ public class Scenes {
 				sbn[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 				sbn[i].addActionListener(this);
 
-
-				// We can actually set client attribute and pass it to action listener
-				// Eg, pass in the self-checkout software object, so action listener can
-				// directly do operation on the software object. Think this would make be
-				// helpful and make a lot of logic easier to follow. -Yunfan FIXME:
 				sbn[i].putClientProperty("station-id", i+1); // add one to record station instead of index
 				sbn[i].putClientProperty("station-scss", scssList.get(i));
 
@@ -210,6 +199,7 @@ public class Scenes {
 			abn.setBounds(40, 35, 140, 25);
 			abn.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			abn.addActionListener(this);
+			abn.putClientProperty("station-id", 0);
 			as.add(abn); // add attendant selection button to it's panel
 
 			// add the swing components to the main content panel
@@ -233,9 +223,9 @@ public class Scenes {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == abn) { // attendant station
+			if (e.getSource() == abn && gui.userApproachesStation(0)) { // attendant station
 				setCurrentStation(0);
-				gui.userApproachesStation(0);
+				
 			} else {
 				// self-checkout stations
 				
@@ -244,8 +234,8 @@ public class Scenes {
 				// is not a JButton.  Something to keep in mind if an error occurs.
 				int station = (int) ((JButton) e.getSource()).getClientProperty("station-id");
 
-				setCurrentStation(station);
-				gui.userApproachesStation(station);
+				if (gui.userApproachesStation(station))	
+					setCurrentStation(station);
 			}
 		}
 	}
@@ -273,7 +263,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 600);
 
-			JPanel banner = generateBanner(scene, false);
+			generateBanner(scene, false);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -444,7 +434,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 800, 650);
 
-			JPanel banner = generateBanner(scene, false);
+			generateBanner(scene, false);
 
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -524,8 +514,6 @@ public class Scenes {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: time permitting - use setClientProperty to assign 
-			// 		button station id's instead of looping through all stations
 			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
 				if (e.getSource() == station_block[i]) {
 					gui.attendantBlockToggle(i);
@@ -559,7 +547,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 750, 500);
 
-			JPanel banner = generateBanner(scene, true);
+			generateBanner(scene, true);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -672,7 +660,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
 
-			JPanel banner = generateBanner(scene, true);
+			generateBanner(scene, true);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -758,7 +746,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 600, 400);
 
-			JPanel banner = generateBanner(scene, true);
+			generateBanner(scene, true);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -822,13 +810,13 @@ public class Scenes {
 			bnStorage.setOpaque(true);
 			
 			bnEmptyStorage = new JButton();
-			bnEmptyStorage.setBounds(15, 10, 230, 45);
+			bnEmptyStorage.setBounds(10, 10, 230, 45);
 			bnEmptyStorage.setText("EMPTY BANKNOTE STORAGE");
 			bnEmptyStorage.addActionListener(this);
 			bnStorage.add(bnEmptyStorage);
 	
 			bnFillStorage = new JButton();
-			bnFillStorage.setBounds(15, 70, 230, 45);
+			bnFillStorage.setBounds(10, 70, 230, 45);
 			bnFillStorage.setText("FILL BANKNOTE STORAGE");
 			bnFillStorage.addActionListener(this);
 			bnStorage.add(bnFillStorage);
@@ -843,13 +831,13 @@ public class Scenes {
 			coinStorage.setOpaque(true);
 			
 			coinEmptyStorage = new JButton();
-			coinEmptyStorage.setBounds(15, 10, 230, 45);
+			coinEmptyStorage.setBounds(10, 10, 230, 45);
 			coinEmptyStorage.setText("EMPTY COIN STORAGE");
 			coinEmptyStorage.addActionListener(this);
 			coinStorage.add(coinEmptyStorage);
 	
 			coinFillStorage = new JButton();
-			coinFillStorage.setBounds(15, 70, 230, 45);
+			coinFillStorage.setBounds(10, 70, 230, 45);
 			coinFillStorage.setText("FILL COIN STORAGE");
 			coinFillStorage.addActionListener(this);
 			coinStorage.add(coinFillStorage);
@@ -891,9 +879,10 @@ public class Scenes {
 	Color green_light = new Color(80, 225, 80);
 	
 	/**
-	 * 
-	 * @param station
-	 * @return
+	 * Checks if the station provided is in a state that requires the 
+	 * attendants attention.  
+	 * @param station - index of the station to check
+	 * @return a green Color if the station does not require attendants attention, a red Color otherwise
 	 */
 	private Color checkStationAttention(int station) {
 		return (gui.stationStatus(station) != "BLOCKED" && gui.stationStatus(station) != "WEIGHT DISCREPANCY" &&
@@ -901,15 +890,17 @@ public class Scenes {
 	}
 	
 	/**
-	 * 
-	 * @param msg
+	 * Sends a keypad prompt to the user to input a number.
+	 * A message is passed along to the keypad.
+	 * @param msg - message to display to the user
 	 */
 	public void getNumberFromUser(String msg) {
 		new Keypad(msg, this);
 	}
 
 	/**
-	 * 
+	 * Displays a window with self checkout station options that only
+	 * a logged in attendant can do.
 	 */
 	public void stationAttendantOptions() {
 		JFrame authorizedWindow = new JFrame();
@@ -952,9 +943,9 @@ public class Scenes {
 	}
 
 	/**
-	 * 
-	 * @param station
-	 * @return
+	 * Checks if a station is in the BLOCKED state or not.
+	 * @param station - index of station to check
+	 * @return "UNBLOCK" if the station IS blocked, "BLOCK" otherwise
 	 */
 	private String checkBlockStatus(int station) {
 		return (gui.stationStatus(station) == "BLOCKED") 
@@ -962,13 +953,20 @@ public class Scenes {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Ask the user is they are a customer or attendant
+	 * @return 0 if the user responds as a customer, 1 if they respond as an attendant
 	 */
 	private static int promptForUserType() {
 		String[] userTypes = {"Customer", "Attendant" };
-		return JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
-				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0); 
+		int answer = JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
+				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0);
+		
+		while (answer == -1) {
+			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
+					"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0);
+		}
+		
+		return answer;
 	}
 	
 	/**

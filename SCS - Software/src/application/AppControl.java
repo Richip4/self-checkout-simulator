@@ -410,7 +410,7 @@ public class AppControl {
 		return null;
 	}
 
-	public boolean isAtendantLoggedIn() {
+	public boolean isAttendantLoggedIn() {
 		return supervisorSoftware.isLoggedIn();
 	}
 

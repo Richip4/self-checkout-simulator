@@ -56,30 +56,43 @@ public class GUI {
 	 * checks if the provided station is free to use by the
 	 * active user before letting them proceed.
 	 * @param station - the specific station index
+	 * @return true if station is free, false otherwise
 	 */
-	public void userApproachesStation(int station) {
+	public boolean userApproachesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			if (station == 0) { // this is the attendant's station
 				errorMsg("You are not authorized to view the attendant station.");
+				return false;
 			} else if (ac.getUserAt(station) != null) { 
 				if (ac.getUserAt(station).getUserType() == AppControl.ATTENDANT) {
 					errorMsg("Station being serviced");
+					return false;
 				} else if (ac.getUserAt(station).getUserType() == AppControl.CUSTOMER) {
 					errorMsg("A customer is already using this station");
+					return false;
 				} 
 			} else {
-				System.out.println("Station " + station);
 				ac.customerUsesStation(station);
 				scenes.getScene(Scenes.SCS_OVERVIEW);
+				return true;
 			}
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			if (station == 0) { // this is the attendant's station
 				scenes.getScene(Scenes.AS_TOUCH);
+				return true;
 			} else {
-				ac.attendantUsesStation(station);
-				scenes.getScene(Scenes.SCS_OVERVIEW);				
+				if (ac.isAttendantLoggedIn()) {
+					ac.attendantUsesStation(station);
+					scenes.getScene(Scenes.SCS_OVERVIEW);
+					return true;
+				} else {
+					errorMsg("Please log in at the attendant station");
+					return false;
+				}
 			}
 		}
+		
+		return false;
 	}
 
 	public void userLeavesStation(int station) {
@@ -377,7 +390,9 @@ public class GUI {
 	 */
 	private void updateScene(int station) {
 		scenes.setCurrentStation(station);
-		if (station == 0) {
+		if (station == -1) {
+			return;
+		} else if (station == 0) {
 			scenes.getScene(Scenes.AS_TOUCH);
 		} else {
 			scenes.getScene(Scenes.SCS_OVERVIEW);
@@ -385,6 +400,6 @@ public class GUI {
 	}
 
 	public boolean isAttendantLoggedIn() {
-		return ac.isAtendantLoggedIn();
+		return ac.isAttendantLoggedIn();
 	}
 }
