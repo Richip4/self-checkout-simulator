@@ -54,7 +54,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 */
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		this.currentWeight = 0.0;
+		resetScale();;
 		this.scaleOverloaded = false;
 	}
 
@@ -178,6 +178,15 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			return;
 		}
 
+		if(this.scss.getPhase() == Phase.PAYMENT_COMPLETE)
+		{
+			if(weightInGrams == 0.0)
+			{
+				this.scss.checkoutComplete();
+			}
+			return;
+		}
+
 		// Get the weight of the bag and store it, if the customer is trying to add
 		// their own bag to the bagging area
 		if (this.scss.getPhase() == Phase.PLACING_OWN_BAG) {
@@ -234,6 +243,12 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		this.currentWeight = weightInGrams;
 		this.expectedWeight = 0.0;
 		this.scss.addItem(); // Go back to add item phase
+	}
+
+	public void resetScale()
+	{
+		this.currentWeight = 0.0;
+		this.expectedWeight = 0.0;
 	}
 
 	@Override
