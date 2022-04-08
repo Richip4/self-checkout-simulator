@@ -356,14 +356,23 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.checkout.checkout(method);
     }
 
-    public void checkoutComplete()
+    public void paymentCompleted()
     {
         if (this.phase != Phase.PROCESSING_PAYMENT) {
-            throw new IllegalStateException("Cannot have a completed checkout without a processed payment");
+            throw new IllegalStateException("Cannot have a completed payment without a processed payment");
         }
 
         this.setPhase(Phase.PAYMENT_COMPLETE);
+    }
+    
+    public void checkoutComplete()
+    {
+        if (this.phase != Phase.PAYMENT_COMPLETE) {
+            throw new IllegalStateException("Cannot have a completed checkout without a completeted payment");
+        }
+        
         this.processItemHandler.resetScale();
+        idle();
     }
 
     /**
