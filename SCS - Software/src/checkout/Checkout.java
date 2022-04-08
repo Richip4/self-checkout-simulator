@@ -196,7 +196,7 @@ public class Checkout {
 		}
 
 		// Calculate how much change to return to customer
-		BigDecimal change = this.customer.getAccumulatedCurrency().subtract(this.customer.getCartSubtotal());
+		BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
 
 		// No change needs to be returned to customer
 		if (change.equals(BigDecimal.ZERO)) {
