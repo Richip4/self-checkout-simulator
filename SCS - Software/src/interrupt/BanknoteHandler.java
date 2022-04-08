@@ -85,6 +85,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scs.banknoteInput.detach(this);
 		this.scs.banknoteOutput.detach(this);
 		this.scs.banknoteValidator.detach(this);
+		this.scs.banknoteDispensers.forEach((k, v) -> v.detach(this));
 	}
 
 	/**
