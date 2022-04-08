@@ -35,7 +35,9 @@ import javax.swing.border.EtchedBorder;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
 import application.Main.Tangibles;
@@ -637,7 +639,6 @@ public class Scenes {
 					// prompt attendant for password
 					// they must already be logged in to the attendant station
 					if (promptAttendantForPassword()) {
-						System.out.println("correct attendant password");
 						stationAttendantOptions();
 					}
 				}
@@ -907,6 +908,7 @@ public class Scenes {
 		JFrame authorizedWindow = new JFrame();
 		
 		JPanel options = preprocessScene(authorizedWindow, 300, 300);
+		options.setLayout(null);
 		
 		// remove previously processed item
 		JButton removeItem = new JButton();
@@ -1121,15 +1123,16 @@ public class Scenes {
 	 * 
 	 */
 	public void promptRemoveItems() {
-		List<Item> customersItems = Tangibles.ITEMS;
-		Vector<String> items = new Vector<>();
-		customersItems.forEach(item -> {
-			if (item instanceof PLUCodedItem) {
-				PLUCodedItem pluItem = (PLUCodedItem) item;
-				items.add(Inventory.getProduct(pluItem.getPLUCode()).getDescription());
-			} else if (item instanceof BarcodedItem) {
-				BarcodedItem barItem = (BarcodedItem) item;
-				items.add(Inventory.getProduct(barItem.getBarcode()).getDescription());
+		List<Product> customerCart = gui.getBaggedItems(currentStation);
+		
+		Vector<String> products = new Vector<>();
+		customerCart.forEach(product -> {
+			if (product instanceof PLUCodedProduct) {
+				PLUCodedProduct pluProduct = (PLUCodedProduct) product;
+				products.add(Inventory.getProduct(pluProduct.getPLUCode()).getDescription());
+			} else if (product instanceof BarcodedProduct) {
+				BarcodedProduct barProduct = (BarcodedProduct) product;
+				products.add(Inventory.getProduct(barProduct.getBarcode()).getDescription());
 			}
 		});
 		
@@ -1144,21 +1147,21 @@ public class Scenes {
 		panel.setBackground(new Color(210, 207, 210));
 		panel.setLayout(null); 	
 		
-		JComboBox<String> dropMenu = new JComboBox<>(items);
+		JComboBox<String> dropMenu = new JComboBox<>(products);
 		dropMenu.setBounds(40, 60, 120, 30);
 		dropMenu.setFont(new Font("Arial", Font.PLAIN, 14));
 		panel.add(dropMenu);
 		
 		JButton remove = new JButton();
-		remove.setBounds(50, 20, 100, 30);
+		remove.setBounds(40, 20, 120, 30);
 		remove.setHorizontalAlignment(JButton.CENTER);
-		remove.setFont(new Font("Arial", Font.PLAIN, 16));
+		remove.setFont(new Font("Arial", Font.PLAIN, 12));
 		remove.setText("REMOVE");
 		remove.setFocusable(false);
 		remove.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				gui.removeItem(customersItems.get(dropMenu.getSelectedIndex()));
+				gui.removeItem(currentStation, dropMenu.getSelectedIndex());
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			}
 		});

@@ -125,7 +125,7 @@ public final class Main {
         Inventory.addProduct(p6);
 
         // Add 10 items for each product
-        for (int t = 0; t < 10; t++) {
+        for (int t = 0; t < 2; t++) {
             PLUCodedItem pi1 = new PLUCodedItem(plu1, 4);
             PLUCodedItem pi2 = new PLUCodedItem(plu2, 2.5);
             PLUCodedItem pi3 = new PLUCodedItem(plu3, 3.2);
@@ -231,8 +231,17 @@ public final class Main {
         Attendant a2 = new Attendant();
         a2.setLogin(username2, password2);
         
+        // for ease of testing
+        String username3 = "a";
+        String password3 = "a";
+        CredentialsSystem.addAccount(username3, password3);
+        Attendant a3 = new Attendant();
+        a3.setLogin(username3, password3);
+        
         Tangibles.ATTENDANTS.add(a1);
         Tangibles.ATTENDANTS.add(a2);
+        
+        Tangibles.ATTENDANTS.add(a3);
     }
 
     public static Store getStore() {

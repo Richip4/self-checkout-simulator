@@ -5,7 +5,9 @@ import java.util.List;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
+import org.lsmr.selfcheckout.products.Product;
 
+import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
 import software.SelfCheckoutSoftware.Phase;
@@ -320,9 +322,9 @@ public class AppControl {
 		
 	}
 
-	public void removeItemFromCustomersCart(Item item) {
-		// TODO Auto-generated method stub
-		
+	public void removeItemFromCustomersCart(int station, int item) {
+		List<Product> cart = selfStationSoftwares.get(station).getCustomer().getCart();
+		cart.remove(item);
 	}
 
 	/**
@@ -332,7 +334,6 @@ public class AppControl {
 	 * @return true if log in was successful, false otherwise
 	 */
 	public boolean attendantLogin(String name, String password) {
-		System.out.println(name + "  " + password);
 		try {
 			supervisorSoftware.login(name, password);
 			activeUser = supervisorSoftware.getAttendant();
@@ -355,5 +356,14 @@ public class AppControl {
 			return (CredentialsSystem.checkLogin(a.getUsername(), password)) ? true : false;
 		}
 		return false;
+	}
+
+	public List<Product> getCustomerCart(int station) {
+		Customer c = selfStationSoftwares.get(station).getCustomer();
+		if (c != null) {
+			return c.getCart();
+		}
+		
+		return null;
 	}
 }

@@ -1,9 +1,12 @@
 package GUI;
 
+import java.util.List;
+
 import javax.swing.JOptionPane;
 
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
 import user.User;
@@ -113,10 +116,8 @@ public class GUI {
 	}
 
 	public void userServicesStation(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			// we assume the attendant has the key to the station
 			scenes.getScene(Scenes.SCS_MAINTENANCE);
 		}
 	}
@@ -331,8 +332,8 @@ public class GUI {
 		return ac.attendantPassword(password);
 	}
 
-	public void removeItem(Item item) {
-		ac.removeItemFromCustomersCart(item);
+	public void removeItem(int station, int index) {
+		ac.removeItemFromCustomersCart(station, index);
 	}
 
 	public void shutdownStation() {
@@ -343,5 +344,9 @@ public class GUI {
 	public boolean attendantLogin(String name, String password) {
 		
 		return ac.attendantLogin(name, password);
+	}
+
+	public List<Product> getBaggedItems(int station) {
+		return ac.getCustomerCart(station);
 	}
 }

@@ -112,7 +112,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 		if(CredentialsSystem.checkLogin(username, password)) {
 			this.logged_in = true;
 			Tangibles.ATTENDANTS.forEach( att -> {
-				if (att.getUsername() == username && att.getPassword() == password) {
+				if (att.getUsername().equals(username) && att.getPassword().equals(password)) {
+					System.out.println("supervision station attendant updated");
 					this.attendant = att;
 					return;
 				}
