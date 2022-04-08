@@ -25,8 +25,8 @@ public class Attendant extends User {
  * remove item if it is in cart
  * if item is not in cart, ignore and move on
  */
-	public void removeProduct(SelfCheckoutSoftware software, int index) {	
-		software.getCustomer().removeProduct(index);
+	public void removeProduct(SelfCheckoutSoftware software, int key) {	
+		software.getCustomer().removeProduct(key);
 	}
 	
 	/**
