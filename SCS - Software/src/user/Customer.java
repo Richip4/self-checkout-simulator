@@ -21,10 +21,15 @@ public class Customer extends User {
 		private Double weight;
 		private Integer key;
 
-		private Triple(T product, Double weight, Integer index) {
+		private Triple(T product, Double weight) {
 			this.product = product;
 			this.weight = weight;
-			this.key = index;
+		}
+
+		private Triple(T product, Double weight, Integer key) {
+			this.product = product;
+			this.weight = weight;
+			this.key = key;
 		}
 
 		public T getProduct() {
