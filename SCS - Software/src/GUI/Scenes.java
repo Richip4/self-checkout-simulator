@@ -13,11 +13,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -25,6 +25,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -33,7 +35,6 @@ import javax.swing.border.EtchedBorder;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
-import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 import application.AppControl;
@@ -633,9 +634,10 @@ public class Scenes {
 				gui.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
 				if (gui.stationAttendantAccess()) {
-					int password = 0;// prompt attendant for password
-					// they must already be signed in to the attendant station
-					if (gui.addendantPassword(password)) {
+					// prompt attendant for password
+					// they must already be logged in to the attendant station
+					if (promptAttendantForPassword()) {
+						System.out.println("correct attendant password");
 						stationAttendantOptions();
 					}
 				}
@@ -898,6 +900,9 @@ public class Scenes {
 		new Keypad(msg, this);
 	}
 
+	/**
+	 * 
+	 */
 	public void stationAttendantOptions() {
 		JFrame authorizedWindow = new JFrame();
 		
@@ -968,12 +973,49 @@ public class Scenes {
 	}
 	
 	/**
-	 * Prompts the attendant for a log in number.
-	 * Accepts literally any sequence of numbers.
+	 * Prompts the attendant for a username and password.
+	 * Used when the attendant approaches the attendant station
+	 * and no one else is logged in.
+	 * @return true if username and password exist
 	 */
-	private void promptAttendantForLogIn() {
-		// TODO: change to accept username + password
-		// 		check if attendant is already logged in first
+	private boolean promptAttendantForLogIn() {
+		Box box = Box.createVerticalBox();
+		
+	    JLabel namePrompt = new JLabel("  Username");	   
+		JTextField name = new JTextField(20);
+		box.add(namePrompt);
+		box.add(name);
+		
+		JLabel passwordPrompt = new JLabel("  Password");
+	    JPasswordField password = new JPasswordField(20);
+	    box.add(passwordPrompt);
+	    box.add(password);
+	    
+	    JOptionPane.showConfirmDialog(null, box, "Attendant Log in", JOptionPane.OK_CANCEL_OPTION);
+	    
+	    return gui.attendantLogin( name.getText(), new String(password.getPassword()));
+	}
+	
+	/**
+	 * Prompts the attendant for a password.
+	 * Attendant must already be logged in via the 
+	 * attendant station.  
+	 * Used when the user attempts to access attendant 
+	 * controls on the selfcheckout station or attendant
+	 * goes back to the attendant station.
+	 * @return true if password matches logged in attendant
+	 */
+	private boolean promptAttendantForPassword() {
+		Box box = Box.createVerticalBox();
+
+		JLabel passwordPrompt = new JLabel("  Password");
+	    JPasswordField password = new JPasswordField(20);
+	    box.add(passwordPrompt);
+	    box.add(password);
+	    
+	    JOptionPane.showConfirmDialog(null, box, "Credentials Required", JOptionPane.OK_CANCEL_OPTION);
+	    
+	    return gui.attendantPassword(new String(password.getPassword()));
 	}
 	
 	/**
@@ -1075,6 +1117,9 @@ public class Scenes {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public void promptRemoveItems() {
 		List<Item> customersItems = Tangibles.ITEMS;
 		Vector<String> items = new Vector<>();
@@ -1124,6 +1169,9 @@ public class Scenes {
 		window.setVisible(true);
 	}
 	
+	/**
+	 * 
+	 */
 	public void promptSelectItems() {
 		ArrayList<PLUCodedProduct> pluItems = new ArrayList<>(Inventory.getPLUProducts().values());
 		Vector<String> items = new Vector<>();
@@ -1165,6 +1213,10 @@ public class Scenes {
 		window.setVisible(true);
 	}
 
+	/**
+	 * 
+	 * @param number
+	 */
 	public void keypadReturnValue(int number) {
 		if (expectingPLUCode) {
 			gui.userEntersPLUCode(number);

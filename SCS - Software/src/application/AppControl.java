@@ -11,6 +11,8 @@ import software.SupervisionSoftware;
 import software.SelfCheckoutSoftware.Phase;
 import store.Store;
 import store.credentials.AuthorizationRequiredException;
+import store.credentials.CredentialsSystem;
+import store.credentials.IncorrectCredentialException;
 import user.Attendant;
 import user.Customer;
 import user.User;
@@ -27,6 +29,7 @@ public class AppControl {
 	public static final int CREDIT = 0;
 	public static final int DEBIT = 1;
 	public static final int MEMBERSHIP = 2;
+	public static final int GIFTCARD = 3;
 
 	// the attendant station that oversees the self-checkout stations
 	private static SupervisionStation supervisor;
@@ -320,5 +323,37 @@ public class AppControl {
 	public void removeItemFromCustomersCart(Item item) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	/**
+	 * Attempts to log in the user as an attendant.
+	 * @param name input username from user
+	 * @param password input password from user
+	 * @return true if log in was successful, false otherwise
+	 */
+	public boolean attendantLogin(String name, String password) {
+		System.out.println(name + "  " + password);
+		try {
+			supervisorSoftware.login(name, password);
+			activeUser = supervisorSoftware.getAttendant();
+			return true;
+		} catch (IncorrectCredentialException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if the password provided matches the attendant
+	 * currently logged in to the attendant station.
+	 * @param password
+	 * @return true if password is valid, false otherwise
+	 */
+	public boolean attendantPassword(String password) {
+		Attendant a = supervisorSoftware.getAttendant(); 
+		if (a != null) {
+			return (CredentialsSystem.checkLogin(a.getUsername(), password)) ? true : false;
+		}
+		return false;
 	}
 }

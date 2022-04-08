@@ -6,9 +6,6 @@ import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
 import application.AppControl;
-import application.Main.Tangibles;
-import software.SelfCheckoutSoftware.Phase;
-import store.Inventory;
 import user.User;
 
 public class GUI {
@@ -329,9 +326,9 @@ public class GUI {
 		
 	}
 
-	public boolean addendantPassword(int password) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean attendantPassword(String password) {
+		
+		return ac.attendantPassword(password);
 	}
 
 	public void removeItem(Item item) {
@@ -341,5 +338,10 @@ public class GUI {
 	public void shutdownStation() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public boolean attendantLogin(String name, String password) {
+		
+		return ac.attendantLogin(name, password);
 	}
 }

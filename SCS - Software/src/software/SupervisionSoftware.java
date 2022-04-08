@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
-
+import application.Main.Tangibles;
 import store.credentials.AuthorizationRequiredException;
 import store.credentials.CredentialsSystem;
 import store.credentials.IncorrectCredentialException;
@@ -54,11 +54,14 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * Sets the attendant. It's here because sometimes we don't have an immediate attendant
 	 * at start up or attendant can change.
 	 * @param attendant
+	 * 
+	 * I don't think this is relevant since we shouldn't have an Attendant present 
+	 * unless they've already logged in.  A successful log in should set the attendant.
 	 */
-    public void setAttendant(Attendant attendant){
-        this.attendant = attendant;
-        this.logged_in = false;
-    }
+//    public void setAttendant(Attendant attendant){
+//        this.attendant = attendant;
+//        this.logged_in = false;
+//    }
 
     public void add(SelfCheckoutSoftware software) {
         this.softwareList.add(software);
@@ -93,6 +96,27 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 		
 		if(CredentialsSystem.checkLogin(username, password)) {
 			this.logged_in = true;
+		} else {
+			throw new IncorrectCredentialException("Attendant credential is invalid");
+		}
+	}
+	
+	/**
+	 * Given a username and password, checks if they exist in the database and then
+	 * sets the stations attendant to the matching attendant stored in Tangibles.
+	 * @param username provided from the user via gui
+	 * @param password provided from the user via gui
+	 * @throws IncorrectCredentialException
+	 */
+	public void login(String username, String password) throws IncorrectCredentialException {
+		if(CredentialsSystem.checkLogin(username, password)) {
+			this.logged_in = true;
+			Tangibles.ATTENDANTS.forEach( att -> {
+				if (att.getUsername() == username && att.getPassword() == password) {
+					this.attendant = att;
+					return;
+				}
+			});
 		} else {
 			throw new IncorrectCredentialException("Attendant credential is invalid");
 		}

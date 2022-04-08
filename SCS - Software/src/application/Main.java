@@ -218,12 +218,11 @@ public final class Main {
 
     private static void initializeCredentialsSytem() {
         String username1 = "Sharjeel";
-        String username2 = "Richi";
-
         String password1 = "1234";
-        String password2 = "123password";
-
         CredentialsSystem.addAccount(username1, password1);
+
+        String username2 = "Richi";
+        String password2 = "123password";
         CredentialsSystem.addAccount(username2, password2);
         
         Attendant a1 = new Attendant();
