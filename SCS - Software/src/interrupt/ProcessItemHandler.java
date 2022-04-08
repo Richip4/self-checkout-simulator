@@ -178,6 +178,10 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			return;
 		}
 
+		if(this.scss.getPhase() == Phase.PAYMENT_COMPLETE)
+		{
+
+		}
 		// Get the weight of the bag and store it, if the customer is trying to add
 		// their own bag to the bagging area
 		if (this.scss.getPhase() == Phase.PLACING_OWN_BAG) {
@@ -239,6 +243,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	public void resetScale()
 	{
 		this.currentWeight = 0.0;
+		this.expectedWeight = 0.0;
 	}
 
 	@Override
