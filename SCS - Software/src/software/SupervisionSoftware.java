@@ -142,6 +142,14 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	public void logout() {
 		this.logged_in = false;
 	}
+	
+	/**
+	 * Check whether an attendant is logged into the supervision station
+	 * @return
+	 */
+	public boolean isLoggedIn() {
+		return logged_in;
+	}
 
 	/**
 	 * Given the hardware, we need to start up the station for use. Assuming that

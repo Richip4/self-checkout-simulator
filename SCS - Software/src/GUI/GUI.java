@@ -28,10 +28,12 @@ public class GUI {
 	 * only one attendant can be allowed at one time
 	 * 
 	 * @param newUserType
+	 * @return true if user successfully added, false otherwise
 	 */
-	public void newUser(int newUserType) {
+	public boolean newUser(int newUserType) {
 		if (newUserType == AppControl.CUSTOMER) {
 			ac.addNewCustomer();
+			return true;
 		} else if (newUserType == AppControl.ATTENDANT) {
 			// check list of users for an existing attendant
 			User[] users = ac.getActiveUsers();
@@ -39,13 +41,15 @@ public class GUI {
 			for (int i = 0; i < users.length; i++) {
 				if (users[i] != null && users[i].getUserType() == AppControl.ATTENDANT) {
 					errorMsg("An Attendant is already on duty. Sorry.");
-					return;
+					return false;
 				}
 			}
 			
 			// no attendant found, add a new one
 			ac.addNewAttendant();
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -70,7 +74,6 @@ public class GUI {
 			}
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			if (station == 0) { // this is the attendant's station
-				ac.attendantUsesSupervisionStation();
 				scenes.getScene(Scenes.AS_TOUCH);
 			} else {
 				ac.attendantUsesStation(station);
@@ -348,5 +351,40 @@ public class GUI {
 
 	public List<Product> getBaggedItems(int station) {
 		return ac.getCustomerCart(station);
+	}
+
+	/**
+	 * Simulate the user at the previous station
+	 */
+	public void selectPreviousUser() {
+		System.out.println("Select prev user");
+		ac.prevActiveUser();
+		updateScene(ac.getActiveUsersStation());
+	}
+
+	/**
+	 * Simulate the user at the next station
+	 */
+	public void selectNextUser() {
+		System.out.println("Select next user");
+		ac.nextActiveUser();
+		updateScene(ac.getActiveUsersStation());
+	}
+	
+	/**
+	 * Take me to the scene of the currently selected user.
+	 * @param station
+	 */
+	private void updateScene(int station) {
+		scenes.setCurrentStation(station);
+		if (station == 0) {
+			scenes.getScene(Scenes.AS_TOUCH);
+		} else {
+			scenes.getScene(Scenes.SCS_OVERVIEW);
+		}
+	}
+
+	public boolean isAttendantLoggedIn() {
+		return ac.isAtendantLoggedIn();
 	}
 }

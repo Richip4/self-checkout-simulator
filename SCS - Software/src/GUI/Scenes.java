@@ -3,6 +3,7 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -66,7 +67,8 @@ public class Scenes {
 	// n self-checkout stations and 1 attendant station
 	private final int totalNumberOfStations = Tangibles.SUPERVISION_STATION.supervisedStationCount() + 1;
 	
-	// reference to the latest station we interact with
+	// reference to the current station we are interacting with
+	// 0 = attendant station; 1-6 = self checkout 1-6; -1 = not at a station
 	private int currentStation;
 	
 	private Color defaultBackground = new Color(220, 227, 230);
@@ -77,10 +79,12 @@ public class Scenes {
 	}
 	
 	public int getCurrentStation() {
+		System.out.println("Get Station: " + currentStation);
 		return currentStation;
 	}
 
 	public void setCurrentStation(int currentStation) {
+		System.out.println("Set Station: " + currentStation);
 		this.currentStation = currentStation;
 	}
 	
@@ -96,6 +100,7 @@ public class Scenes {
 		
 		if (scene == SC_OVERVIEW) {
 			
+			setCurrentStation(-1);
 			return new SC_Overview_Scene().getScene();
 			
 		} else if (scene == AS_TOUCH) {
@@ -105,15 +110,19 @@ public class Scenes {
 		} else if (scene == SCS_OVERVIEW) {
 			
 			return new SCS_Overview_Scene().getScene();
+			
 		} else if (scene == SCS_TOUCH) {
 			
 			return new SCS_Touch_Scene().getScene();
+			
 		} else if (scene == SCS_CARDREADER) {
 			
 			return new SCS_Cardreader_Scene().getScene();
+			
 		} else if (scene == SCS_MAINTENANCE) {
 			
 			return new SCS_Maintenance_Scene().getScene();
+			
 		}
 		
 		return null;
@@ -213,8 +222,11 @@ public class Scenes {
 			this.setVisible(true);
 
 			// prompt the user to reply with what type of user they are
-			int newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
-			gui.newUser(newUserType);
+			int newUserType;
+			do {
+				newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
+			}
+			while (!gui.newUser(newUserType));
 
 			return this;
 		}
@@ -262,14 +274,6 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, 900, 600);
 
 			JPanel banner = generateBanner(scene);
-			
-			// Closing this scene means this user is no 
-			// longer using the self-checkout station
-			this.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					gui.userLeavesStation(getCurrentStation());
-				}
-			});
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -509,8 +513,11 @@ public class Scenes {
 			
 			this.setVisible(true);
 			
-			setDimmingFilter();
-			promptAttendantForLogIn();
+			// only prompt attendant to log in if not already done so
+			if (!gui.isAttendantLoggedIn())	{
+				setDimmingFilter();
+				promptAttendantForLogIn();
+			}
 			
 			return this;
 		}
@@ -1046,7 +1053,8 @@ public class Scenes {
 	}
 	
 	/**
-	 * 
+	 * Creates a banner at the top of the window for navigation 
+	 * and information display.  Allows switching between users.
 	 * 
 	 * @param p - panel with BorderLayout
 	 * @return the banner created for any further customizations
@@ -1061,11 +1069,66 @@ public class Scenes {
 		JFrame window = (JFrame) SwingUtilities.getWindowAncestor(p);
 		
 		JButton exit = new JButton();
-		exit.addActionListener(e -> window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING)));
+		exit.addActionListener(e -> {
+			if (getCurrentStation() != -1) {
+				gui.userLeavesStation(getCurrentStation());
+				setCurrentStation(-1);
+			}
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		});
 		exit.setFont(new Font("Arial", Font.BOLD, 20));
 		exit.setText("X");
 		exit.setFocusable(false);
 		
+		JPanel swap = new JPanel();
+		swap.setLayout(new FlowLayout(FlowLayout.CENTER, 2, 2));
+		swap.setOpaque(false);
+		
+		JButton prev = new JButton();
+		prev.setPreferredSize(new Dimension(48, 48));
+		prev.setFont(new Font("Arial", Font.BOLD, 18));
+		prev.setText("<");
+		prev.setFocusable(false);
+		prev.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+				gui.selectPreviousUser();
+			}
+		});
+
+		swap.add(prev);
+		
+		JButton newUser = new JButton();
+		newUser.setPreferredSize(new Dimension(80, 48));
+		newUser.setFont(new Font("Arial", Font.BOLD, 18));
+		newUser.setText("NEW");
+		newUser.setFocusable(false);
+		newUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+				int newUserType;
+				do {
+					newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
+				}
+				while (!gui.newUser(newUserType));
+			}
+		});
+		swap.add(newUser);
+		
+		JButton next = new JButton();
+		next.setPreferredSize(new Dimension(48, 48));
+		next.setFont(new Font("Arial", Font.BOLD, 18));
+		next.setText(">");
+		next.setFocusable(false);
+		next.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (getCurrentStation() != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+				gui.selectNextUser();
+			}
+		});
+		swap.add(next);
+		
+		banner.add(swap, BorderLayout.WEST);
 		banner.add(exit, BorderLayout.EAST);
 		
 		p.add(banner, BorderLayout.NORTH);
@@ -1073,14 +1136,15 @@ public class Scenes {
 	}
 	
 	/**
-	 * 
+	 * Resets the dimming filter to cover all currently displayed windows
 	 */
 	private static void setDimmingFilter() {
 		filterFrame.setVisible(true);
 	}
 	
 	/**
-	 * 
+	 * Sets the properties for the JFrame that covers the background
+	 * windows to pull focus towards the current JFrame in focus.
 	 */
 	private static void initDimmingFilter() {
 		filterFrame.setSize(xResolution, yResolution);
@@ -1120,7 +1184,9 @@ public class Scenes {
 	}
 
 	/**
-	 * 
+	 * Displays the list of Products currently processed by this stations
+	 * customer in a drop down menu.  
+	 * This method should only be used by a previously approved attendant.
 	 */
 	public void promptRemoveItems() {
 		List<Product> customerCart = gui.getBaggedItems(currentStation);
@@ -1173,7 +1239,8 @@ public class Scenes {
 	}
 	
 	/**
-	 * 
+	 * Displays the list of PLU coded items to the user in a drop down menu,
+	 * allows them to select one for processing its input
 	 */
 	public void promptSelectItems() {
 		ArrayList<PLUCodedProduct> pluItems = new ArrayList<>(Inventory.getPLUProducts().values());
@@ -1217,7 +1284,8 @@ public class Scenes {
 	}
 
 	/**
-	 * 
+	 * When a Keypad object is created for number input it
+	 * calls this method to handle what the number is for.
 	 * @param number
 	 */
 	public void keypadReturnValue(int number) {

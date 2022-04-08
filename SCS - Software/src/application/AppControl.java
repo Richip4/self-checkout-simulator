@@ -84,12 +84,17 @@ public class AppControl {
 	 */
 	public void nextActiveUser() {
 		for (int i = 0; i < users.length; i++) {
+			//System.out.println("Checking station " + i + " for active user");
 			if (users[i] == activeUser) {
-				if (i < users.length - 1) {
-					activeUser = users[i + 1];
-				} else {
-					activeUser = users[0];
-				}
+				do {
+					//System.out.println("Checking station " + i + " for next valid user");
+					i++;
+					if (i > users.length - 1) {
+						i = 0;
+					}
+					activeUser = users[i];
+				} while (activeUser == null);
+				break;
 			}
 		}
 	}
@@ -99,12 +104,29 @@ public class AppControl {
 	 */
 	public void prevActiveUser() {
 		for (int i = 0; i < users.length; i++) {
+			//System.out.println("Checking station " + i + " for active user");
 			if (users[i] == activeUser) {
-				if (i > 0) {
-					activeUser = users[i - 1];
-				} else {
-					activeUser = users[users.length - 1];
-				}
+				do {
+					//System.out.println("Checking station " + i + " for next valid user");
+					i--;
+					if (i < 0) {
+						i = users.length - 1;
+					}
+					activeUser = users[i];
+				} while (activeUser == null);
+				break;
+			}
+		}
+		for (int i = 0; i < users.length; i++) {
+			if (users[i] == activeUser) { 
+				do {
+					if (i > 0) {
+						activeUser = users[i - 1];
+					} else {
+						activeUser = users[users.length - 1];
+					}
+				} while (activeUser == null);
+				break;
 			}
 		}
 	}
@@ -119,6 +141,31 @@ public class AppControl {
 
 	public User[] getActiveUsers() {
 		return users;
+	}
+	
+	/**
+	 * Checks all the stations to see if the active user is 
+	 * currently at that station.  
+	 * @return the index of the station if found and -1 if 
+	 * 			user is not at a station yet.
+	 */
+	public int getActiveUsersStation() {
+		
+		if (activeUser.getUserType() == ATTENDANT) {
+			// check the attendant station first
+			if (users[0] == activeUser) {
+				return 0;
+			}
+		}
+		
+		// check the self checkout stations
+		for (int i = 1; i < users.length; i++) {
+			if (users[i] == activeUser) {
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 
 	/**
@@ -143,10 +190,6 @@ public class AppControl {
 		selfStationSoftwares.get(station - 1).setUser(activeUser);
 	}
 
-	public void attendantUsesSupervisionStation() {
-
-	}
-
 	/**
 	 * update the stations user type and set the user to null
 	 * 
@@ -164,18 +207,17 @@ public class AppControl {
 	}
 
 	/**
-	 * update the stations user type and set the user to null
+	 * update the stations user type, set the given stations user
+	 * to null and remove the attendant from the self stations
+	 * software if that is where they left from.
 	 * 
 	 * @param station - self-checkout station index to update
 	 */
 	public void attendantLeavesStation(int station) {
 		removeStationUserType(station, ATTENDANT);
-		for (int i = 0; i < users.length; i++) {
-			if (users[i] == activeUser) {
-				users[i] = null;
-				selfStationSoftwares.get(station - 1).removeUser(activeUser);
-				return;
-			}
+		users[station] = null;
+		if (station > 0) {
+			selfStationSoftwares.get(station-1).removeUser(activeUser);
 		}
 	}
 
@@ -337,6 +379,7 @@ public class AppControl {
 		try {
 			supervisorSoftware.login(name, password);
 			activeUser = supervisorSoftware.getAttendant();
+			users[0] = activeUser;
 			return true;
 		} catch (IncorrectCredentialException e) {
 			e.printStackTrace();
@@ -366,4 +409,10 @@ public class AppControl {
 		
 		return null;
 	}
+
+	public boolean isAtendantLoggedIn() {
+		return supervisorSoftware.isLoggedIn();
+	}
+
+
 }
