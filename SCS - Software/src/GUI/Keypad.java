@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import javax.swing.SwingConstants;
@@ -27,6 +28,12 @@ public class Keypad {
 		this.parent = parent;
 		this.value = "";
 		initialize();
+		frame.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+			}
+		});
 		frame.setVisible(true);
 	}
 
@@ -101,7 +108,8 @@ public class Keypad {
 		
 		JButton btnEnter = new JButton("ENTER");
 		btnEnter.addActionListener(e -> {
-			parent.keypadReturnValue(Integer.valueOf(value));
+			if (value.length() > 0) 
+				parent.keypadReturnValue(Integer.valueOf(value));
 			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 		});
 		btnEnter.setFont(new Font("Lucida Grande", Font.BOLD, 12));

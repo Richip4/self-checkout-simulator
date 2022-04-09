@@ -40,7 +40,7 @@ public class GUI {
 			
 			for (int i = 0; i < users.length; i++) {
 				if (users[i] != null && users[i].getUserType() == AppControl.ATTENDANT) {
-					errorMsg("An Attendant is already on duty. Sorry.");
+					Scenes.errorMsg("An Attendant is already on duty. Sorry.");
 					return false;
 				}
 			}
@@ -61,32 +61,35 @@ public class GUI {
 	public boolean userApproachesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			if (station == 0) { // this is the attendant's station
-				errorMsg("You are not authorized to view the attendant station.");
+				Scenes.errorMsg("You are not authorized to view the attendant station.");
 				return false;
 			} else if (ac.getUserAt(station) != null) { 
 				if (ac.getUserAt(station).getUserType() == AppControl.ATTENDANT) {
-					errorMsg("Station being serviced");
+					Scenes.errorMsg("Station being serviced");
 					return false;
 				} else if (ac.getUserAt(station).getUserType() == AppControl.CUSTOMER) {
-					errorMsg("A customer is already using this station");
+					Scenes.errorMsg("A customer is already using this station");
 					return false;
 				} 
 			} else {
 				ac.customerUsesStation(station);
+				scenes.setCurrentStation(station);
 				scenes.getScene(Scenes.SCS_OVERVIEW);
 				return true;
 			}
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			if (station == 0) { // this is the attendant's station
+				scenes.setCurrentStation(station);
 				scenes.getScene(Scenes.AS_TOUCH);
 				return true;
 			} else {
 				if (ac.isAttendantLoggedIn()) {
 					ac.attendantUsesStation(station);
+					scenes.setCurrentStation(station);
 					scenes.getScene(Scenes.SCS_OVERVIEW);
 					return true;
 				} else {
-					errorMsg("Please log in at the attendant station");
+					Scenes.errorMsg("Please log in at the attendant station");
 					return false;
 				}
 			}
@@ -201,11 +204,6 @@ public class GUI {
 			
 		}
 	}
-
-	private static void errorMsg(String msg) {
-		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
-	}
-	
 
 	public void attendantLogsOut() {
 		// TODO Auto-generated method stub
@@ -389,6 +387,7 @@ public class GUI {
 	 * @param station
 	 */
 	private void updateScene(int station) {
+		System.out.println("updated scene " + station);
 		scenes.setCurrentStation(station);
 		if (station == -1) {
 			return;

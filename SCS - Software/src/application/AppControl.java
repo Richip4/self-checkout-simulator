@@ -117,18 +117,6 @@ public class AppControl {
 				break;
 			}
 		}
-		for (int i = 0; i < users.length; i++) {
-			if (users[i] == activeUser) { 
-				do {
-					if (i > 0) {
-						activeUser = users[i - 1];
-					} else {
-						activeUser = users[users.length - 1];
-					}
-				} while (activeUser == null);
-				break;
-			}
-		}
 	}
 
 	public User getActiveUser() {
@@ -177,6 +165,8 @@ public class AppControl {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
 		selfStationSoftwares.get(station - 1).setUser(activeUser);
+		
+		// randomly populate this customers inventory with the stores products
 	}
 
 	/**

@@ -2,6 +2,7 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -125,23 +126,29 @@ public class Scenes {
 	// #######################################################################
 	// Self-Checkout Overview Scene
 	// #######################################################################
-	private class SC_Overview_Scene extends JFrame  implements ActionListener {
+	private class SC_Overview_Scene extends JFrame  implements ActionListener, MouseListener {
 	
 		// Self-Checkout Overview interactable componenets
 		JButton[] sbn; // station buttons
 		JButton abn; // attendant button
+		
+		JLabel banner_info = new JLabel();
+		JLabel banner_title = new JLabel();
 		
 		public JFrame getScene() {
 			// init the scene and retrieve the JPanel canvas in which to build on
 			JPanel scene = preprocessScene(this, xResolution, yResolution);			
 
 			// include a banner for navigation
-			generateBanner(scene, false);
+			generateBanner(scene, true, banner_info, banner_title);
 			
 			// This overview scene should be the only scene to 
 			// terminate the actual program.  Set a window
 			// listener here to exit when scene is exitted.
 			this.addWindowListener(new WindowAdapter() {
+				public void windowActivated(WindowEvent e) {
+					
+				}
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
 				}
@@ -172,10 +179,13 @@ public class Scenes {
 				
 				// create a button to select a particular station
 				sbn[i] = new JButton();
+				sbn[i].setName("Use Self-Checkout Station " + (i+1));
+				sbn[i].setFont(new Font("Arial", Font.BOLD, 12));
 				sbn[i].setText("Station " + (i+1));
-				sbn[i].setBounds(45, 35, 60, 25);
+				sbn[i].setBounds(30, 35, 90, 40);
 				sbn[i].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 				sbn[i].addActionListener(this);
+				sbn[i].addMouseListener(this);
 
 				sbn[i].putClientProperty("station-id", i+1); // add one to record station instead of index
 				sbn[i].putClientProperty("station-scss", scssList.get(i));
@@ -195,10 +205,13 @@ public class Scenes {
 
 			// create a button to select the attendant station
 			abn = new JButton();
+			abn.setName("Use the Attendant Station");
+			abn.setFont(new Font("Arial", Font.BOLD, 12));
 			abn.setText("Attendant Station");
-			abn.setBounds(40, 35, 140, 25);
+			abn.setBounds(35, 35, 150, 40);
 			abn.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			abn.addActionListener(this);
+			abn.addMouseListener(this);
 			abn.putClientProperty("station-id", 0);
 			as.add(abn); // add attendant selection button to it's panel
 
@@ -223,20 +236,33 @@ public class Scenes {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == abn && gui.userApproachesStation(0)) { // attendant station
-				setCurrentStation(0);
-				
+			
+			if (e.getSource() == abn) { // attendant station
+				if(gui.userApproachesStation(0)) {					
+					banner_title.setText("Attendant");
+					this.repaint();
+				}
 			} else {
 				// self-checkout stations
-				
-				// since we are accessing Void data and casting it to expected types
-				// there is a possibility that this gets bad data if the ActionEvent
-				// is not a JButton.  Something to keep in mind if an error occurs.
 				int station = (int) ((JButton) e.getSource()).getClientProperty("station-id");
 
-				if (gui.userApproachesStation(station))	
-					setCurrentStation(station);
+				if(gui.userApproachesStation(station)) {					
+					banner_title.setText("Customer");
+					this.repaint();
+				}
 			}
+		}
+
+		public void mouseClicked(MouseEvent e) {}
+		public void mousePressed(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {
+			banner_info.setText(e.getComponent().getName());
+			this.repaint();
+		}
+		public void mouseExited(MouseEvent e) {
+			banner_info.setText("");
+			this.repaint();
 		}
 	}
 
@@ -260,13 +286,18 @@ public class Scenes {
 		JButton printer;
 		JButton touchscreen;
 		
+		JLabel banner_info = new JLabel();
+		JLabel banner_title = new JLabel();
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 600);
 
-			generateBanner(scene, false);
+			generateBanner(scene, false, banner_info, banner_title);
+			int i = getCurrentStation();
+			banner_title.setText("Station " + i + "  ");
 			
 			JPanel content = new JPanel();
-			content.setBackground(defaultBackground);
+			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
 			
 			// bagging scale
@@ -431,10 +462,13 @@ public class Scenes {
 		JButton[] station_block  = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 		JButton[] station_approve = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 
+		JLabel banner_info = new JLabel();
+		JLabel banner_title = new JLabel();
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 800, 650);
 
-			generateBanner(scene, false);
+			generateBanner(scene, false, banner_info, banner_title);
 
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -544,10 +578,13 @@ public class Scenes {
 		JButton ownBags;
 		JButton membership;
 		
+		JLabel banner_info = new JLabel();
+		JLabel banner_title = new JLabel();
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 750, 500);
 
-			generateBanner(scene, true);
+			generateBanner(scene, true, banner_info, banner_title);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -641,10 +678,9 @@ public class Scenes {
 				gui.userUsesOwnBags();
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
-				getNumberFromUser("Enter you Membership number");
+				getNumberFromUser("<html>Enter your<br>Membership number</html>");
 			} 
-		}
-		
+		}	
 	}
 	
 	
@@ -657,10 +693,13 @@ public class Scenes {
 		JLabel swipe;
 		JLabel insert;
 		
+		JLabel banner_info = new JLabel();
+		JLabel banner_title = new JLabel();
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
 
-			generateBanner(scene, true);
+			generateBanner(scene, true, banner_info, banner_title);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -743,10 +782,13 @@ public class Scenes {
 		JButton coinEmptyStorage;
 		JButton coinFillStorage;
 		
+		JLabel banner_info = new JLabel();
+		JLabel banner_title = new JLabel();
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 600, 400);
 
-			generateBanner(scene, true);
+			generateBanner(scene, true, banner_info, banner_title);
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -911,7 +953,7 @@ public class Scenes {
 		// remove previously processed item
 		JButton removeItem = new JButton();
 		removeItem.setBounds(50, 50, 200, 80);
-		removeItem.setFont(new Font("Lucida Grande", Font.BOLD, 18));
+		removeItem.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		removeItem.setText("REMOVE ITEM");
 		removeItem.setFocusable(false);
 		removeItem.addActionListener(new ActionListener() {
@@ -926,7 +968,7 @@ public class Scenes {
 		// shutdown station
 		JButton shutdown = new JButton();
 		shutdown.setBounds(50, 170, 200, 80);
-		shutdown.setFont(new Font("Lucida Grande", Font.BOLD, 18));
+		shutdown.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		shutdown.setText("SHUTDOWN STATION");
 		shutdown.setFocusable(false);
 		shutdown.addActionListener(new ActionListener() {
@@ -1059,7 +1101,7 @@ public class Scenes {
 	 * @param forHardware - whether the banner is meant for a hardware window
 	 * @return the banner created for any further customizations
 	 */
-	private JPanel generateBanner(JPanel p, boolean forHardware) {
+	private JPanel generateBanner(JPanel p, boolean forHardware, JLabel banner_info, JLabel banner_title) {
 
 		JPanel banner = new JPanel();
 		banner.setPreferredSize(new Dimension(100, 50));
@@ -1067,20 +1109,6 @@ public class Scenes {
 		banner.setBackground(Color.lightGray);
 		
 		JFrame window = (JFrame) SwingUtilities.getWindowAncestor(p);
-		
-		JButton exit = new JButton();
-		exit.addActionListener(e -> {
-			// only leave the station if this banner is neither attached to 
-			// the main overview scene or a hardware window
-			if (getCurrentStation() != -1 && !forHardware) {
-				gui.userLeavesStation(getCurrentStation());
-				setCurrentStation(-1);
-			}
-			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-		});
-		exit.setFont(new Font("Arial", Font.BOLD, 20));
-		exit.setText("X");
-		exit.setFocusable(false);
 		
 		// only add navigation between users if the banner is not meant for hardware windows
 		if (!forHardware) {
@@ -1110,6 +1138,7 @@ public class Scenes {
 			newUser.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+					currentStation = -1; // returned to the main overview scene
 					int newUserType;
 					do {
 						newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
@@ -1133,8 +1162,47 @@ public class Scenes {
 			swap.add(next);
 			
 			banner.add(swap, BorderLayout.WEST);
+		} else {
+			// replace user navigation with an invisible panel to match spacing
+			JPanel emptyPanel = new JPanel();
+			emptyPanel.setBorder(BorderFactory.createEmptyBorder(200, 50, 200, 50));
+			emptyPanel.setOpaque(false);
+			banner.add(emptyPanel, BorderLayout.WEST);
 		}
-		banner.add(exit, BorderLayout.EAST);
+		
+		// the centre display of the banner
+		banner_info.setHorizontalAlignment(JLabel.CENTER);
+		banner_info.setFont(new Font("Arial", Font.BOLD, 14));
+		banner_info.setFocusable(false);
+		banner.add(banner_info, BorderLayout.CENTER);
+		
+		// the end of the banner
+		JPanel end = new JPanel();
+		end.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		end.setOpaque(false);
+		
+		banner_title.setPreferredSize(new Dimension(180, 50));
+		banner_title.setFont(new Font("Arial", Font.BOLD, 16));
+		banner_title.setFocusable(false);
+		end.add(banner_title, BorderLayout.CENTER);
+		
+		JButton exit = new JButton();
+		exit.addActionListener(e -> {
+			// only leave the station if this banner is neither attached to 
+			// the main overview scene or a hardware window
+			if (getCurrentStation() != -1 && !forHardware) {
+				gui.userLeavesStation(getCurrentStation());
+				setCurrentStation(-1);
+			}
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		});
+		exit.setPreferredSize(new Dimension(50, 50));
+		exit.setFont(new Font("Arial", Font.BOLD, 20));
+		exit.setText("X");
+		exit.setFocusable(false);
+		end.add(exit);
+		
+		banner.add(end, BorderLayout.EAST);
 		
 		p.add(banner, BorderLayout.NORTH);
 		return banner;
@@ -1195,6 +1263,10 @@ public class Scenes {
 	 */
 	public void promptRemoveItems() {
 		List<Product> customerCart = gui.getBaggedItems(currentStation);
+		if (customerCart == null) {
+			errorMsg("No items have been bagged");
+			return;
+		}
 		
 		Vector<String> products = new Vector<>();
 		customerCart.forEach(product -> {
@@ -1286,6 +1358,15 @@ public class Scenes {
 		
 		window.add(panel);
 		window.setVisible(true);
+	}
+	
+	/**
+	 * Displays a message to the user in the form of an error.
+	 * Requires interaction to dismiss.
+	 * @param msg - message to display with the error
+	 */
+	public static void errorMsg(String msg) {
+		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
 
 	/**
