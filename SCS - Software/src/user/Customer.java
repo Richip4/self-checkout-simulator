@@ -21,12 +21,7 @@ public class Customer extends User {
 			this.product = product;
 			this.weight = weight;
 		}
-
-		private CartEntry(CartEntry entry) {
-			this.product = entry.product;
-			this.weight = entry.weight;
-		}
-
+		
 		public Product getProduct() {
 			return this.product;
 		}

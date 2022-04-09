@@ -34,8 +34,9 @@ public class Checkout {
 	private final SelfCheckoutStation scs;
 	private Customer customer;
 
-	private List<Cash> pendingChanges; // This list contains "banknote" cash objects, the cash object is simply the
-										// denomination of banknotes and coins
+	// This list contains "banknote" cash objects, the cash object is simply the
+	// denomination of banknotes and coins
+	private List<Cash> pendingChanges = new ArrayList<Cash>(); 
 
 	public Checkout(SelfCheckoutSoftware scss) {
 		this.scss = scss;
@@ -61,7 +62,7 @@ public class Checkout {
 	 * of their items.
 	 * 
 	 */
-	public void checkout(PaymentMethod method) {
+	public void enablePaymentHardware(PaymentMethod method) {
 		// devices are only configured if there is a customer at the station
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
@@ -108,13 +109,6 @@ public class Checkout {
 		this.scs.banknoteValidator.enable();
 	}
 
-	private void disableBanknoteInput() {
-		// disable all input/output devices relating to the banknote slot
-		this.scs.banknoteInput.disable();
-		this.scs.banknoteOutput.disable();
-		this.scs.banknoteValidator.disable();
-	}
-
 	private void enableCoinInput() {
 		// enable all input/output devices relating to the coin slot
 		this.scs.coinSlot.enable();
@@ -122,21 +116,9 @@ public class Checkout {
 		this.scs.coinValidator.enable();
 	}
 
-	private void disableCoinInput() {
-		// disable all input/output devices relating to the coin slot
-		this.scs.coinSlot.disable();
-		this.scs.coinTray.disable();
-		this.scs.coinValidator.disable();
-	}
-
 	private void enableCardReader() {
 		// enable all input/output devices relating to the card reader
 		this.scs.cardReader.enable();
-	}
-
-	private void disableCardReader() {
-		// disable all input/output devices relating to the card reader
-		this.scs.cardReader.disable();
 	}
 
 	/**
