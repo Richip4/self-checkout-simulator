@@ -366,7 +366,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * 
      * @param method
      */
-    public void checkout(PaymentMethod method) {
+    public void selectedPaymentMethod(PaymentMethod method) {
         if (this.phase != Phase.CHOOSING_PAYMENT_METHOD) {
             throw new IllegalStateException("Cannot checkout when the system is not choosing payment method");
         }
@@ -375,7 +375,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         // Relative devices are enabled in checkout
         this.disableHardware();
-        this.checkout.checkout(method);
+        this.checkout.enablePaymentHardware(method);
     }
 
     public void paymentCompleted()
