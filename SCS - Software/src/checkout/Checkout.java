@@ -34,8 +34,9 @@ public class Checkout {
 	private final SelfCheckoutStation scs;
 	private Customer customer;
 
-	private List<Cash> pendingChanges; // This list contains "banknote" cash objects, the cash object is simply the
-										// denomination of banknotes and coins
+	// This list contains "banknote" cash objects, the cash object is simply the
+	// denomination of banknotes and coins
+	private List<Cash> pendingChanges = new ArrayList<Cash>(); 
 
 	public Checkout(SelfCheckoutSoftware scss) {
 		this.scss = scss;
