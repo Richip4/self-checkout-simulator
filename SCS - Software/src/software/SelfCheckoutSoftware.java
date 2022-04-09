@@ -38,7 +38,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         PLACING_OWN_BAG,
         
         HAVING_WEIGHT_DISCREPANCY,
-        BLOCKING,
+        BLOCKING
     };
 
     public static enum PaymentMethod {
@@ -438,4 +438,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
+
+	public void approveMissingItem() {
+		// TODO attendant approves not bagging an item
+		
+	}
 }
