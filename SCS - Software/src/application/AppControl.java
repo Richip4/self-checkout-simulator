@@ -285,8 +285,8 @@ public class AppControl {
 			return "BLOCKED";
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
 			return "WEIGHT DISCREPANCY";
-		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
-			return "MISSING ITEM";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
+			return "ITEM NOT BAGGED";
 		} else {
 			return "OKAY";
 		}
@@ -318,7 +318,7 @@ public class AppControl {
 			try {
 				supervisorSoftware.approveWeightDiscrepancy(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}			
-		} else if (selfStationSoftwares.get(station).getPhase() == Phase.MISSING_ITEM) {
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			try {
 				supervisorSoftware.approveItemNotBaggable(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}

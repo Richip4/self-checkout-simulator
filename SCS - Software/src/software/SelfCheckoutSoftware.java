@@ -38,8 +38,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         PLACING_OWN_BAG,
         
         HAVING_WEIGHT_DISCREPANCY,
-        BLOCKING,
-        MISSING_ITEM
+        BLOCKING
     };
 
     public static enum PaymentMethod {
