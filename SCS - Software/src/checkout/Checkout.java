@@ -61,7 +61,7 @@ public class Checkout {
 	 * of their items.
 	 * 
 	 */
-	public void checkout(PaymentMethod method) {
+	public void enablePaymentHardware(PaymentMethod method) {
 		// devices are only configured if there is a customer at the station
 		if (this.customer == null) {
 			throw new IllegalStateException("No customer at checkout station.");
