@@ -1,5 +1,6 @@
 package tests.store;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
@@ -24,6 +25,12 @@ public class StoreTest
     SupervisionStation supervisionStation = new SupervisionStation();
     SupervisionSoftware supervisionSoftware = new SupervisionSoftware(supervisionStation);
 
+    @Before
+    public void setup()
+    {
+        Store.setSupervisionSoftware(null);
+    }
+
     @Test
     public void setAndGetSupervisionSoftwareTest()
     {
@@ -37,6 +44,8 @@ public class StoreTest
     @Test
     public void setAndGetSelfCheckoutSoftwareTest()
     {
+        Store.setSupervisionSoftware(supervisionSoftware);
+
         assertTrue(Store.getSelfCheckoutSoftwareList().isEmpty());
 
         Store.addSelfCheckoutSoftware(selfCheckoutSoftware);
