@@ -4,11 +4,15 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
+import org.lsmr.selfcheckout.PLUCodedItem;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import store.Inventory;
 import user.User;
 
 public class GUI {
@@ -400,5 +404,24 @@ public class GUI {
 
 	public boolean isAttendantLoggedIn() {
 		return ac.isAttendantLoggedIn();
+	}
+
+	public String getNextItemDescription(int station) {
+		String desc = "";
+		Item item = ac.getCustomersNextItem(station);
+		if (item instanceof PLUCodedItem) {
+			PLUCodedItem pluItem = (PLUCodedItem) item;
+			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
+			desc = "<html>PLU Coded Item<br>";
+			desc += p.getDescription() +"  $"+ p.getPrice();
+			desc += "<br>Code: " + p.getPLUCode() + "</html>";
+		} else if (item instanceof BarcodedItem) {
+			BarcodedItem barItem = (BarcodedItem) item;
+			BarcodedProduct b = Inventory.getProduct(barItem.getBarcode()); 
+			desc = "<html>Barcoded Item<br>";
+			desc += b.getDescription() +" "+ b.getPrice() + "</html>";
+		}
+		System.out.println(desc);
+		return desc;
 	}
 }

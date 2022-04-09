@@ -1,6 +1,10 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -44,6 +48,8 @@ public class AppControl {
 	// list of people visiting the stations
 	// NOTE: active users not at an actual station are excluded
 	private User[] users;
+	
+	private Map<User, List<Item>> inventories = new HashMap<>();
 
 	// the type of user combination at each station
 	private int[] stationsUserType;
@@ -167,6 +173,16 @@ public class AppControl {
 		selfStationSoftwares.get(station - 1).setUser(activeUser);
 		
 		// randomly populate this customers inventory with the stores products
+		Random random = new Random();
+		int pick = Tangibles.ITEMS.size();
+		int itemsGrabbed = random.nextInt(6) + 4;
+		
+		List<Item> inventory = new ArrayList<>();
+		for (int i = 0; i < itemsGrabbed; i++) {
+			inventory.add(Tangibles.ITEMS.get(random.nextInt(pick)));
+		}
+		
+		inventories.put(activeUser, inventory);
 	}
 
 	/**
@@ -176,7 +192,7 @@ public class AppControl {
 	 */
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
-		users[station] = activeUser;
+//		users[station] = activeUser;
 		selfStationSoftwares.get(station - 1).setUser(activeUser);
 	}
 
@@ -402,6 +418,10 @@ public class AppControl {
 
 	public boolean isAttendantLoggedIn() {
 		return supervisorSoftware.isLoggedIn();
+	}
+
+	public Item getCustomersNextItem(int station) {
+		return inventories.get(users[station]).get(0);
 	}
 
 

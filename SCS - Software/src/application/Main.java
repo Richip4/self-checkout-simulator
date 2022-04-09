@@ -125,7 +125,7 @@ public final class Main {
         Inventory.addProduct(p6);
 
         // Add 10 items for each product
-        for (int t = 0; t < 2; t++) {
+        for (int t = 0; t < 5; t++) {
             PLUCodedItem pi1 = new PLUCodedItem(plu1, 4);
             PLUCodedItem pi2 = new PLUCodedItem(plu2, 2.5);
             PLUCodedItem pi3 = new PLUCodedItem(plu3, 3.2);

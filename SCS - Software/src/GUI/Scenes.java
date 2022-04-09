@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -29,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -289,6 +291,8 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		JLabel nextItem;
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 600);
 
@@ -299,6 +303,17 @@ public class Scenes {
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
+			
+			// customers next item to process
+			nextItem = new JLabel();
+			nextItem.setBounds(200, 70, 150, 130);
+			nextItem.setFont(new Font("Arial", Font.BOLD, 16));
+			nextItem.setHorizontalAlignment(JLabel.CENTER);
+			nextItem.setText(gui.getNextItemDescription(currentStation));
+			nextItem.setBorder(BorderFactory.createLineBorder(Color.gray));
+			nextItem.setFocusable(false);
+			nextItem.setOpaque(true);
+			if (!nextItem.getText().equals("")) content.add(nextItem);
 			
 			// bagging scale
 			bagScale = new JButton();
@@ -577,6 +592,7 @@ public class Scenes {
 		JButton attendant;
 		JButton ownBags;
 		JButton membership;
+		JButton skip;
 		
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
@@ -648,7 +664,17 @@ public class Scenes {
 			membership.setHorizontalTextPosition(JButton.CENTER);
 			membership.addActionListener(this);
 			membership.setFocusable(false);
-			content.add(membership);			
+			content.add(membership);
+			
+			// skip bagging
+			skip = new JButton();
+			skip.setBounds(275, 140, 200, 60);
+			skip.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
+			skip.setText("SKIP BAGGING");
+			skip.setHorizontalTextPosition(JButton.CENTER);
+			skip.addActionListener(this);
+			skip.setFocusable(false);
+			content.add(skip);
 			
 			scene.add(content);
 			
