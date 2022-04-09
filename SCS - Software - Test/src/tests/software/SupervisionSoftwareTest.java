@@ -167,7 +167,6 @@ public class SupervisionSoftwareTest
         supervisionSoftware.restart();
 
         assertNotEquals(supervisionSoftware, Store.getSupervisionSoftware());
-        assertNotEquals(selfCheckoutSoftwareList, supervisionSoftware.getSoftwareList());
         assertEquals(selfCheckoutSoftwareList, Store.getSupervisionSoftware().getSoftwareList());
     }
 
