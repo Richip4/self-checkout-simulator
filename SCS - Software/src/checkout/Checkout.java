@@ -108,13 +108,6 @@ public class Checkout {
 		this.scs.banknoteValidator.enable();
 	}
 
-	private void disableBanknoteInput() {
-		// disable all input/output devices relating to the banknote slot
-		this.scs.banknoteInput.disable();
-		this.scs.banknoteOutput.disable();
-		this.scs.banknoteValidator.disable();
-	}
-
 	private void enableCoinInput() {
 		// enable all input/output devices relating to the coin slot
 		this.scs.coinSlot.enable();
@@ -122,21 +115,9 @@ public class Checkout {
 		this.scs.coinValidator.enable();
 	}
 
-	private void disableCoinInput() {
-		// disable all input/output devices relating to the coin slot
-		this.scs.coinSlot.disable();
-		this.scs.coinTray.disable();
-		this.scs.coinValidator.disable();
-	}
-
 	private void enableCardReader() {
 		// enable all input/output devices relating to the card reader
 		this.scs.cardReader.enable();
-	}
-
-	private void disableCardReader() {
-		// disable all input/output devices relating to the card reader
-		this.scs.cardReader.disable();
 	}
 
 	/**
