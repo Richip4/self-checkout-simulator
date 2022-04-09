@@ -323,6 +323,7 @@ public class SelfCheckoutSoftwareTest
     {
         selfCheckoutSoftware.start(customer);
         selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
+        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
 
         selfCheckoutSoftware.notBaggingItem();
 
@@ -350,10 +351,6 @@ public class SelfCheckoutSoftwareTest
     @Test(expected = IllegalStateException.class)
     public void checkoutFailTest()
     {
-        selfCheckoutSoftware.start(customer);
-
-        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
-
         selfCheckoutSoftware.checkout();
     }
 
@@ -362,9 +359,6 @@ public class SelfCheckoutSoftwareTest
     {
         selfCheckoutSoftware.start(null);
 
-        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
-        selfCheckoutSoftware.addItem();
-
         selfCheckoutSoftware.checkout();
     }
 
@@ -372,10 +366,8 @@ public class SelfCheckoutSoftwareTest
     public void selectPaymentMethodTest()
     {
         selfCheckoutSoftware.start(customer);
-
         selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
         selfCheckoutSoftware.addItem();
-
         selfCheckoutSoftware.checkout();
 
         selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
@@ -393,12 +385,9 @@ public class SelfCheckoutSoftwareTest
     public void paymentCompleteTest()
     {
         selfCheckoutSoftware.start(customer);
-
         selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
         selfCheckoutSoftware.addItem();
-
         selfCheckoutSoftware.checkout();
-
         selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
 
         selfCheckoutSoftware.paymentCompleted();
@@ -416,14 +405,10 @@ public class SelfCheckoutSoftwareTest
     public void checkoutCompleteTest()
     {
         selfCheckoutSoftware.start(customer);
-
         selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
         selfCheckoutSoftware.addItem();
-
         selfCheckoutSoftware.checkout();
-
         selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
-
         selfCheckoutSoftware.paymentCompleted();
 
         selfCheckoutSoftware.checkoutComplete();
@@ -447,7 +432,47 @@ public class SelfCheckoutSoftwareTest
 
         selfCheckoutSoftware.idle();
 
-        assertEquals(null, selfCheckoutSoftware.getCustomer());
+        assertNull(selfCheckoutSoftware.getCustomer());
         assertEquals(SelfCheckoutSoftware.Phase.IDLE, selfCheckoutSoftware.getPhase());
+    }
+
+    @Test
+    public void cancelCheckoutTest()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
+        selfCheckoutSoftware.addItem();
+        selfCheckoutSoftware.checkout();
+
+        selfCheckoutSoftware.cancelCheckout();
+
+        assertEquals(SelfCheckoutSoftware.Phase.SCANNING_ITEM, selfCheckoutSoftware.getPhase());
+    }
+
+    @Test
+    public void cancelCheckoutTest2()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
+        selfCheckoutSoftware.addItem();
+        selfCheckoutSoftware.checkout();
+        selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
+
+        selfCheckoutSoftware.cancelCheckout();
+
+        assertEquals(SelfCheckoutSoftware.Phase.SCANNING_ITEM, selfCheckoutSoftware.getPhase());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void cancelCheckoutFailTest()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
+        selfCheckoutSoftware.addItem();
+        selfCheckoutSoftware.checkout();
+        selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
+        selfCheckoutSoftware.paymentCompleted();
+
+        selfCheckoutSoftware.cancelCheckout();
     }
 }
