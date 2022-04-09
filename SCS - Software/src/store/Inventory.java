@@ -102,14 +102,22 @@ public class Inventory {
 	 * @param barcode
 	 * @return Product if the barcode exists, null otherwise
 	 */
-	public static Product getProduct(Barcode barcode) {
+	public static BarcodedProduct getProduct(Barcode barcode) {
 		return BARCODED_PRODUCT_DATABASE.get(barcode);
 	}
 
-	public static Product getProduct(PriceLookupCode plu) {
+	public static PLUCodedProduct getProduct(PriceLookupCode plu) {
 		return PLU_PRODUCT_DATABASE.get(plu);
 	}
-	
+
+	/**
+	 * Required to display all available PLU products to the customer when searching
+	 * @return the collection of PLU coded products
+	 */
+	public static Map<PriceLookupCode, PLUCodedProduct> getPLUProducts() {
+		return Inventory.PLU_PRODUCT_DATABASE;
+	}
+
 	public static List<Product> getProducts() {
 		List<Product> products = new ArrayList<Product>();
 		products.addAll(PLU_PRODUCT_DATABASE.values());

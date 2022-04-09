@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
+import application.Main.Tangibles;
 import store.Store;
 import store.credentials.AuthorizationRequiredException;
 import store.credentials.CredentialsSystem;
@@ -65,11 +66,15 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * at start up or attendant can change.
 	 * 
 	 * @param attendant
+	 * 
+	 * I don't think this is relevant since we shouldn't have an Attendant present 
+	 * unless they've already logged in.  A successful log in should set the attendant.
 	 */
-	public void setAttendant(Attendant attendant) {
-		this.attendant = attendant;
-		this.logged_in = false;
-	}
+//    public void setAttendant(Attendant attendant){
+//        this.attendant = attendant;
+//        this.logged_in = false;
+//    }
+
 
 	public void add(SelfCheckoutSoftware software) {
 		this.softwareList.add(software);
@@ -112,12 +117,42 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	}
 
 	/**
+	 * Given a username and password, checks if they exist in the database and then
+	 * sets the stations attendant to the matching attendant stored in Tangibles.
+	 * @param username provided from the user via gui
+	 * @param password provided from the user via gui
+	 * @throws IncorrectCredentialException
+	 */
+	public void login(String username, String password) throws IncorrectCredentialException {
+		if(CredentialsSystem.checkLogin(username, password)) {
+			this.logged_in = true;
+			Tangibles.ATTENDANTS.forEach( att -> {
+				if (att.getUsername().equals(username) && att.getPassword().equals(password)) {
+					System.out.println("supervision station attendant updated");
+					this.attendant = att;
+					return;
+				}
+			});
+		} else {
+			throw new IncorrectCredentialException("Attendant credential is invalid");
+		}
+	}
+	
+	/**
 	 * Logout method to make sure that someone has logged out.
 	 * 
 	 * @return true if it successfully logs out
 	 */
 	public void logout() {
 		this.logged_in = false;
+	}
+	
+	/**
+	 * Check whether an attendant is logged into the supervision station
+	 * @return
+	 */
+	public boolean isLoggedIn() {
+		return logged_in;
 	}
 
 	/**

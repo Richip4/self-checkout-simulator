@@ -93,30 +93,57 @@ public final class Main {
     private static void initializeProductDatabase() {
         Inventory.clear();
 
-        PriceLookupCode plu = new PriceLookupCode("4055");
-        PLUCodedProduct p1 = new PLUCodedProduct(plu, "Corn", new BigDecimal("2.00"));
+        // PLU coded items
+        PriceLookupCode plu1 = new PriceLookupCode("4055");
+        PLUCodedProduct p1 = new PLUCodedProduct(plu1, "Corn", new BigDecimal("2.00"));
         Inventory.addProduct(p1);
+        
+        PriceLookupCode plu2 = new PriceLookupCode("4165");
+        PLUCodedProduct p2 = new PLUCodedProduct(plu2, "Tomato", new BigDecimal("1.99"));
+        Inventory.addProduct(p2);
+        
+        PriceLookupCode plu3 = new PriceLookupCode("1055");
+        PLUCodedProduct p3 = new PLUCodedProduct(plu3, "Beet", new BigDecimal("2.49"));
+        Inventory.addProduct(p3);
+        
+        PriceLookupCode plu4 = new PriceLookupCode("4066");
+        PLUCodedProduct p4 = new PLUCodedProduct(plu4, "Green Apple", new BigDecimal("1.68"));
+        Inventory.addProduct(p4);
+        
+        PriceLookupCode plu5 = new PriceLookupCode("3945");
+        PLUCodedProduct p5 = new PLUCodedProduct(plu5, "Avocado", new BigDecimal("2.99"));
+        Inventory.addProduct(p5);
 
+        // Barcoded items
         Numeral[] nums = new Numeral[4];
         nums[0] = Numeral.two;
         nums[1] = Numeral.five;
         nums[2] = Numeral.six;
         nums[3] = Numeral.one;
         Barcode bar = new Barcode(nums);
-        BarcodedProduct p2 = new BarcodedProduct(bar, "Coffee", new BigDecimal("6.20"), 15.0);
-        Inventory.addProduct(p2);
-
-        Inventory.addProduct(p1);
-        Inventory.addProduct(p2);
+        BarcodedProduct p6 = new BarcodedProduct(bar, "Coffee", new BigDecimal("6.20"), 15.0);
+        Inventory.addProduct(p6);
 
         // Add 10 items for each product
-        for (int t = 0; t < 10; t++) {
-            PLUCodedItem i1 = new PLUCodedItem(plu, 4);
-            BarcodedItem i2 = new BarcodedItem(bar, 15.0);
-            Tangibles.ITEMS.add(i1);
-            Tangibles.ITEMS.add(i2);
+        for (int t = 0; t < 5; t++) {
+            PLUCodedItem pi1 = new PLUCodedItem(plu1, 4);
+            PLUCodedItem pi2 = new PLUCodedItem(plu2, 2.5);
+            PLUCodedItem pi3 = new PLUCodedItem(plu3, 3.2);
+            PLUCodedItem pi4 = new PLUCodedItem(plu4, 2.8);
+            PLUCodedItem pi5 = new PLUCodedItem(plu5, 3);
+            BarcodedItem bi1 = new BarcodedItem(bar, 15.0);
+            Tangibles.ITEMS.add(pi1);
+            Tangibles.ITEMS.add(pi2);
+            Tangibles.ITEMS.add(pi3);
+            Tangibles.ITEMS.add(pi4);
+            Tangibles.ITEMS.add(pi5);
+            Tangibles.ITEMS.add(bi1);
             Inventory.setQuantity(p1, 1);
             Inventory.setQuantity(p2, 1);
+            Inventory.setQuantity(p3, 1);
+            Inventory.setQuantity(p4, 1);
+            Inventory.setQuantity(p5, 1);
+            Inventory.setQuantity(p6, 1);
         }
     }
 
@@ -191,12 +218,11 @@ public final class Main {
 
     private static void initializeCredentialsSytem() {
         String username1 = "Sharjeel";
-        String username2 = "Richi";
-
         String password1 = "1234";
-        String password2 = "123password";
-
         CredentialsSystem.addAccount(username1, password1);
+
+        String username2 = "Richi";
+        String password2 = "123password";
         CredentialsSystem.addAccount(username2, password2);
         
         Attendant a1 = new Attendant();
@@ -205,8 +231,17 @@ public final class Main {
         Attendant a2 = new Attendant();
         a2.setLogin(username2, password2);
         
+        // for ease of testing
+        String username3 = "a";
+        String password3 = "a";
+        CredentialsSystem.addAccount(username3, password3);
+        Attendant a3 = new Attendant();
+        a3.setLogin(username3, password3);
+        
         Tangibles.ATTENDANTS.add(a1);
         Tangibles.ATTENDANTS.add(a2);
+        
+        Tangibles.ATTENDANTS.add(a3);
     }
 
     public static Store getStore() {
@@ -269,7 +304,7 @@ public final class Main {
      * @author Yunfan Yang
      *
      */
-    public class Configurations {
+    public static class Configurations {
     	public static final Currency currency = Currency.getInstance("CAD");
     	public static final int stations = 6;
     }
