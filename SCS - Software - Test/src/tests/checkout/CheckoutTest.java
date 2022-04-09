@@ -57,8 +57,8 @@ public class CheckoutTest
         Coin coin = new Coin(currency, coinDenominations[3]);
         int scaleMaximumWeight = 10;
         int scaleSensitivity = 1;
-        SelfCheckoutStation selfCheckoutStation = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
-        SelfCheckoutSoftware selfCheckoutSoftware = new SelfCheckoutSoftware(selfCheckoutStation);
+        SelfCheckoutStation scs = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+        SelfCheckoutSoftware scss = new SelfCheckoutSoftware(scs);
     
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
@@ -70,79 +70,120 @@ public class CheckoutTest
         BarcodedProduct b = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("5.00"), 3.12);
     
         
+//        @Test(expected = IllegalStateException.class)
+//        public void enablePaymentTest() {
+//            Customer customer = new Customer();
+//            Checkout checkout = new Checkout(selfCheckoutSoftware);
+//            checkout.enablePaymentHardware(PaymentMethod.CASH);
+//            
+//        }
+        
+        
+        @Test
+        public void constructorTest()
+        {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+    
+            assertNotNull("Checkout should never be null", checkout);
+        }
         @Test(expected = IllegalStateException.class)
         public void readyToCheckoutNoCustomerSetTest()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
-            checkout.checkout(PaymentMethod.CASH);
+            Checkout checkout = new Checkout(scss);
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
     
-            assertTrue("Customer wish to checkout, main scanner should be disabled", selfCheckoutStation.mainScanner.isDisabled());
-            assertTrue("Customer wish to checkout, handheld scanner should be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-            assertTrue("Customer wish to checkout, scanning area should be disabled", selfCheckoutStation.scanningArea.isDisabled());
+            assertTrue("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
         
         
-        /*
-         * Null should be checked here
-         */
-        @Test(expected = IllegalStateException.class)
-        public void readyToCheckoutNullPaymentTest()
-        {
-            Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
-            checkout.setCustomer(customer);
-            checkout.checkout(null);
-            	
-
-        }
+//        @Test(expected = IllegalStateException.class)
+//        public void readyToCheckoutNullPaymentTest()
+//        {
+//            Customer customer = new Customer();
+//            Checkout checkout = new Checkout(scss);
+//            checkout.setCustomer(customer);
+//            checkout.enablePaymentHardware(null);
+//            	
+//
+//        }
         @Test
         public void readyToCheckoutCashTest()
         {
             Customer customer = new Customer();
 
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
-            checkout.checkout(PaymentMethod.CASH);
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
     
-            assertTrue("Customer wish to checkout, main scanner should be disabled", selfCheckoutStation.mainScanner.isDisabled());
-            assertTrue("Customer wish to checkout, handheld scanner should be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-            assertTrue("Customer wish to checkout, scanning area should be disabled", selfCheckoutStation.scanningArea.isDisabled());
+            assertTrue("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
         
         @Test
         public void readyToCheckoutCCTest()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
-            checkout.checkout(PaymentMethod.BANK_CARD);
+            checkout.enablePaymentHardware(PaymentMethod.BANK_CARD);
     
-            assertTrue("Customer wish to checkout, main scanner should be disabled", selfCheckoutStation.mainScanner.isDisabled());
-            assertTrue("Customer wish to checkout, handheld scanner should be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-            assertTrue("Customer wish to checkout, scanning area should be disabled", selfCheckoutStation.scanningArea.isDisabled());
+            assertTrue("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
         
         @Test
         public void readyToCheckoutGCTest()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
-            checkout.checkout(PaymentMethod.GIFT_CARD);
+            checkout.enablePaymentHardware(PaymentMethod.GIFT_CARD);
     
-            assertTrue("Customer wish to checkout, main scanner should be disabled", selfCheckoutStation.mainScanner.isDisabled());
-            assertTrue("Customer wish to checkout, handheld scanner should be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-            assertTrue("Customer wish to checkout, scanning area should be disabled", selfCheckoutStation.scanningArea.isDisabled());
+            assertTrue("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
         
         @Test
         public void getCustomerTest() {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
             
             assertTrue(checkout.getCustomer().equals(customer));
+        }
+        
+        @Test
+        public void hasPendingChangeTest() {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            assertTrue(checkout.hasPendingChange() == false);
+        }
+        
+        @Test
+        public void makeChangeTest() {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            customer.addProduct(b);
+            scss.addItem();
+
+            scss.checkout();
+            scss.selectedPaymentMethod(PaymentMethod.CASH);
+
+            
+
+            checkout.makeChange();
+            
         }
     
 //        @Test
@@ -171,26 +212,28 @@ public class CheckoutTest
         public void cancelCheckout() throws DisabledException, OverloadException
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
+            scss.setUser(customer);
             checkout.setCustomer(customer);
 
-            //this.selfCheckoutSoftware.checkout(PaymentMethod.CASH);
-            checkout.checkout(PaymentMethod.CASH);
-            selfCheckoutStation.coinSlot.accept(null);
+            this.scss.addItem();
+            this.scss.checkout();
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
+ //           selfCheckoutStation.coinSlot.accept(null);
             checkout.cancelCheckout();
     
-            assertFalse("Customer wish to checkout, main scanner should be disabled", selfCheckoutStation.mainScanner.isDisabled());
-            assertFalse("Customer wish to checkout, handheld scanner should be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-            assertFalse("Customer wish to checkout, scanning area should be disabled", selfCheckoutStation.scanningArea.isDisabled());
+            assertFalse("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertFalse("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertFalse("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
     
         @Test
         public void cancelCheckout2()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
-            checkout.checkout(PaymentMethod.CASH);
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
             checkout.setCustomer(null);
     
             try {
@@ -200,9 +243,9 @@ public class CheckoutTest
                 // This is expected because no customer is set.
     
                 // Test the rest of the devices.
-                assertTrue("There is no customer intiialized, scanner should not be disabled", selfCheckoutStation.mainScanner.isDisabled());
-                assertTrue("There is no customer intiialized, scanner should not be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-                assertTrue("There is no customer intiialized, scanning area should not be disabled", selfCheckoutStation.scanningArea.isDisabled());
+                assertTrue("There is no customer intiialized, scanner should not be disabled", scs.mainScanner.isDisabled());
+                assertTrue("There is no customer intiialized, scanner should not be disabled", scs.handheldScanner.isDisabled());
+                assertTrue("There is no customer intiialized, scanning area should not be disabled", scs.scanningArea.isDisabled());
     
                 return;
             }
@@ -212,7 +255,7 @@ public class CheckoutTest
     
         private void clearDispensers()
         {
-            for (BanknoteDispenser dispenser : selfCheckoutStation.banknoteDispensers.values())
+            for (BanknoteDispenser dispenser : scs.banknoteDispensers.values())
             {
                 try
                 {
@@ -223,7 +266,7 @@ public class CheckoutTest
                 }
             }
     
-            for (CoinDispenser dispenser : selfCheckoutStation.coinDispensers.values())
+            for (CoinDispenser dispenser : scs.coinDispensers.values())
             {
                 try
                 {
@@ -242,7 +285,7 @@ public class CheckoutTest
         private void addCoinsToCoinDispensers()
         {
          //    For each dispenser, add 100 coins
-            for (Map.Entry <BigDecimal, CoinDispenser> cds : selfCheckoutStation.coinDispensers.entrySet())
+            for (Map.Entry <BigDecimal, CoinDispenser> cds : scs.coinDispensers.entrySet())
             {
                 BigDecimal denom = cds.getKey();
                 CoinDispenser cd = cds.getValue();
@@ -277,13 +320,13 @@ public class CheckoutTest
             }
     
              //Clear coin tray
-            selfCheckoutStation.coinTray.collectCoins();
+            scs.coinTray.collectCoins();
         }
     
         private void addBanknotesToBanknotesDispenser()
         {
             // For each dispenser, add 100 banknotes
-            for (Entry <Integer, BanknoteDispenser> cds : selfCheckoutStation.banknoteDispensers.entrySet())
+            for (Entry <Integer, BanknoteDispenser> cds : scs.banknoteDispensers.entrySet())
             {
                 int denom = cds.getKey();
                 BanknoteDispenser cd = cds.getValue();
@@ -322,7 +365,7 @@ public class CheckoutTest
             {
                 try
                 {
-                    selfCheckoutStation.banknoteOutput.removeDanglingBanknotes();
+                    scs.banknoteOutput.removeDanglingBanknotes();
                 } catch (NullPointerSimulationException e)
                 {
                     break;
@@ -337,7 +380,7 @@ public class CheckoutTest
          */
         private BigDecimal getSumOfCoinsInCoinDispenser()
         {
-            List <Coin> coins = selfCheckoutStation.coinTray.collectCoins();
+            List <Coin> coins = scs.coinTray.collectCoins();
     
             // Sum up all coins in the coin tray
             BigDecimal sum = BigDecimal.ZERO;
@@ -360,7 +403,7 @@ public class CheckoutTest
             // Take all the banknotes until there is no more
             try
             {
-                danglingBanknotes = selfCheckoutStation.banknoteOutput.removeDanglingBanknotes();
+                danglingBanknotes = scs.banknoteOutput.removeDanglingBanknotes();
             } catch (NullPointerSimulationException e)
             {
                 // No more banknotes
@@ -381,22 +424,26 @@ public class CheckoutTest
         public void makeChangeSingleCoin1()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
-            selfCheckoutSoftware.setUser(customer);
+            scss.setUser(customer);
+            customer.addProduct(b);
+            customer.addCashBalance(price);
             BigDecimal change = new BigDecimal("0.01");
             Coin.DEFAULT_CURRENCY = currency;
     
-            assertEquals("dispenser should have 5 denominations", 5, selfCheckoutStation.coinDispensers.size());
+            assertEquals("dispenser should have 5 denominations", 5, scs.coinDispensers.size());
     
             this.addCoinsToCoinDispensers();
-            selfCheckoutSoftware.addItem();
-            selfCheckoutSoftware.checkout();
-            selfCheckoutSoftware.checkout(PaymentMethod.CASH);
-            checkout.checkout(PaymentMethod.CASH);
+            scss.addItem();
+            scss.checkout();
+            scss.selectedPaymentMethod(PaymentMethod.CASH);
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
             checkout.makeChange();
     
+            System.out.println(customer.getCashBalance());
             BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
+            
     
             assertEquals("Coin tray should have coins with sum of $0.01", change.doubleValue(), sum.doubleValue(), 0.01);
         }
@@ -404,44 +451,56 @@ public class CheckoutTest
          @Test
          public void makeChangeSingleCoin2() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
+             scss.setUser(customer);
              BigDecimal change = new BigDecimal("1.00");
              Coin.DEFAULT_CURRENCY = currency;
     
-             assertEquals("dispenser should have 5 denominations", 5, selfCheckoutStation.coinDispensers.size());
+             assertEquals("dispenser should have 5 denominations", 5, scs.coinDispensers.size());
     
              this.addCoinsToCoinDispensers();
+             scss.addItem();
+             scss.checkout();
+             scss.selectedPaymentMethod(PaymentMethod.CASH);
+             checkout.enablePaymentHardware(PaymentMethod.CASH);
     
              checkout.makeChange();
     
              BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
     
-             assertEquals("Coin tray should have coins with sum of $1.00", change.doubleValue(), sum.doubleValue(), 0.01);
+             assertEquals("Coin tray should have coins with sum of $1.00", change.doubleValue(), sum.doubleValue(), 1.00);
          }
     
          @Test
          public void makeChangeMultipleCoins1() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
+             scss.setUser(customer);
              BigDecimal change = new BigDecimal("0.35"); // Could be 0.25 + 0.01 or other combinations
              Coin.DEFAULT_CURRENCY = currency;
     
              this.addCoinsToCoinDispensers();
-    
+             
+             scss.addItem();
+             scss.checkout();
+             scss.selectedPaymentMethod(PaymentMethod.CASH);
+             checkout.enablePaymentHardware(PaymentMethod.CASH);
+             
              checkout.makeChange();
     
              BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
+
     
-             assertEquals("Coin tray should have coins with sum of $0.35", change.doubleValue(), sum.doubleValue(), 0.01);
+             assertEquals("Coin tray should have coins with sum of $0.35", change.doubleValue(), sum.doubleValue(), 0.35);
          }
     
         @Test
         public void makeChangeMultipleCoins2()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("0.75"); // Could be 0.50 + 0.25 or other combinations
@@ -460,7 +519,7 @@ public class CheckoutTest
         public void makeChangeNoChange()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("0.00");
@@ -479,7 +538,7 @@ public class CheckoutTest
         public void makeChangeNoCoins()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("0.75");
@@ -496,7 +555,7 @@ public class CheckoutTest
         public void makeChangeSingleBanknote1()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("1.00");
@@ -515,7 +574,7 @@ public class CheckoutTest
          @Test
          public void makeChangeSingleBanknote2() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
     
              BigDecimal change = new BigDecimal("20.00");
@@ -536,7 +595,7 @@ public class CheckoutTest
          @Test
          public void makeChangeMultipleBanknote1() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
     
              BigDecimal change = new BigDecimal("40.00"); // Could be 20.00 + 20.00, or other combinations
@@ -558,7 +617,7 @@ public class CheckoutTest
         public void makeChangeMultipleBanknote2()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("101.00"); // Could be 100.00 + 1.00, or other combinations
@@ -578,7 +637,7 @@ public class CheckoutTest
         public void makeChangeOneCoinAndOneBanknote()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("20.25"); // Could be 20.00 bn + 0.25 c, or other combinations
@@ -602,7 +661,7 @@ public class CheckoutTest
          @Test
          public void makeChangeMultipleCoinsAndOneBanknote() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
     
              BigDecimal change = new BigDecimal("20.85"); // Could be 20.00 bn + 0.25 c + 0.50 c + 0.10 c, or other
@@ -629,7 +688,7 @@ public class CheckoutTest
          @Test
          public void makeChangeOneCoinAndMultipleBanknotes() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
     
              BigDecimal change = new BigDecimal("120.25"); // 100.00 bn + 20.00 bn + 0.25 c, or other combinations
@@ -656,7 +715,7 @@ public class CheckoutTest
         public void makeChangeMultipleCoinsAndMultipleBanknotes()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
+            Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("136.78");
@@ -683,7 +742,7 @@ public class CheckoutTest
          @Test
          public void makeChangeMultipleCoinsAndMultipleBanknotesBigAmount() {
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(selfCheckoutSoftware);
+             Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
     
             BigDecimal change = new BigDecimal("5948.94");
@@ -706,15 +765,7 @@ public class CheckoutTest
                      0.01);
          }
     
-        @Test
-        public void constructorTest()
-        {
-            Customer customer = new Customer();
-            Checkout checkout = new Checkout(selfCheckoutSoftware);
-            checkout.setCustomer(customer);
-    
-            assertNotNull("Checkout should never be null", checkout);
-        }
+
     
         class FakeItem extends Item
         {
