@@ -44,7 +44,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	// For restarting a station, we don't want to restart the other stations too.
 	public SupervisionSoftware(SupervisionStation svs, List<SelfCheckoutSoftware> softwareList) {
 		this.svs = svs;
-		this.softwareList = softwareList;
+		this.softwareList.clear();
 
 		for (SelfCheckoutSoftware software : softwareList) {
 			this.add(software);
