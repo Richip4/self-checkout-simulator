@@ -946,6 +946,11 @@ public class Scenes {
 	 */
 	public void stationAttendantOptions() {
 		JFrame authorizedWindow = new JFrame();
+		authorizedWindow.addWindowFocusListener(new WindowAdapter() {
+			public void windowLostFocus(WindowEvent e) {
+				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
+			}
+		});
 		
 		JPanel options = preprocessScene(authorizedWindow, 300, 300);
 		options.setLayout(null);
@@ -1280,7 +1285,7 @@ public class Scenes {
 		});
 		
 		JFrame window = new JFrame();
-		window.addWindowStateListener(new WindowAdapter() {
+		window.addWindowFocusListener(new WindowAdapter() {
 			public void windowLostFocus(WindowEvent e) {
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			}
@@ -1325,7 +1330,7 @@ public class Scenes {
 		pluItems.forEach(item -> items.add(item.getDescription()));
 		
 		JFrame window = new JFrame();
-		window.addWindowStateListener(new WindowAdapter() {
+		window.addWindowFocusListener(new WindowAdapter() {
 			public void windowLostFocus(WindowEvent e) {
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			}
