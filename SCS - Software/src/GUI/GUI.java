@@ -356,9 +356,10 @@ public class GUI {
 		return true;
 	}
 
-	public static void userUsesOwnBags() {
-		// TODO Auto-generated method stub
-		
+	public static void userUsesOwnBags(int currentStation) {
+		Item bag = new PLUCodedItem(new PriceLookupCode("0000"), 5.0);
+		ac.getSelfCheckoutSoftware(currentStation).addOwnBag();
+		ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().baggingArea.add(bag);
 	}
 
 	public static void userEntersMembership(int num) {
