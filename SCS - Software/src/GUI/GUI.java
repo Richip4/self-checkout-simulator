@@ -17,14 +17,15 @@ import user.User;
 
 public class GUI {
 
-	private AppControl ac;
-	private Scenes scenes = new Scenes(this);
+	private static AppControl ac;
+	private static Scenes scenes = new Scenes();
 	
-	public GUI(AppControl ac) {
-		this.ac = ac;
-		
+	private GUI() {}
+	
+	public static void init(AppControl appControl) {
+		ac = appControl;
 		// Initializes the openning scene, Self-Checkout Overview 
-		scenes.getScene(Scenes.SC_OVERVIEW);
+		scenes.getScene(Scenes.SC_OVERVIEW);	
 	}
 	
 	/**
@@ -34,7 +35,7 @@ public class GUI {
 	 * @param newUserType
 	 * @return true if user successfully added, false otherwise
 	 */
-	public boolean newUser(int newUserType) {
+	public static boolean newUser(int newUserType) {
 		if (newUserType == AppControl.CUSTOMER) {
 			ac.addNewCustomer();
 			return true;
@@ -62,7 +63,7 @@ public class GUI {
 	 * @param station - the specific station index
 	 * @return true if station is free, false otherwise
 	 */
-	public boolean userApproachesStation(int station) {
+	public static boolean userApproachesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			if (station == 0) { // this is the attendant's station
 				Scenes.errorMsg("You are not authorized to view the attendant station.");
@@ -102,7 +103,7 @@ public class GUI {
 		return false;
 	}
 
-	public void userLeavesStation(int station) {
+	public static void userLeavesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			ac.customerLeavesStation(station);
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
@@ -111,7 +112,7 @@ public class GUI {
 	}
 
 	//
-	public void userBagsItem(int currentStation) {
+	public static void userBagsItem(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -120,7 +121,7 @@ public class GUI {
 		}
 	}
 
-	public void userInsertsBanknote(int currentStation) {
+	public static void userInsertsBanknote(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -129,7 +130,7 @@ public class GUI {
 		}
 	}
 
-	public void userRemovesBanknote(int currentStation) {
+	public static void userRemovesBanknote(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -138,14 +139,14 @@ public class GUI {
 		}
 	}
 
-	public void userServicesStation(int currentStation) {
+	public static void userServicesStation(int currentStation) {
 		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			// we assume the attendant has the key to the station
 			scenes.getScene(Scenes.SCS_MAINTENANCE);
 		}
 	}
 
-	public void userInsertsCoin(int currentStation) {
+	public static void userInsertsCoin(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -154,7 +155,7 @@ public class GUI {
 		}
 	}
 	
-	public void userRemovesCoins(int currentStation) {
+	public static void userRemovesCoins(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -163,7 +164,7 @@ public class GUI {
 		}
 	}
 
-	public void userPlacesItemOnWeighScale(int currentStation) {
+	public static void userPlacesItemOnWeighScale(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -172,7 +173,7 @@ public class GUI {
 		}
 	}
 
-	public void userScansItem(int currentStation) {
+	public static void userScansItem(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -181,7 +182,7 @@ public class GUI {
 		}
 	}
 
-	public void userRemovesReceipt(int currentStation) {
+	public static void userRemovesReceipt(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -190,7 +191,7 @@ public class GUI {
 		}
 	}
 
-	public void userAccessCardReader(int currentStation) {
+	public static void userAccessCardReader(int currentStation) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			scenes.getScene(Scenes.SCS_CARDREADER);
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
@@ -198,7 +199,7 @@ public class GUI {
 		}
 	}
 
-	public void userAccessTouchscreen(int currentStation) {
+	public static void userAccessTouchscreen(int currentStation) {
 		// TODO Auto-generated method stub
 		scenes.getScene(Scenes.SCS_TOUCH);
 		
@@ -209,7 +210,7 @@ public class GUI {
 		}
 	}
 
-	public void attendantLogsOut() {
+	public static void attendantLogsOut() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -219,7 +220,7 @@ public class GUI {
 	 * @param station
 	 * @return
 	 */
-	public String stationStatus(int station) {
+	public static String stationStatus(int station) {
 
 		return ac.getStationState(station);
 	}
@@ -228,7 +229,7 @@ public class GUI {
 	 * 
 	 * @param station
 	 */
-	public void attendantBlockToggle(int station) {
+	public static void attendantBlockToggle(int station) {
 		
 		ac.toggleBlock(station);
 	}
@@ -237,12 +238,12 @@ public class GUI {
 	 * 
 	 * @param station
 	 */
-	public void attendantApproveStation(int station) {
+	public static void attendantApproveStation(int station) {
 		
 		ac.approveStationDiscrepancy(station);
 	}
 
-	public void userTapsCard(int cardType) {
+	public static void userTapsCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
 			ac.customerTapsCreditCard();
 		} if (cardType == AppControl.DEBIT) {
@@ -252,7 +253,7 @@ public class GUI {
 		}
 	}
 
-	public void userSwipesCard(int cardType) {
+	public static void userSwipesCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
 			ac.customerSwipesCreditCard();
 		} if (cardType == AppControl.DEBIT) {
@@ -262,7 +263,7 @@ public class GUI {
 		}
 	}
 
-	public void userInsertCard(int cardType) {
+	public static void userInsertCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
 			ac.customerInsertCreditCard();
 		} if (cardType == AppControl.DEBIT) {
@@ -272,62 +273,62 @@ public class GUI {
 		}
 	}
 
-	public void refillBanknoteDispensers() {
+	public static void refillBanknoteDispensers() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void refillCoinDispenser() {
+	public static void refillCoinDispenser() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void addPaper() {
+	public static void addPaper() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void addInk() {
+	public static void addInk() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void emptyBanknoteStorage() {
+	public static void emptyBanknoteStorage() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void fillBankStorage() {
+	public static void fillBankStorage() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void emptyCoinStorage() {
+	public static void emptyCoinStorage() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void fillCoinStorage() {
+	public static void fillCoinStorage() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void proceedToCheckout() {
+	public static void proceedToCheckout() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public boolean stationAttendantAccess() {
+	public static boolean stationAttendantAccess() {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
-	public void userUsesOwnBags() {
+	public static void userUsesOwnBags() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void userEntersMembership(int num) {
+	public static void userEntersMembership(int num) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -336,42 +337,42 @@ public class GUI {
 	 * user has selected a particular item from the search menu
 	 * @param pluCodedProduct
 	 */
-	public void selectedItem(PLUCodedProduct pluCodedProduct) {
+	public static void selectedItem(PLUCodedProduct pluCodedProduct) {
 		System.out.println(pluCodedProduct.getDescription());
 	}
 
-	public void userEntersPLUCode(int code) {
+	public static void userEntersPLUCode(int code) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public boolean attendantPassword(String password) {
+	public static boolean attendantPassword(String password) {
 		
 		return ac.attendantPassword(password);
 	}
 
-	public void removeItem(int station, int index) {
+	public static void removeItem(int station, int index) {
 		ac.removeItemFromCustomersCart(station, index);
 	}
 
-	public void shutdownStation() {
+	public static void shutdownStation() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public boolean attendantLogin(String name, String password) {
+	public static boolean attendantLogin(String name, String password) {
 		
 		return ac.attendantLogin(name, password);
 	}
 
-	public List<Product> getBaggedItems(int station) {
+	public static List<Product> getBaggedItems(int station) {
 		return ac.getCustomerCart(station);
 	}
 
 	/**
 	 * Simulate the user at the previous station
 	 */
-	public void selectPreviousUser() {
+	public static void selectPreviousUser() {
 		System.out.println("Select prev user");
 		ac.prevActiveUser();
 		updateScene(ac.getActiveUsersStation());
@@ -380,7 +381,7 @@ public class GUI {
 	/**
 	 * Simulate the user at the next station
 	 */
-	public void selectNextUser() {
+	public static void selectNextUser() {
 		System.out.println("Select next user");
 		ac.nextActiveUser();
 		updateScene(ac.getActiveUsersStation());
@@ -390,7 +391,7 @@ public class GUI {
 	 * Take me to the scene of the currently selected user.
 	 * @param station
 	 */
-	private void updateScene(int station) {
+	private static void updateScene(int station) {
 		System.out.println("updated scene " + station);
 		scenes.setCurrentStation(station);
 		if (station == -1) {
@@ -402,11 +403,11 @@ public class GUI {
 		}
 	}
 
-	public boolean isAttendantLoggedIn() {
+	public static boolean isAttendantLoggedIn() {
 		return ac.isAttendantLoggedIn();
 	}
 
-	public String getNextItemDescription(int station) {
+	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
 		if (item instanceof PLUCodedItem) {

@@ -10,6 +10,7 @@ import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.BarcodeScannerObserver;
 import org.lsmr.selfcheckout.devices.observers.ElectronicScaleObserver;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
@@ -54,7 +55,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 	 */
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
-		resetScale();;
+		resetScale();
 		this.scaleOverloaded = false;
 	}
 
@@ -178,10 +179,15 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			return;
 		}
 
-		if(this.scss.getPhase() == Phase.PAYMENT_COMPLETE)
-		{
-			if(weightInGrams == 0.0)
-			{
+		if (this.scss.getPhase() == Phase.SCANNING_ITEM) {
+			if (scale == this.scs.scanningArea) {
+				customer.addProduct(Inventory.getProduct(this.customer.getPLU()), weightInGrams);
+				return;
+			}
+		}
+
+		if (this.scss.getPhase() == Phase.PAYMENT_COMPLETE) {
+			if (weightInGrams == 0.0) {
 				this.scss.checkoutComplete();
 			}
 			return;
@@ -238,15 +244,14 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		// Accept new weight
 		this.acceptNewWeight(weightInGrams);
 	}
-	
+
 	private void acceptNewWeight(double weightInGrams) {
 		this.currentWeight = weightInGrams;
 		this.expectedWeight = 0.0;
 		this.scss.addItem(); // Go back to add item phase
 	}
 
-	public void resetScale()
-	{
+	public void resetScale() {
 		this.currentWeight = 0.0;
 		this.expectedWeight = 0.0;
 	}
