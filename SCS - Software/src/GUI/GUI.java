@@ -8,6 +8,7 @@ import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -305,16 +306,26 @@ public class GUI {
 		
 	}
 
-	public static void addPaper() {
-		// TODO Auto-generated method stub
-		
+	public static void addPaper(int currentStation, int amount) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			try {
+				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addPaper(amount);
+			} catch (OverloadException e) {
+				Scenes.errorMsg("The paper cartridge is already full");
+			}
+		}
 	}
 
-	public static void addInk() {
-		// TODO Auto-generated method stub
-		
+	public static void addInk(int currentStation, int amount) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			try {
+				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addInk(amount);
+			} catch (OverloadException e) {
+				Scenes.errorMsg("The ink cartridge is already full");
+			}
+		}
 	}
-
+	
 	public static void emptyBanknoteStorage() {
 		// TODO Auto-generated method stub
 		
