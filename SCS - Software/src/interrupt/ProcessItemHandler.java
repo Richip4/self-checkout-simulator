@@ -179,7 +179,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			return;
 		}
 
-		if (this.scss.getPhase() == Phase.SCANNING_ITEM) {
+		if (this.scss.getPhase() == Phase.WEIGHING_PLU_ITEM) {
 			if (scale == this.scs.scanningArea) {
 				customer.addProduct(Inventory.getProduct(this.customer.getPLU()), weightInGrams);
 				this.expectedWeight = weightInGrams;

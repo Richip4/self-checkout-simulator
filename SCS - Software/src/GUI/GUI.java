@@ -8,6 +8,7 @@ import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -15,6 +16,7 @@ import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import user.Customer;
 import user.User;
@@ -136,14 +138,19 @@ public class GUI {
 			
 		}
 	}
-
+	
+	
 	public static void userRemovesBanknote(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
+				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
+				&& !(scs.banknoteOutput.hasSpace()))
+		{
+			scs.banknoteOutput.removeDanglingBanknotes();
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		} */
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -164,11 +171,13 @@ public class GUI {
 	
 	public static void userRemovesCoins(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		/*
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
+				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
+			scs.coinTray.collectCoins();
+		} */
 	}
 
 	public static void userPlacesItemOnWeighScale(int currentStation) {
@@ -203,14 +212,20 @@ public class GUI {
 			Scenes.errorMsg("You cannot scan this item");
 		}
 	}
-
+	
 	public static void userRemovesReceipt(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
+				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
+			try {
+				scs.printer.cutPaper();
+				scs.printer.removeReceipt();
+			}catch(Exception e){
+				Scenes.errorMsg("You are trying to remove a non-existent receipt");
+			}	
+		} 
 	}
 
 	public static void userAccessCardReader(int currentStation) {
@@ -235,6 +250,10 @@ public class GUI {
 	public static void attendantLogsOut() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public static void removePaidItemsFromBagging() {
+		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -296,7 +315,10 @@ public class GUI {
 	}
 
 	public static void refillBanknoteDispensers() {
-		// TODO Auto-generated method stub
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			
+		}
 		
 	}
 
@@ -314,9 +336,19 @@ public class GUI {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/* Emptying the banknote storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyBanknoteStorage() {
-		// TODO Auto-generated method stub
+		
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.banknoteStorage.unload();	
+		}
 		
 	}
 
@@ -324,9 +356,18 @@ public class GUI {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/* Emptying the coin storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyCoinStorage() {
-		// TODO Auto-generated method stub
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.coinStorage.unload();	
+		}
 		
 	}
 
@@ -337,7 +378,6 @@ public class GUI {
 
 	public static void proceedToCheckout() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public static boolean stationAttendantAccess() {
