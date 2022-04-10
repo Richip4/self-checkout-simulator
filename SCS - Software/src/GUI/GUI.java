@@ -127,7 +127,10 @@ public class GUI {
 		SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 		
-		hardware.baggingArea.add(ac.getLastCheckedOutItem());
+		Item item = ac.getLastCheckedOutItem();
+		if (item != null)
+			hardware.baggingArea.add(item);
+		ac.clearLastCheckedOutItem();
 	}
 
 	public static void userInsertsBanknote(int value, int currentStation) {

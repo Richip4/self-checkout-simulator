@@ -449,6 +449,10 @@ public class AppControl {
 	public Item getLastCheckedOutItem() {
 		return lastCheckedOutItem;
 	}
+	
+	public void clearLastCheckedOutItem() {
+		lastCheckedOutItem = null;
+	}
 
 
 }
