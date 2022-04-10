@@ -326,14 +326,24 @@ public class GUI {
 		
 	}
 
-	public static void addPaper() {
-		// TODO Auto-generated method stub
-		
+	public static void addPaper(int currentStation, int amount) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			try {
+				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addPaper(amount);
+			} catch (OverloadException e) {
+				Scenes.errorMsg("The paper cartridge is already full");
+			}
+		}
 	}
 
-	public static void addInk() {
-		// TODO Auto-generated method stub
-		
+	public static void addInk(int currentStation, int amount) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			try {
+				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addInk(amount);
+			} catch (OverloadException e) {
+				Scenes.errorMsg("The ink cartridge is already full");
+			}
+		}
 	}
 	
 	/* Emptying the banknote storage is done with a key, but we assume the attendant would have
