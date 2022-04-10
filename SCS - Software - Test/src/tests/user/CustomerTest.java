@@ -1,159 +1,153 @@
 package tests.user;
 
+import application.AppControl;
+import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.Numeral;
+import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.products.BarcodedProduct;
+import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
+import store.Inventory;
 import user.Customer;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
 
 import static org.junit.Assert.*;
 
-/**
- * The JUnit test class for the Customer class in SCS - Software.
- *
- * @author Ricky Bhatti
- */
 public class CustomerTest
 {
-    @Test
-    public void addCurrencyTest()
+    // Static variables that will be used during testing
+    final int[] banknoteDenominations = {5, 10, 20, 50};
+    final BigDecimal[] coinDenominations = {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1.00"), new BigDecimal("2.00")};
+    final String membershipID = "1234";
+    final BarcodedProduct product1 = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+    final PLUCodedProduct product2 = new PLUCodedProduct(new PriceLookupCode("1000"), "N/A", new BigDecimal("10.00"));
+    final double product2Weight = 22.5;
+    final BigDecimal product2ExpectedPrice = product2.getPrice().divide(new BigDecimal("1000.00")).multiply(BigDecimal.valueOf(product2Weight));
+
+    Customer customer;
+
+    @Before
+    public void setup()
     {
-        Customer customer = new Customer();
-        BigDecimal value = new BigDecimal(100.0);
-        customer.addCashBalance(value);
-        assertEquals(value, customer.getCashBalance());
+        customer = new Customer();
+        Inventory.clear();
     }
 
     @Test
-    public void addToCartTest()
+    public void typeTest()
     {
-        // TODO: Finish this test, needs a getter for the cart.
-
-        Customer customer = new Customer();
-        Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
-        Barcode barcode = new Barcode(barcodeNumeral);
-        customer.addProduct(barcode);
-        assertTrue(customer.getCart().get(0)==barcode);
+        assertEquals(AppControl.CUSTOMER, customer.getUserType());
     }
 
     @Test
-    public void getBarcodedItemsInCardTest()
+    public void addAndGetCashBalanceTest()
     {
-        Customer customer = new Customer();
-        assertEquals(new ArrayList <Barcode>(), customer.getCart());
+        assertEquals(BigDecimal.ZERO, customer.getCashBalance());
+
+        customer.addCashBalance(new BigDecimal(banknoteDenominations[0]));
+        customer.addCashBalance(coinDenominations[0]);
+
+        assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getCashBalance());
     }
 
     @Test
-    public void notifyBanknoteInputDisabledTest()
+    public void addAndGetPLUTest()
     {
-        // TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
+        assertNull(customer.getPLU());
+
+        customer.enterPLUCode(product2.getPLUCode());
+
+        assertEquals(product2.getPLUCode(), customer.getPLU());
     }
 
     @Test
-    public void removeBanknoteInputDisabledTest()
+    public void setAndGetMembershipTest()
     {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
+        assertNull(customer.getMemberID());
+
+        customer.setMemberID(membershipID);
+
+        assertEquals(membershipID, customer.getMemberID());
     }
 
     @Test
-    public void notifyBanknoteEjectedTest()
+    public void setAndGetUsingOwnBagsTest()
     {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
+        assertFalse(customer.getUseOwnBags());
+
+        customer.setOwnBagsUsed(true);
+
+        assertTrue(customer.getUseOwnBags());
     }
 
     @Test
-    public void removeBanknoteEjectedTest()
+    public void setAndGetPlasticBagsTest()
     {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
+        assertEquals(0, customer.getPlasticBags());
+
+        customer.setPlasticBags(10);
+
+        assertEquals(10, customer.getPlasticBags());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addProductTest()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+
+        customer.addProduct((Product) product1);
+        customer.addProduct((Product) product2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addInvalidProductTest()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+
+        customer.addProduct((Product) null);
     }
 
     @Test
-    public void notifyInvalidBanknoteTest()
+    public void hasSufficientCashBalanceTest()
     {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
+        customer.addProduct(product1);
+        customer.addProduct(product2, product2Weight);
+
+        assertFalse(customer.hasSufficientCashBalance());
+
+        customer.addCashBalance(new BigDecimal(banknoteDenominations[banknoteDenominations.length - 1]));
+
+        assertTrue(customer.hasSufficientCashBalance());
     }
 
     @Test
-    public void notifyInvalidCoinTest()
+    public void cartTest()
     {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
-    }
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
 
-    @Test
-    public void notifyPlaceInBaggingAreaTest()
-    {
-        // TODO: Write an actual test, when these functions are implemented.
+        Inventory.addProduct(product1);
+        Inventory.addProduct(product2);
+        customer.addProduct(product1);
+        customer.addProduct(product2, product2Weight);
 
-        Customer customer = new Customer();
-        customer.notifyPlaceInBaggingArea();
-        assertTrue(customer.getWaitingToBag());
-    }
+        assertTrue(customer.getCart().contains(product1));
+        assertTrue(customer.getCart().contains(product2));
+        assertEquals(2, customer.getCart().size());
+        assertEquals(2, customer.getCartEntries().size());
+        assertEquals(0, customer.getCartSubtotal().compareTo(product1.getPrice().add(product2ExpectedPrice)));
 
-    @Test
-    public void removePlaceInBaggingAreaTest()
-    {
-        // TODO: Write an actual test, when these functions are implemented.
+        customer.removeProduct(1);
+        customer.removeProduct(customer.getCartEntries().get(0));
 
-        Customer customer = new Customer();
-        customer.removePlaceInBaggingArea();
-        assertFalse(customer.getWaitingToBag());
-    }
-
-    @Test
-    public void notifyUnexpectedItemInBaggingAreaTest()
-    {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
-    }
-
-    @Test
-    public void removeUnexpectedItemInBaggingAreaTest()
-    {
-    	// TODO: Write an actual test, when these functions are implemented in future iteration.
-    	// Coverage won't reach this function until implementation is completed in final iteration
-    }
-
-    @Test
-    public void acceptUsingCustomBagTest()
-    {
-        Customer customer = new Customer();
-
-        assertTrue(customer.askForBags(true));
-    }
-
-    @Test
-    public void rejectUsingCustomBagTest()
-    {
-        Customer customer = new Customer();
-
-        assertFalse(customer.askForBags(false));
-    }
-
-    @Test
-    public void provideValidMembershipIdentificationTest()
-    {
-        Customer customer = new Customer();
-        String membershipNumber = "1";
-
-        assertEquals(membershipNumber, customer.promptCustomerForMemberID(membershipNumber));
-    }
-
-    @Test()
-    public void provideInvalidMembershipIdentificationTest()
-    {
-        Customer customer = new Customer();
-        String membershipNumber = "A";
-
-        assertEquals("", customer.promptCustomerForMemberID(membershipNumber));
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
     }
 }
