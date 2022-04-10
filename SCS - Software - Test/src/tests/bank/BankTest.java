@@ -1,171 +1,128 @@
 package tests.bank;
 
 import bank.Bank;
-import bank.Bank.BankAccount;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.math.BigDecimal;
+import org.lsmr.selfcheckout.external.CardIssuer;
 
 import static org.junit.Assert.*;
 
 public class BankTest
 {
     // Static variables that will be used during testing
-    final int totalBankAccountsCapacity = 10;
-    final String customer1Name = "John Smith";
-    final String customer2Name = "Samantha Smith";
-    final String customer1AccountType = "Debit";
-    final String customer2AccountType = "Credit";
-    final BigDecimal[] balanceAdjustmentAmounts = {new BigDecimal("5.00"), new BigDecimal("10.00"), new BigDecimal("20.00")};
+    final String card1Number = "1234";
+    final String card2Number = "5678";
 
-    // Declare the bank
-    Bank bank;
-
-    // Declare the bank accounts
-    BankAccount customer1BankAccount;
-    BankAccount customer2BankAccount;
+    // Declare the card issuers
+    CardIssuer cardIssuer1;
+    CardIssuer cardIssuer2;
 
     // Setup that is run before each test case
     @Before
     public void setup()
     {
-        // Initialize the bank
-        bank = new Bank(totalBankAccountsCapacity);
+        // Initialize the card issuers
+        cardIssuer1 = new CardIssuer("Visa");
+        cardIssuer2 = new CardIssuer("Mastercard");
 
-        // Initialize the bank accounts
-        customer1BankAccount = bank.createNewAccount(customer1Name, customer1AccountType);
-        customer2BankAccount = bank.createNewAccount(customer2Name, customer2AccountType);
+        // Resets the card issuers
+        Bank.clearIssuers();
     }
 
     @Test
-    public void accountCreationTest()
+    public void addAndGetIssuerTest()
     {
-        assertNotEquals(null, customer1BankAccount);
-        assertNotEquals(null, customer2BankAccount);
+        assertFalse(Bank.getIssuers().contains(cardIssuer1));
+        assertFalse(Bank.getIssuers().contains(cardIssuer2));
+        assertEquals(0, Bank.getIssuers().size());
 
-        assertEquals(0, customer1BankAccount.getBalance().compareTo(BigDecimal.ZERO));
-        assertEquals(0, customer2BankAccount.getBalance().compareTo(BigDecimal.ZERO));
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
 
-        assertNotEquals(null, customer1BankAccount.getCardNumber());
-        assertNotEquals(null, customer2BankAccount.getCardNumber());
-
-        assertFalse(customer1BankAccount.getCardNumber().isBlank());
-        assertFalse(customer2BankAccount.getCardNumber().isBlank());
-
-        assertNotSame(customer2BankAccount, customer1BankAccount);
+        assertTrue(Bank.getIssuers().contains(cardIssuer1));
+        assertTrue(Bank.getIssuers().contains(cardIssuer2));
+        assertEquals(2, Bank.getIssuers().size());
     }
 
     @Test
-    public void addFundsTest()
+    public void removeIssuerTest()
     {
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[1]);
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[2]);
+        assertFalse(Bank.getIssuers().contains(cardIssuer1));
+        assertFalse(Bank.getIssuers().contains(cardIssuer2));
+        assertEquals(0, Bank.getIssuers().size());
 
-        assertEquals(balanceAdjustmentAmounts[1], customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2], customer2BankAccount.getBalance());
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
+        Bank.removeIssuer(cardIssuer1);
+        Bank.removeIssuer(cardIssuer2);
 
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[0]);
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[0]);
-
-        assertEquals(balanceAdjustmentAmounts[1].add(balanceAdjustmentAmounts[0]), customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2].add(balanceAdjustmentAmounts[0]), customer2BankAccount.getBalance());
+        assertFalse(Bank.getIssuers().contains(cardIssuer1));
+        assertFalse(Bank.getIssuers().contains(cardIssuer2));
+        assertEquals(0, Bank.getIssuers().size());
     }
 
     @Test
-    public void deductFundsSuccessfullyTest()
+    public void addCardAndGetIssuerTest()
     {
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[1].add(balanceAdjustmentAmounts[0]));
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[2].add(balanceAdjustmentAmounts[0]));
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
 
-        customer1BankAccount.removeFunds(balanceAdjustmentAmounts[0]);
-        customer2BankAccount.removeFunds(balanceAdjustmentAmounts[0]);
+        Bank.addCardIssuer(card1Number, cardIssuer1);
+        Bank.addCardIssuer(card2Number, cardIssuer2);
 
-        assertEquals(balanceAdjustmentAmounts[1], customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2], customer2BankAccount.getBalance());
-
-        customer1BankAccount.removeFunds(balanceAdjustmentAmounts[1]);
-        customer2BankAccount.removeFunds(balanceAdjustmentAmounts[2]);
-
-        assertEquals(0, customer1BankAccount.getBalance().compareTo(BigDecimal.ZERO));
-        assertEquals(0, customer2BankAccount.getBalance().compareTo(BigDecimal.ZERO));
+        assertEquals(cardIssuer1, Bank.getCardIssuer(card1Number));
+        assertEquals(cardIssuer2, Bank.getCardIssuer(card2Number));
     }
 
     @Test
-    public void deductFundsUnsuccessfullyTest()
+    public void removeCardTest()
     {
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[0]);
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[1]);
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
 
-        customer1BankAccount.removeFunds(balanceAdjustmentAmounts[2]);
-        customer2BankAccount.removeFunds(balanceAdjustmentAmounts[2]);
+        Bank.addCardIssuer(card1Number, cardIssuer1);
+        Bank.addCardIssuer(card2Number, cardIssuer2);
 
-        assertEquals(balanceAdjustmentAmounts[0], customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[1], customer2BankAccount.getBalance());
+        assertEquals(cardIssuer1, Bank.getCardIssuer(card1Number));
+        assertEquals(cardIssuer2, Bank.getCardIssuer(card2Number));
+
+        Bank.removeCardIssuer(card1Number);
+        Bank.removeCardIssuer(card2Number);
+
+        assertNull(Bank.getCardIssuer(card1Number));
+        assertNull(Bank.getCardIssuer(card2Number));
     }
 
     @Test
-    public void getAccountTest()
+    public void clearIssuerTest()
     {
-        assertSame(customer1BankAccount, bank.getAccount(customer1BankAccount.getCardNumber()));
-        assertSame(customer2BankAccount, bank.getAccount(customer2BankAccount.getCardNumber()));
+        assertFalse(Bank.getIssuers().contains(cardIssuer1));
+        assertFalse(Bank.getIssuers().contains(cardIssuer2));
+        assertEquals(0, Bank.getIssuers().size());
+
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
+        Bank.clearIssuers();
+
+        assertFalse(Bank.getIssuers().contains(cardIssuer1));
+        assertFalse(Bank.getIssuers().contains(cardIssuer2));
+        assertEquals(0, Bank.getIssuers().size());
     }
 
     @Test
-    public void getAccountFundsTest()
+    public void clearCardsTest()
     {
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[1]);
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[2]);
+        Bank.addIssuer(cardIssuer1);
+        Bank.addIssuer(cardIssuer2);
+        Bank.addCardIssuer(card1Number, cardIssuer1);
+        Bank.addCardIssuer(card2Number, cardIssuer2);
 
-        assertEquals(balanceAdjustmentAmounts[1], bank.getAccountFunds(customer1BankAccount.getCardNumber()));
-        assertEquals(balanceAdjustmentAmounts[2], bank.getAccountFunds(customer2BankAccount.getCardNumber()));
-    }
+        assertEquals(cardIssuer1, Bank.getCardIssuer(card1Number));
+        assertEquals(cardIssuer2, Bank.getCardIssuer(card2Number));
 
-    @Test
-    public void payAccountTest()
-    {
-        bank.addFundsToAccount(customer1BankAccount.getCardNumber(), balanceAdjustmentAmounts[1]);
-        bank.addFundsToAccount(customer2BankAccount.getCardNumber(), balanceAdjustmentAmounts[2]);
+        Bank.clearCardIssuers();
 
-        assertEquals(balanceAdjustmentAmounts[1], customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2], customer2BankAccount.getBalance());
-
-        bank.addFundsToAccount(customer1BankAccount.getCardNumber(), balanceAdjustmentAmounts[0]);
-        bank.addFundsToAccount(customer2BankAccount.getCardNumber(), balanceAdjustmentAmounts[0]);
-
-        assertEquals(balanceAdjustmentAmounts[1].add(balanceAdjustmentAmounts[0]), customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2].add(balanceAdjustmentAmounts[0]), customer2BankAccount.getBalance());
-    }
-
-    @Test
-    public void chargeAccountSuccessfullyTest()
-    {
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[1].add(balanceAdjustmentAmounts[0]));
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[2].add(balanceAdjustmentAmounts[0]));
-
-        bank.billAccount(customer1BankAccount.getCardNumber(), customer1Name, balanceAdjustmentAmounts[0]);
-        bank.billAccount(customer2BankAccount.getCardNumber(), customer2Name, balanceAdjustmentAmounts[0]);
-
-        assertEquals(balanceAdjustmentAmounts[1], customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2], customer2BankAccount.getBalance());
-
-        bank.billAccount(customer1BankAccount.getCardNumber(), customer1Name, balanceAdjustmentAmounts[1]);
-        bank.billAccount(customer2BankAccount.getCardNumber(), customer2Name, balanceAdjustmentAmounts[2]);
-
-        assertEquals(0, customer1BankAccount.getBalance().compareTo(BigDecimal.ZERO));
-        assertEquals(0, customer2BankAccount.getBalance().compareTo(BigDecimal.ZERO));
-    }
-
-    @Test
-    public void chargeAccountUnsuccessfullyTest()
-    {
-        customer1BankAccount.addFunds(balanceAdjustmentAmounts[1]);
-        customer2BankAccount.addFunds(balanceAdjustmentAmounts[2]);
-
-        bank.billAccount(customer1BankAccount.getCardNumber(), customer2Name, balanceAdjustmentAmounts[0]);
-        bank.billAccount(customer2BankAccount.getCardNumber(), customer1Name, balanceAdjustmentAmounts[0]);
-
-        assertEquals(balanceAdjustmentAmounts[1], customer1BankAccount.getBalance());
-        assertEquals(balanceAdjustmentAmounts[2], customer2BankAccount.getBalance());
+        assertNull(Bank.getCardIssuer(card1Number));
+        assertNull(Bank.getCardIssuer(card2Number));
     }
 }
