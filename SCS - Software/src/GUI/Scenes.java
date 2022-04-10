@@ -297,7 +297,12 @@ public class Scenes {
 			generateBanner(scene, false, banner_info, banner_title);
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
-			banner_info.setText(gui.getUserInstruction());
+			
+			this.addWindowFocusListener(new WindowAdapter() {
+				public void windowGainedFocus(WindowEvent e) {
+					banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));		
+				}
+			});
 			
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
@@ -450,8 +455,16 @@ public class Scenes {
 				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
 				GUI.userScansItem(currentStation);
+				String nItem = GUI.getNextItemDescription(currentStation);
+				if (!nItem.equals("")) 
+					nextItem.setText(nItem);
+				
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation);
+				String nItem = GUI.getNextItemDescription(currentStation);
+				if (!nItem.equals("")) 
+					nextItem.setText(nItem);
+				
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {

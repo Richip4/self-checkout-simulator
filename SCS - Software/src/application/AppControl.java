@@ -291,6 +291,16 @@ public class AppControl {
 			return "OKAY";
 		}
 	}
+	
+	/**
+	 * 
+	 * @param currentStation
+	 * @return
+	 */
+	public Phase getStationPhase(int station) {
+		
+		return selfStationSoftwares.get(station).getPhase();
+	}
 
 	/**
 	 * 
@@ -423,6 +433,5 @@ public class AppControl {
 	public Item getCustomersNextItem(int station) {
 		return inventories.get(users[station]).get(0);
 	}
-
 
 }
