@@ -288,6 +288,17 @@ public class SelfCheckoutSoftwareTest
         assertEquals(SelfCheckoutSoftware.Phase.BAGGING_ITEM, selfCheckoutSoftware.getPhase());
     }
 
+    @Test
+    public void bagItemTest2()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.addPLUItem();
+
+        selfCheckoutSoftware.bagItem();
+
+        assertEquals(SelfCheckoutSoftware.Phase.BAGGING_ITEM, selfCheckoutSoftware.getPhase());
+    }
+
     @Test(expected = IllegalStateException.class)
     public void bagItemFailTest()
     {
