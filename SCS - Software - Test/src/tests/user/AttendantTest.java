@@ -31,6 +31,7 @@ public class AttendantTest
     final String password = "password";
     BarcodedProduct product1 = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
     PLUCodedProduct product2 = new PLUCodedProduct(new PriceLookupCode("1000"), "N/A", new BigDecimal("10.00"));
+    final double product2Weight = 22.5;
 
     SelfCheckoutStation selfCheckoutStation = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
     SelfCheckoutSoftware selfCheckoutSoftware = new SelfCheckoutSoftware(selfCheckoutStation);
@@ -68,24 +69,29 @@ public class AttendantTest
         assertEquals(password, attendant.getPassword());
     }
 
-    //    @Test
-    //    public void lookupAndRemoveProductTest()
-    //    {
-    //        assertTrue(selfCheckoutSoftware.getCustomer().getCart().isEmpty());
-    //
-    //        Inventory.addProduct(product1);
-    //        Inventory.addProduct(product2);
-    //        attendant.lookupProduct(selfCheckoutSoftware, product2.getPLUCode());
-    //        attendant.lookupProduct(selfCheckoutSoftware, new PriceLookupCode(product2.getPLUCode().toString() + "1"));
-    //
-    //        assertTrue(selfCheckoutSoftware.getCustomer().getCart().contains(product2));
-    //        assertEquals(1, selfCheckoutSoftware.getCustomer().getCart().size());
-    //
-    //        attendant.removeProduct(selfCheckoutSoftware, product2);
-    //        attendant.removeProduct(selfCheckoutSoftware, product1);
-    //
-    //        assertTrue(selfCheckoutSoftware.getCustomer().getCart().isEmpty());
-    //    }
+    @Test
+    public void removeProductTest()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
+
+        Inventory.addProduct(product1);
+        Inventory.addProduct(product2);
+        customer.addProduct(product1);
+        customer.addProduct(product2, product2Weight);
+
+        assertTrue(customer.getCart().contains(product1));
+        assertTrue(customer.getCart().contains(product2));
+        assertEquals(2, customer.getCart().size());
+        assertEquals(2, customer.getCartEntries().size());
+
+        attendant.removeProduct(selfCheckoutSoftware, 1);
+        attendant.removeProduct(selfCheckoutSoftware, customer.getCartEntries().get(0));
+
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+    }
 
     @Test
     public void setAndGetUnexpectedItemDecisionTest()

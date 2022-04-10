@@ -8,6 +8,7 @@ import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
+import org.lsmr.selfcheckout.products.Product;
 import store.Inventory;
 import user.Customer;
 
@@ -15,19 +16,16 @@ import java.math.BigDecimal;
 
 import static org.junit.Assert.*;
 
-/**
- * The JUnit test class for the Customer class in SCS - Software.
- *
- * @author Ricky Bhatti
- */
 public class CustomerTest
 {
     // Static variables that will be used during testing
     final int[] banknoteDenominations = {5, 10, 20, 50};
     final BigDecimal[] coinDenominations = {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1.00"), new BigDecimal("2.00")};
     final String membershipID = "1234";
-    BarcodedProduct product1 = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
-    PLUCodedProduct product2 = new PLUCodedProduct(new PriceLookupCode("1000"), "N/A", new BigDecimal("10.00"));
+    final BarcodedProduct product1 = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+    final PLUCodedProduct product2 = new PLUCodedProduct(new PriceLookupCode("1000"), "N/A", new BigDecimal("10.00"));
+    final double product2Weight = 22.5;
+    final BigDecimal product2ExpectedPrice = product2.getPrice().divide(new BigDecimal("1000.00")).multiply(BigDecimal.valueOf(product2Weight));
 
     Customer customer;
 
@@ -53,6 +51,16 @@ public class CustomerTest
         customer.addCashBalance(coinDenominations[0]);
 
         assertEquals(coinDenominations[0].add(new BigDecimal(banknoteDenominations[0])), customer.getCashBalance());
+    }
+
+    @Test
+    public void addAndGetPLUTest()
+    {
+        assertNull(customer.getPLU());
+
+        customer.enterPLUCode(product2.getPLUCode());
+
+        assertEquals(product2.getPLUCode(), customer.getPLU());
     }
 
     @Test
@@ -85,43 +93,48 @@ public class CustomerTest
         assertEquals(10, customer.getPlasticBags());
     }
 
-    //    @Test
-    //    public void lookupProductTest()
-    //    {
-    //        assertTrue(customer.getCart().isEmpty());
-    //
-    //        Inventory.addProduct(product1);
-    //        Inventory.addProduct(product2);
-    //        customer.lookupProduct(product2.getPLUCode());
-    //        customer.lookupProduct(new PriceLookupCode(product2.getPLUCode().toString() + "1"));
-    //
-    //        assertTrue(customer.getCart().contains(product2));
-    //        assertEquals(1, customer.getCart().size());
-    //    }
+    @Test(expected = IllegalArgumentException.class)
+    public void addProductTest()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
 
-    //    @Test
-    //    public void cartTest()
-    //    {
-    //        assertTrue(customer.getCart().isEmpty());
-    //        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
-    //
-    //        Inventory.addProduct(product1);
-    //        Inventory.addProduct(product2);
-    //        customer.addToCart(product1);
-    //        customer.addToCart(product1);
-    //        customer.addToCart(product2);
-    //
-    //        assertTrue(customer.getCart().contains(product1));
-    //        assertTrue(customer.getCart().contains(product2));
-    //        assertEquals(3, customer.getCart().size());
-    //        assertEquals(product1.getPrice().add(product1.getPrice()).add(product2.getPrice()), customer.getCartSubtotal());
-    //
-    //        customer.removeProduct(product1);
-    //        customer.removeProduct(product2);
-    //
-    //        assertTrue(customer.getCart().contains(product1));
-    //        assertFalse(customer.getCart().contains(product2));
-    //        assertEquals(1, customer.getCart().size());
-    //        assertEquals(product1.getPrice(), customer.getCartSubtotal());
-    //    }
+        customer.addProduct((Product) product1);
+        customer.addProduct((Product) product2);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addInvalidProductTest()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+
+        customer.addProduct((Product) null);
+    }
+
+    @Test
+    public void cartTest()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
+
+        Inventory.addProduct(product1);
+        Inventory.addProduct(product2);
+        customer.addProduct(product1);
+        customer.addProduct(product2, product2Weight);
+
+        assertTrue(customer.getCart().contains(product1));
+        assertTrue(customer.getCart().contains(product2));
+        assertEquals(2, customer.getCart().size());
+        assertEquals(2, customer.getCartEntries().size());
+        assertEquals(0, customer.getCartSubtotal().compareTo(product1.getPrice().add(product2ExpectedPrice)));
+
+        customer.removeProduct(1);
+        customer.removeProduct(customer.getCartEntries().get(0));
+
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
+    }
 }
