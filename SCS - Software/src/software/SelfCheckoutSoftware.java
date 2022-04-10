@@ -300,6 +300,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.SCANNING_ITEM);
     }
 
+    public void addPLUItem()
+    {
+        this.disableHardware();
+        this.processItemHandler.enableHardware();
+
+        this.setPhase(Phase.WEIGHING_PLU_ITEM);
+    }
+    
     /**
      * When customer added a product to their cart, and now they need to bag the
      * item.
@@ -310,7 +318,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * the product.
      */
     public void bagItem() {
-        if (this.phase != Phase.SCANNING_ITEM) {
+        if (this.phase != Phase.SCANNING_ITEM && this.phase != Phase.WEIGHING_PLU_ITEM) {
             throw new IllegalStateException("Cannot add item when the system is not scanning item");
         }
 
