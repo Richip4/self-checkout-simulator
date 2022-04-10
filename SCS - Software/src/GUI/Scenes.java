@@ -298,6 +298,14 @@ public class Scenes {
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
 			
+			this.addWindowFocusListener(new WindowAdapter() {
+                public void windowGainedFocus(WindowEvent e) {
+                    banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
+                    nextItem.setText(GUI.getNextItemDescription(currentStation));
+                    nextItem.repaint();
+                }
+            });
+			
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
@@ -691,11 +699,9 @@ public class Scenes {
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
-				
 				if (promptAttendantForPassword()) {
 					stationAttendantOptions();
 				}
-				
 			} else if (e.getSource() == ownBags) {
 				GUI.userUsesOwnBags();
 			} else if (e.getSource() == membership) {

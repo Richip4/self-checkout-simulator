@@ -120,12 +120,13 @@ public class GUI {
 
 	//
 	public static void userBagsItem(int currentStation) {
-		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-//			software.bagItem();
-//			hardware.baggingArea.add(item);
-			//remove item from auto generated list here because we are still dealing
-			//with the same item
+			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+			
+			hardware.baggingArea.add(ac.getCustomersNextItem(currentStation));
+			
+			ac.removeCustomerNextItem(currentStation);
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
@@ -207,8 +208,6 @@ public class GUI {
 				hardware.handheldScanner.scan(item);
 			}
 			
-			software.bagItem();
-			
 		}catch (Exception e) {
 			Scenes.errorMsg("You cannot scan this item");
 		}
@@ -240,6 +239,7 @@ public class GUI {
 	public static void userAccessTouchscreen(int currentStation) {
 		// TODO Auto-generated method stub
 		scenes.getScene(Scenes.SCS_TOUCH);
+
 		
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -405,8 +405,17 @@ public class GUI {
 		try {
 			Item item = ac.getCustomersNextItem(currentStation);
 
-			//check if the plu exists in the Inventory
+			
 			PriceLookupCode plu = new PriceLookupCode(Integer.toString(code));
+			PLUCodedItem pluItem = (PLUCodedItem)ac.getCustomersNextItem(currentStation);
+			
+			//for simulation purpose only
+			if (!plu.equals(pluItem.getPLUCode())) {
+				Scenes.errorMsg("Simulation error! Please enter the PLU at the top of your cart!");
+				return;
+			}
+			
+			//check if the PLU exists in the Inventory
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
 				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
@@ -420,7 +429,7 @@ public class GUI {
 				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 				hardware.scanningArea.add(item);
 				
-				software.bagItem();
+				userBagsItem(currentStation);
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {

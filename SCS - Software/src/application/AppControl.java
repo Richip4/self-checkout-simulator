@@ -429,6 +429,10 @@ public class AppControl {
 		//return null if empty
 	}
 	
+	public void removeCustomerNextItem(int station) {
+		inventories.get(users[station]).remove(0);
+		System.out.println("test");
+	}
 	//remove first item from inventories ^^ 
 
 
