@@ -8,6 +8,7 @@ import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -17,6 +18,7 @@ import application.AppControl;
 import application.Main;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import store.Membership;
 import store.Store;
@@ -125,6 +127,11 @@ public class GUI {
 	public static void userBagsItem(int currentStation) {
 		//todo
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+//			software.bagItem();
+//			hardware.baggingArea.add(item);
+			//remove item from auto generated list here because we are still dealing
+			//with the same item
+		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
@@ -137,14 +144,19 @@ public class GUI {
 			
 		}
 	}
-
+	
+	
 	public static void userRemovesBanknote(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
+				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
+				&& !(scs.banknoteOutput.hasSpace()))
+		{
+			scs.banknoteOutput.removeDanglingBanknotes();
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		} */
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -165,14 +177,16 @@ public class GUI {
 	
 	public static void userRemovesCoins(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		/*
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
+				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
+			scs.coinTray.collectCoins();
+		} */
 	}
 
-	public static void userScansItem(int currentStation) {
+	public static void userPlacesItemOnWeighScale(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -181,13 +195,43 @@ public class GUI {
 		}
 	}
 
+	public static void userScansItem(int currentStation, boolean usedMainScanner) {
+		//we assume that it scans the first item in our list of auto generated items
+		Item item = ac.getCustomersNextItem(currentStation);
+		try {
+			BarcodedItem product = (BarcodedItem) item;
+			
+			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+			
+			software.addItem();
+			
+			if (usedMainScanner) {
+				hardware.mainScanner.scan(item);
+			}else {
+				hardware.handheldScanner.scan(item);
+			}
+			
+			software.bagItem();
+			
+		}catch (Exception e) {
+			Scenes.errorMsg("You cannot scan this item");
+		}
+	}
+	
 	public static void userRemovesReceipt(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
+				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
+			try {
+				scs.printer.cutPaper();
+				scs.printer.removeReceipt();
+			}catch(Exception e){
+				Scenes.errorMsg("You are trying to remove a non-existent receipt");
+			}	
+		} 
 	}
 
 	public static void userAccessCardReader(int currentStation) {
@@ -205,6 +249,10 @@ public class GUI {
 	public static void attendantLogsOut() {
 		SupervisionSoftware svs = Store.getSupervisionSoftware();
 		svs.logout();
+	}
+	
+	public static void removePaidItemsFromBagging() {
+		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -266,7 +314,10 @@ public class GUI {
 	}
 
 	public static void refillBanknoteDispensers() {
-		// TODO Auto-generated method stub
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			
+		}
 		
 	}
 
@@ -284,15 +335,38 @@ public class GUI {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/* Emptying the banknote storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyBanknoteStorage() {
-		// TODO Auto-generated method stub
+		
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.banknoteStorage.unload();	
+		}
 		
 	}
 
-
-	public static void emptyCoinStorage() {
+	public static void fillBankStorage() {
 		// TODO Auto-generated method stub
+		
+	}
+	
+	/* Emptying the coin storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
+	public static void emptyCoinStorage() {
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.coinStorage.unload();	
+		}
 		
 	}
 
@@ -329,28 +403,30 @@ public class GUI {
 	}
 
 	public static void userEntersPLUCode(int code, int currentStation) {
-		//errorMsg("No items have been bagged");
 		try {
 			Item item = ac.getCustomersNextItem(currentStation);
-			PLUCodedItem pluItem = (PLUCodedItem)item;
 
 			//check if the plu exists in the Inventory
 			PriceLookupCode plu = new PriceLookupCode(Integer.toString(code));
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
-				//get software and customer
+				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+				software.addItem();
 				
+				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
 				customer.enterPLUCode(plu);
 				
-				SelfCheckoutStation station = software.getSelfCheckoutStation();
-				station.scanningArea.add(item);
+				//get the hardware and weighs the item.
+				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+				hardware.scanningArea.add(item);
+				
+				software.bagItem();
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {
 			Scenes.errorMsg("The item you're trying to checkout is not a PLU item");
 		}
-
 	}
 
 	public static boolean attendantPassword(String password) {

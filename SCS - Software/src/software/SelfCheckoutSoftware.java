@@ -148,10 +148,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         return this.svs;
     }
 
-    public void notifyBanknoteEjected() {
-        this.checkout.makeChange();
-    }
-
     public void enableHardware() {
         this.banknoteHandler.enableHardware();
         this.cardHandler.enableHardware();
@@ -300,6 +296,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.SCANNING_ITEM);
     }
 
+    public void addPLUItem()
+    {
+        this.disableHardware();
+        this.processItemHandler.enableHardware();
+
+        this.setPhase(Phase.WEIGHING_PLU_ITEM);
+    }
+    
     /**
      * When customer added a product to their cart, and now they need to bag the
      * item.
@@ -310,7 +314,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * the product.
      */
     public void bagItem() {
-        if (this.phase != Phase.SCANNING_ITEM) {
+        if (this.phase != Phase.SCANNING_ITEM && this.phase != Phase.WEIGHING_PLU_ITEM) {
             throw new IllegalStateException("Cannot add item when the system is not scanning item");
         }
 
@@ -405,8 +409,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public void cancelCheckout() {
         // When the phase is not choosing payment method or processing their payment,
         // invalid operation
-        if ((this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD)
-                || this.customer == null) {
+        if (this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD) {
             throw new IllegalStateException("Cannot cancel checkout when the system is not processing payment");
         }
 

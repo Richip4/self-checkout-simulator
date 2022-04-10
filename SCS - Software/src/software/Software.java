@@ -76,7 +76,7 @@ public abstract class Software<T extends Observer> {
             String description = "";
             if (product instanceof BarcodedProduct) {
                 description = ((BarcodedProduct) product).getDescription();
-            } else if (product instanceof PLUCodedProduct) {
+            } else {
                 description = ((PLUCodedProduct) product).getDescription();
             }
 
