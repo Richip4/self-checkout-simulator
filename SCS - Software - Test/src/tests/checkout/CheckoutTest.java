@@ -174,6 +174,20 @@ public class CheckoutTest
         }
         
         @Test(expected = IllegalStateException.class)
+        public void makeChangeNotProcessingPaymentTest() {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            customer.addProduct(b);
+            scss.addItem();
+
+            scss.checkout();
+            checkout.makeChange();
+            
+        }
+        
+        @Test(expected = IllegalStateException.class)
         public void makeChangeNoPaymentTest() {
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
@@ -185,7 +199,6 @@ public class CheckoutTest
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
 
-            
 
             checkout.makeChange();
             
@@ -718,7 +731,7 @@ public class CheckoutTest
     
             BigDecimal sum = this.getSumOfBanknotesInBanknoteOutput();
     
-            assertEquals("Banknote output should have banknotes with sum of $21.00", change.doubleValue(), sum.doubleValue(), 0.01);
+            assertEquals("Banknote output should have banknotes with sum of $101.00", change.doubleValue(), sum.doubleValue(), 0.01);
         }
     
         @Test
@@ -862,7 +875,9 @@ public class CheckoutTest
     
             BigDecimal sum = BigDecimal.ZERO;
             sum = sum.add(bs);
+            System.out.println(sum);
             sum = sum.add(cs);
+            System.out.println(sum);
     
             assertEquals("Banknote output should have banknotes with sum of $136.78", change.doubleValue(), sum.doubleValue(), 0.01);
         }
