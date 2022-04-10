@@ -457,7 +457,6 @@ public class AppControl {
 			users[0] = activeUser;
 			return true;
 		} catch (IncorrectCredentialException e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
