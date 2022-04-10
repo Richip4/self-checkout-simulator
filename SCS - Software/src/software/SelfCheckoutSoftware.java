@@ -36,9 +36,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         BAGGING_ITEM,
         NON_BAGGABLE_ITEM,
         PLACING_OWN_BAG,
-        
+
         HAVING_WEIGHT_DISCREPANCY,
-        BLOCKING,
+        BLOCKING
     };
 
     public static enum PaymentMethod {
@@ -227,6 +227,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         // 4. notify GUI that touch screen is blocked
 
         this.disableHardware();
+        this.processItemHandler.enableBaggingArea(); // Bagging area should be enabled basically all the time
         this.isBlocked = true;
         this.notifyObservers(observer -> observer.phaseChanged(Phase.BLOCKING));
         this.notifyObservers(observer -> observer.touchScreenBlocked());
@@ -300,10 +301,13 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     }
 
     /**
-     * When customer added a product to their cart, and now they need to bag the item.
+     * When customer added a product to their cart, and now they need to bag the
+     * item.
      * 
-     * 1. For barcoded item, this method is called whenever an item is scanned. GUI won't need to call this method.
-     * 2. For PLU coded item, GUI will need to call this method after they selected the product.
+     * 1. For barcoded item, this method is called whenever an item is scanned. GUI
+     * won't need to call this method.
+     * 2. For PLU coded item, GUI will need to call this method after they selected
+     * the product.
      */
     public void bagItem() {
         if (this.phase != Phase.SCANNING_ITEM) {
@@ -334,11 +338,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.PLACING_OWN_BAG);
     }
 
-    public void notBaggingItem()
-    {
-        if(this.phase != Phase.BAGGING_ITEM)
-        {
-            throw new IllegalStateException("Need to be in the process of bagging an item to choose not to bag and item");
+    public void notBaggingItem() {
+        if (this.phase != Phase.BAGGING_ITEM) {
+            throw new IllegalStateException(
+                    "Need to be in the process of bagging an item to choose not to bag and item");
         }
 
         this.setPhase(Phase.NON_BAGGABLE_ITEM);
@@ -377,8 +380,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.checkout.enablePaymentHardware(method);
     }
 
-    public void paymentCompleted()
-    {
+    public void paymentCompleted() {
         if (this.phase != Phase.PROCESSING_PAYMENT) {
             throw new IllegalStateException("Cannot have a completed payment without a processed payment");
         }
@@ -386,9 +388,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.processItemHandler.enableBaggingArea();
         this.setPhase(Phase.PAYMENT_COMPLETE);
     }
-    
-    public void checkoutComplete()
-    {
+
+    public void checkoutComplete() {
         if (this.phase != Phase.PAYMENT_COMPLETE) {
             throw new IllegalStateException("Cannot have a completed checkout without a completeted payment");
         }
@@ -426,7 +427,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     }
 
     protected void approveWeightDiscrepancy() {
-        if (this.phase != Phase.HAVING_WEIGHT_DISCREPANCY) {
+        if (!this.isWeightDiscrepancy) {
             throw new IllegalStateException(
                     "Cannot approve weight discrepancy when the system is not waiting for approval");
         }
@@ -438,4 +439,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
+
+	public void approveMissingItem() {
+		// TODO attendant approves not bagging an item
+		
+	}
 }
