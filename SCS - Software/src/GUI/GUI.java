@@ -201,7 +201,12 @@ public class GUI {
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
 				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
-			scs.printer.removeReceipt();
+			try {
+				scs.printer.cutPaper();
+				scs.printer.removeReceipt();
+			}catch(Exception e){
+				Scenes.errorMsg("You are trying to remove a non-existent receipt");
+			}	
 		} 
 	}
 
@@ -313,9 +318,19 @@ public class GUI {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/* Emptying the banknote storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyBanknoteStorage() {
-		// TODO Auto-generated method stub
+		
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.banknoteStorage.unload();	
+		}
 		
 	}
 
@@ -323,9 +338,18 @@ public class GUI {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	/* Emptying the coin storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyCoinStorage() {
-		// TODO Auto-generated method stub
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.coinStorage.unload();	
+		}
 		
 	}
 
@@ -336,7 +360,6 @@ public class GUI {
 
 	public static void proceedToCheckout() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	public static boolean stationAttendantAccess() {
