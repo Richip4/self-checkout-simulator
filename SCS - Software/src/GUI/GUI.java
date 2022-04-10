@@ -1,15 +1,15 @@
 package GUI;
 
-import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.swing.JFrame;
-
+import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
@@ -18,21 +18,34 @@ import org.lsmr.selfcheckout.products.Product;
 import application.AppControl;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import store.Inventory;
+import store.Membership;
+import store.Store;
+import store.credentials.AuthorizationRequiredException;
 import user.Customer;
 import user.User;
+import java.util.Currency;
 
 public class GUI {
 
 	private static AppControl ac;
 	private static Scenes scenes = new Scenes();
+	private static GUIObserver observer = new GUIObserver();
 	
+
 	private GUI() {}
 	
 	public static void init(AppControl appControl) {
 		ac = appControl;
 		// Initializes the openning scene, Self-Checkout Overview 
 		scenes.getScene(Scenes.SC_OVERVIEW);	
+		
+		Store.getSupervisionSoftware().addObserver(observer);
+		for(SelfCheckoutSoftware scs : Store.getSelfCheckoutSoftwareList())
+		{
+			scs.addObserver(observer);
+		}
 	}
 	
 	public static void close() {
@@ -124,30 +137,34 @@ public class GUI {
 
 	//
 	public static void userBagsItem(int currentStation) {
-		// TODO Auto-generated method stub
+		//todo
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
+//			software.bagItem();
+//			hardware.baggingArea.add(item);
+			//remove item from auto generated list here because we are still dealing
+			//with the same item
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
-	public static void userInsertsBanknote(int value, int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+	public static void userInsertsBanknote(int currentStation, int value) {
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
 	}
-
+	
+	
 	public static void userRemovesBanknote(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
+				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
+				&& !(scs.banknoteOutput.hasSpace()))
+		{
+			scs.banknoteOutput.removeDanglingBanknotes();
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		} */
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -157,49 +174,58 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsCoin(BigDecimal value, int currentStation) {
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+	public static void userInsertsCoin(int currentStation, BigDecimal value) {
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.getCustomer().addCashBalance(value);
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		/*
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
+				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
+			scs.coinTray.collectCoins();
+		} */
 	}
 
-	public static void userPlacesItemOnWeighScale(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+	public static void userScansItem(int currentStation, boolean usedMainScanner) {
+		//we assume that it scans the first item in our list of auto generated items
+		Item item = ac.getCustomersNextItem(currentStation);
+		try {
+			BarcodedItem product = (BarcodedItem) item;
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 			
+			software.addItem();
+			
+			if (usedMainScanner) {
+				hardware.mainScanner.scan(item);
+			}else {
+				hardware.handheldScanner.scan(item);
+			}
+			
+			software.bagItem();
+			
+		}catch (Exception e) {
+			Scenes.errorMsg("You cannot scan this item");
 		}
 	}
-
-	public static void userScansItem(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
-	}
-
+	
 	public static void userRemovesReceipt(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
+				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
+			try {
+				scs.printer.cutPaper();
+				scs.printer.removeReceipt();
+			}catch(Exception e){
+				Scenes.errorMsg("You are trying to remove a non-existent receipt");
+			}	
+		} 
 	}
 
 	public static void userAccessCardReader(int currentStation) {
@@ -211,19 +237,17 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		// TODO Auto-generated method stub
 		scenes.getScene(Scenes.SCS_TOUCH);
-		
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
 	}
 
 	public static void attendantLogsOut() {
-		// TODO Auto-generated method stub
-		
+		SupervisionSoftware svs = Store.getSupervisionSoftware();
+		svs.logout();
+	}
+	
+	public static void removePaidItemsFromBagging() {
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.checkoutComplete();
 	}
 
 	/**
@@ -256,95 +280,163 @@ public class GUI {
 
 	public static void userTapsCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerTapsCreditCard();
+			ac.customerTapsCreditCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerTapsDebitCard();
+			ac.customerTapsDebitCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerTapsMembershipCard();
+			ac.customerTapsMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
 	public static void userSwipesCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerSwipesCreditCard();
+			ac.customerSwipesCreditCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerSwipesDebitCard();
+			ac.customerSwipesDebitCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerSwipesMembershipCard();
+			ac.customerSwipesMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
-	public static void userInsertCard(int cardType) {
+	public static void userInsertCard(int cardType, String pin) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerInsertCreditCard();
+			// pin is needed from a key pad
+			ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerInsertDebitCard();
-		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerInsertMembershipCard();
+			ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
 		}
 	}
 
 	public static void refillBanknoteDispensers() {
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		int[] banknoteDenoms = scs.banknoteDenominations;
+		Currency currency = Currency.getInstance("CAD");
+		
 		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
 		{
-			
+			// For every dispenser (there is one dispenser for each banknote denomination)
+			for(int denom: banknoteDenoms) {
+				int numBillsInDispenser = scs.banknoteDispensers.get(denom).size();
+				int dispenserCapacity = scs.BANKNOTE_DISPENSER_CAPACITY;
+				
+				Banknote note = new Banknote(currency,denom);
+				
+				while(numBillsInDispenser != dispenserCapacity) {
+					try {
+						scs.banknoteDispensers.get(denom).load(note);
+					} catch (OverloadException e) {
+						e.printStackTrace();
+					}
+					numBillsInDispenser++;
+				}
+			}
 		}
 		
 	}
 
 	public static void refillCoinDispenser() {
-		// TODO Auto-generated method stub
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		List<BigDecimal> coinDenoms = scs.coinDenominations;
+		Currency currency = Currency.getInstance("CAD");
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			// For every dispenser (there is one dispenser for each banknote denomination)
+			for(BigDecimal denom: coinDenoms) {
+				int numCoinsInDispenser = scs.coinDispensers.get(denom).size();
+				int dispenserCapacity = scs.COIN_DISPENSER_CAPACITY;
+				
+				Coin coin = new Coin(currency,denom);
+				
+				while(numCoinsInDispenser != dispenserCapacity) {
+					try {
+						scs.coinDispensers.get(denom).load(coin);
+					} catch (OverloadException e) {
+						e.printStackTrace();
+					}
+					numCoinsInDispenser++;
+				}
+			}
+		}
+		
 		
 	}
 
-	public static void addPaper() {
-		// TODO Auto-generated method stub
-		
+	public static void addPaper(int currentStation, int amount) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			try {
+				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addPaper(amount);
+			} catch (OverloadException e) {
+				Scenes.errorMsg("The paper cartridge is already full");
+			}
+		}
 	}
 
-	public static void addInk() {
-		// TODO Auto-generated method stub
-		
+	public static void addInk(int currentStation, int amount) {
+		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			try {
+				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addInk(amount);
+			} catch (OverloadException e) {
+				Scenes.errorMsg("The ink cartridge is already full");
+			}
+		}
 	}
-
+	
+	/* Emptying the banknote storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyBanknoteStorage() {
-		// TODO Auto-generated method stub
+		
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.banknoteStorage.unload();	
+		}
 		
 	}
 
-	public static void fillBankStorage() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
+	/* Emptying the coin storage is done with a key, but we assume the attendant would have
+	 * this. This can happen during any phase*/
 	public static void emptyCoinStorage() {
-		// TODO Auto-generated method stub
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			scs.coinStorage.unload();	
+		}
 		
 	}
 
-	public static void fillCoinStorage() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public static void proceedToCheckout() {
-		// TODO Auto-generated method stub
-		
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.checkout();
 	}
 
-	public static boolean stationAttendantAccess() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	public static void userUsesOwnBags() {
-		// TODO Auto-generated method stub
-		
+	public static void userUsesOwnBags(int currentStation) {
+		Item bag = new PLUCodedItem(new PriceLookupCode("0000"), 5.0);
+		ac.getSelfCheckoutSoftware(currentStation).addOwnBag();
+		ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().baggingArea.add(bag);
 	}
 
 	public static void userEntersMembership(int num) {
-		// TODO Auto-generated method stub
-		
+
+		if(Membership.isMember(Integer.toString(num)))
+		{
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.getCustomer().setMemberID(Integer.toString(num));
+		}
 	}
 
 	/**
@@ -356,28 +448,30 @@ public class GUI {
 	}
 
 	public static void userEntersPLUCode(int code, int currentStation) {
-		//errorMsg("No items have been bagged");
 		try {
 			Item item = ac.getCustomersNextItem(currentStation);
-			PLUCodedItem pluItem = (PLUCodedItem)item;
 
 			//check if the plu exists in the Inventory
 			PriceLookupCode plu = new PriceLookupCode(Integer.toString(code));
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
-				//get software and customer
+				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+				software.addItem();
 				
+				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
 				customer.enterPLUCode(plu);
 				
-				SelfCheckoutStation station = software.getSelfCheckoutStation();
-				station.scanningArea.add(item);
+				//get the hardware and weighs the item.
+				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+				hardware.scanningArea.add(item);
+				
+				software.bagItem();
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {
 			Scenes.errorMsg("The item you're trying to checkout is not a PLU item");
 		}
-
 	}
 
 	public static boolean attendantPassword(String password) {
@@ -389,9 +483,12 @@ public class GUI {
 		ac.removeItemFromCustomersCart(station, index);
 	}
 
-	public static void shutdownStation() {
-		// TODO Auto-generated method stub
-		
+	public static void shutdownStation() throws AuthorizationRequiredException {
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.stopSystem();
+		}
 	}
 
 	public static boolean attendantLogin(String name, String password) {
@@ -432,6 +529,12 @@ public class GUI {
 		} else {
 			scenes.getScene(Scenes.SCS_OVERVIEW);
 		}
+	}
+
+	public void customerDoesNotWantToBagItem()
+	{
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.notBaggingItem();
 	}
 
 	public static boolean isAttendantLoggedIn() {

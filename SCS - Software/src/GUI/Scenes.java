@@ -44,6 +44,7 @@ import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
 import store.Store;
+import store.credentials.AuthorizationRequiredException;
 
 public class Scenes {
 	
@@ -453,13 +454,13 @@ public class Scenes {
 			} else if (e.getSource() == coinTray) {
 				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == scanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, true);
 				String nItem = GUI.getNextItemDescription(currentStation);
 				if (!nItem.equals("")) 
 					nextItem.setText(nItem);
 				
 			} else if (e.getSource() == handScanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, false);
 				String nItem = GUI.getNextItemDescription(currentStation);
 				if (!nItem.equals("")) 
 					nextItem.setText(nItem);
@@ -704,15 +705,11 @@ public class Scenes {
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
-				if (GUI.stationAttendantAccess()) {
-					// prompt attendant for password
-					// they must already be logged in to the attendant station
-					if (promptAttendantForPassword()) {
-						stationAttendantOptions();
-					}
+				if (promptAttendantForPassword()) {
+					stationAttendantOptions();	
 				}
 			} else if (e.getSource() == ownBags) {
-				GUI.userUsesOwnBags();
+				GUI.userUsesOwnBags(currentStation);
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
@@ -791,8 +788,8 @@ public class Scenes {
 			} else if (e.getSource() == swipe) {
 				GUI.userSwipesCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-			} else if (e.getSource() == insert) {
-				GUI.userInsertCard(promptCustomerForCard());
+			} else if (e.getSource() == insert) { 
+				GUI.userInsertCard(promptCustomerForCard(), ""); // TODO
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			}
 		}
@@ -938,18 +935,14 @@ public class Scenes {
 			} else if (e.getSource() == refillCoinDispensers) {
 				GUI.refillCoinDispenser();
 			} else if (e.getSource() == addPaper) {
-				GUI.addPaper();
+				GUI.addPaper(currentStation, 100);
 			} else if (e.getSource() == addInk) {
-				GUI.addInk();
+				GUI.addInk(currentStation, 100);
 			} else if (e.getSource() == bnEmptyStorage) {
 				GUI.emptyBanknoteStorage();
-			} else if (e.getSource() == bnFillStorage) {
-				GUI.fillBankStorage();
 			} else if (e.getSource() == coinEmptyStorage) {
 				GUI.emptyCoinStorage();
-			} else if (e.getSource() == coinFillStorage) {
-				GUI.fillCoinStorage();
-			}
+			} 
 		}
 	}
 			
@@ -1030,7 +1023,11 @@ public class Scenes {
 		shutdown.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GUI.shutdownStation();
+				try {
+					GUI.shutdownStation();
+				} catch (AuthorizationRequiredException e1) {
+					Scenes.errorMsg("incorrect login info");
+				}
 				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -1424,6 +1421,21 @@ public class Scenes {
 	public static void errorMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
+	
+//	public static boolean promptBagItem() {
+//		String[] options = {"Yes", "No" };
+//		int answer = JOptionPane.showOptionDialog(null, "Would you like to bag this item?", 
+//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+//		
+//		while (answer == -1) {
+//			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
+//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+//		}
+//		
+//		//returns true if yes is selected
+//		return answer == 0;
+//	
+//	}
 
 	/**
 	 * When a Keypad object is created for number input it
@@ -1441,10 +1453,10 @@ public class Scenes {
 	}
 	
 	public void coinWalletReturnValue(BigDecimal value) {
-		GUI.userInsertsCoin(value, currentStation);
+		GUI.userInsertsCoin(currentStation, value);
 	}
 	
 	public void banknoteWalletReturnValue(int value) {
-		GUI.userInsertsBanknote(value, currentStation);
+		GUI.userInsertsBanknote(currentStation, value);
 	}
 }
