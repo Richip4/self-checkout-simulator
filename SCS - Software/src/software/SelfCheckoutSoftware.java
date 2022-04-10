@@ -113,8 +113,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public void removeUser(User user) {
         if (user instanceof Customer) {
             customer = null;
+            idle();
         } else if (user instanceof Attendant) {
             attendant = null;
+            idle();
         }
     }
 
@@ -445,11 +447,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
-
-    public void approveMissingItem() {
-        // TODO attendant approves not bagging an item
-
-    }
     
     public boolean hasPendingChanges() {
         return this.checkout.hasPendingChange();
@@ -472,4 +469,5 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.isError = false;
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
     }
+
 }
