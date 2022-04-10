@@ -16,6 +16,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
@@ -23,6 +24,7 @@ import store.Inventory;
 import store.Membership;
 import store.Store;
 import store.credentials.AuthorizationRequiredException;
+
 import user.Customer;
 import user.User;
 import java.util.Currency;
@@ -139,15 +141,13 @@ public class GUI {
 
 	//
 	public static void userBagsItem(int currentStation) {
-		//todo
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-//			software.bagItem();
-//			hardware.baggingArea.add(item);
-			//remove item from auto generated list here because we are still dealing
-			//with the same item
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+		
+		Item item = ac.getLastCheckedOutItem();
+		if (item != null)
+			hardware.baggingArea.add(item);
+		ac.clearLastCheckedOutItem();
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
@@ -208,9 +208,7 @@ public class GUI {
 			}else {
 				hardware.handheldScanner.scan(item);
 			}
-			
-			software.bagItem();
-			
+			ac.removeCustomerNextItem(currentStation);
 		}catch (Exception e) {
 			Scenes.errorMsg("You cannot scan this item");
 		}
@@ -453,12 +451,21 @@ public class GUI {
 		try {
 			Item item = ac.getCustomersNextItem(currentStation);
 
-			//check if the plu exists in the Inventory
+			
 			PriceLookupCode plu = new PriceLookupCode(Integer.toString(code));
+			PLUCodedItem pluItem = (PLUCodedItem)ac.getCustomersNextItem(currentStation);
+			
+			//for simulation purpose only
+			if (!plu.equals(pluItem.getPLUCode())) {
+				Scenes.errorMsg("Simulation error! Please enter the PLU at the top of your cart!");
+				return;
+			}
+			
+			//check if the PLU exists in the Inventory
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
 				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
-				software.addItem();
+				software.addPLUItem();
 				
 				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
@@ -468,7 +475,9 @@ public class GUI {
 				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 				hardware.scanningArea.add(item);
 				
-				software.bagItem();
+				
+				ac.removeCustomerNextItem(currentStation);
+				hardware.scanningArea.remove(item);
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {
@@ -546,19 +555,20 @@ public class GUI {
 	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
-		if (item != null) {
-			if (item instanceof PLUCodedItem) {
-				PLUCodedItem pluItem = (PLUCodedItem) item;
-				PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
-				desc = "<html>PLU Coded Item<br>";
-				desc += p.getDescription() +"  $"+ p.getPrice();
-				desc += "<br>Code: " + p.getPLUCode() + "</html>";
-			} else if (item instanceof BarcodedItem) {
-				BarcodedItem barItem = (BarcodedItem) item;
-				BarcodedProduct b = Inventory.getProduct(barItem.getBarcode()); 
-				desc = "<html>Barcoded Item<br>";
-				desc += b.getDescription() +" "+ b.getPrice() + "</html>";
-			}
+		
+		if (item == null)
+			return "No more items";
+		if (item instanceof PLUCodedItem) {
+			PLUCodedItem pluItem = (PLUCodedItem) item;
+			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
+			desc = "<html>PLU Coded Item<br>";
+			desc += p.getDescription() +"  $"+ p.getPrice();
+			desc += "<br>Code: " + p.getPLUCode() + "</html>";
+		} else if (item instanceof BarcodedItem) {
+			BarcodedItem barItem = (BarcodedItem) item;
+			BarcodedProduct b = Inventory.getProduct(barItem.getBarcode()); 
+			desc = "<html>Barcoded Item<br>";
+			desc += b.getDescription() +" "+ b.getPrice() + "</html>";
 		}
 		return desc;
 	}
@@ -606,5 +616,10 @@ public class GUI {
 		
 		}
 		return instruction;
+	}
+	
+	public static Phase getPhase(int stationNumber) {
+		System.out.println(ac.getSelfCheckoutSoftware(stationNumber).getPhase());
+		return ac.getSelfCheckoutSoftware(stationNumber).getPhase();
 	}
 }

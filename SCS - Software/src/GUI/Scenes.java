@@ -42,6 +42,7 @@ import org.lsmr.selfcheckout.products.Product;
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import store.Store;
 import store.credentials.AuthorizationRequiredException;
@@ -304,12 +305,11 @@ public class Scenes {
 			banner_title.setText("Station " + i + "  ");
 			
 			this.addWindowFocusListener(new WindowAdapter() {
-				public void windowGainedFocus(WindowEvent e) {
-					banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
-					nextItem.setText(GUI.getNextItemDescription(currentStation));
-					nextItem.repaint();
-				}
-			});
+                public void windowGainedFocus(WindowEvent e) {
+                    banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
+                    updateDisplay();
+                }
+            });
 			
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
@@ -450,6 +450,7 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bagScale) {
 				GUI.userBagsItem(currentStation);
+				updateDisplay();
 			} else if (e.getSource() == bnInSlot) {
 				getBanknoteFromUser();
 			} else if (e.getSource() == bnOutSlot) {
@@ -462,16 +463,11 @@ public class Scenes {
 				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == scanner) {
 				GUI.userScansItem(currentStation, true);
-				String nItem = GUI.getNextItemDescription(currentStation);
-				if (!nItem.equals("")) 
-					nextItem.setText(nItem);
-				
+				updateDisplay();
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation, false);
 				String nItem = GUI.getNextItemDescription(currentStation);
-				if (!nItem.equals("")) 
-					nextItem.setText(nItem);
-				
+				updateDisplay();
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
@@ -479,6 +475,17 @@ public class Scenes {
 			} else if (e.getSource() == touchscreen) {
 				GUI.userAccessTouchscreen(currentStation);
 			}
+		}
+		
+		private void updateDisplay() {
+			if (GUI.getPhase(currentStation) == Phase.BAGGING_ITEM) {
+				nextItem.setText("Bag Item");
+                nextItem.repaint();
+			} else {
+				nextItem.setText(GUI.getNextItemDescription(currentStation));
+                nextItem.repaint();
+			}
+			
 		}
 	}
 	
@@ -1109,7 +1116,7 @@ public class Scenes {
 	 * goes back to the attendant station.
 	 * @return true if password matches logged in attendant
 	 */
-	private boolean promptAttendantForPassword() {
+	private static boolean promptAttendantForPassword() {
 		Box box = Box.createVerticalBox();
 
 		JLabel passwordPrompt = new JLabel("  Password");
@@ -1453,6 +1460,8 @@ public class Scenes {
 			expectingMembershipNum = false;
 		}
 	}
+	
+	
 	
 	public void coinWalletReturnValue(BigDecimal value) {
 		GUI.userInsertsCoin(currentStation, value);
