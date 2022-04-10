@@ -299,6 +299,7 @@ public class Scenes {
 			generateBanner(scene, false, banner_info, banner_title);
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
+			banner_info.setText(gui.getUserInstruction());
 			
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));

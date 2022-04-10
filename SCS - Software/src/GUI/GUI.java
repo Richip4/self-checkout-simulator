@@ -424,4 +424,13 @@ public class GUI {
 		System.out.println(desc);
 		return desc;
 	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getUserInstruction() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
