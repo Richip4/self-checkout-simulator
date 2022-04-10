@@ -12,15 +12,8 @@ import store.Inventory;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
-/**
- * The JUnit test class for the Inventory class in SCS - Software.
- *
- * @author Ricky Bhatti
- * @author Michelle Cheung
- */
 public class InventoryTest
 {
     // Declare the products
@@ -50,6 +43,9 @@ public class InventoryTest
         assertNull(Inventory.getProduct(pluCodedProduct.getPLUCode()));
         assertNull(Inventory.getProduct(((BarcodedProduct) product1).getBarcode()));
         assertNull(Inventory.getProduct(((PLUCodedProduct) product2).getPLUCode()));
+        assertTrue(Inventory.getPLUProducts().isEmpty());
+        assertFalse(Inventory.getProducts().contains(product1));
+        assertFalse(Inventory.getProducts().contains(product2));
 
         Inventory.addProduct(barcodedProduct);
         Inventory.addProduct(pluCodedProduct);
@@ -60,6 +56,17 @@ public class InventoryTest
         assertEquals(pluCodedProduct, Inventory.getProduct(pluCodedProduct.getPLUCode()));
         assertEquals(product1, Inventory.getProduct(((BarcodedProduct) product1).getBarcode()));
         assertEquals(product2, Inventory.getProduct(((PLUCodedProduct) product2).getPLUCode()));
+        assertEquals(2, Inventory.getPLUProducts().size());
+        assertTrue(Inventory.getProducts().contains(product1));
+        assertTrue(Inventory.getProducts().contains(product2));
+        assertTrue(Inventory.getPLUProducts().containsKey(pluCodedProduct.getPLUCode()));
+        assertTrue(Inventory.getPLUProducts().containsKey(((PLUCodedProduct) product2).getPLUCode()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addInvalidProductTest()
+    {
+        Inventory.addProduct((Product) null);
     }
 
     @Test
