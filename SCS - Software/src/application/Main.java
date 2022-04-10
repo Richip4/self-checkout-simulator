@@ -58,7 +58,7 @@ public final class Main {
         Main.initializeMembership();
         Main.initializeCredentialsSytem();
         
-        new GUI(new AppControl());
+        GUI.init(new AppControl());
     }
 
     private static void initializeCardAndIssuers() {
