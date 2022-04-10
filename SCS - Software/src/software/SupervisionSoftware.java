@@ -232,4 +232,8 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
+
+	public void resolveError(SelfCheckoutSoftware scss) {
+		scss.resolveError();
+	}
 }

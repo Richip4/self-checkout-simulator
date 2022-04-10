@@ -39,6 +39,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         
         HAVING_WEIGHT_DISCREPANCY,
         BLOCKING,
+        ERROR
     };
 
     public static enum PaymentMethod {
@@ -50,6 +51,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private Phase phase;
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
+    private boolean isError;
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
@@ -256,7 +258,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * @return
      */
     public Phase getPhase() {
-        if (this.isBlocked) {
+        if (this.isError) {
+            return Phase.ERROR;
+        } else if (this.isBlocked) {
             return Phase.BLOCKING;
         } else if (this.isWeightDiscrepancy) {
             return Phase.HAVING_WEIGHT_DISCREPANCY;
@@ -437,5 +441,31 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.isWeightDiscrepancy = false;
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
+    }
+
+    public void approveMissingItem() {
+        // TODO attendant approves not bagging an item
+
+    }
+    
+    public boolean hasPendingChanges() {
+        return this.checkout.hasPendingChange();
+    }
+
+    public void errorOccur() {
+        this.disableHardware();
+        this.processItemHandler.enableBaggingArea();
+        this.isError = true;
+
+        this.notifyObservers(observer -> observer.phaseChanged(Phase.ERROR));
+    }
+
+    protected void resolveError() {
+        if (!this.isError) {
+            throw new IllegalStateException("Cannot resolve error when the system is not in error");
+        }
+
+        this.isError = false;
+        this.notifyObservers(observer -> observer.phaseChanged(this.phase));
     }
 }

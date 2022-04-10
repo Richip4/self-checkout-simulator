@@ -170,4 +170,7 @@ public class Customer extends User {
 		return numOfPlasticBags;
 	}
 
+	public boolean hasSufficientCashBalance() {
+		return this.getCashBalance().compareTo(this.getCartSubtotal()) >= 0;
+	}
 }
