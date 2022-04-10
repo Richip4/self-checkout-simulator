@@ -605,6 +605,8 @@ public class Scenes {
 	
 	private static boolean expectingPLUCode = false;
 	private static boolean expectingMembershipNum = false;
+	private static boolean expectingCreditPIN = false;
+	private static boolean expectingDebitPIN = false;
 	
 	// #######################################################################
 	// Self-Checkout Station Touch Screen Scene
@@ -758,6 +760,8 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		int cardType;
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
 
@@ -798,6 +802,7 @@ public class Scenes {
 			scene.add(content);
 			
 			this.setVisible(true);
+			cardType = promptCustomerForCard();
 			
 			return this;
 		}
@@ -817,7 +822,12 @@ public class Scenes {
 				GUI.userSwipesCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == insert) { 
-				GUI.userInsertCard(promptCustomerForCard(), ""); // TODO
+				if (cardType == AppControl.CREDIT) {
+					expectingCreditPIN = true;
+				} else if (cardType == AppControl.DEBIT) {
+					expectingDebitPIN = true;
+				}
+				getNumberFromUser("Enter your PIN");
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			}
 		}
@@ -1457,6 +1467,12 @@ public class Scenes {
 		} else if (expectingMembershipNum) {
 			GUI.userEntersMembership(number);
 			expectingMembershipNum = false;
+		} else if (expectingCreditPIN) {
+			GUI.userInsertCard(AppControl.CREDIT, String.valueOf(number));
+			expectingCreditPIN = false;
+		} else if (expectingDebitPIN) {
+			GUI.userInsertCard(AppControl.DEBIT, String.valueOf(number));
+			expectingDebitPIN = false;
 		}
 	}
 	

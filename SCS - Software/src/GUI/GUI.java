@@ -303,7 +303,6 @@ public class GUI {
 
 	public static void userInsertCard(int cardType, String pin) {
 		if (cardType == AppControl.CREDIT) {
-			// pin is needed from a key pad
 			ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
 		} if (cardType == AppControl.DEBIT) {
 			ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
