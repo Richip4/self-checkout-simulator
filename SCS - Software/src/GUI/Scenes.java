@@ -43,6 +43,7 @@ import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
 import store.Store;
+import store.credentials.AuthorizationRequiredException;
 
 public class Scenes {
 	
@@ -447,16 +448,14 @@ public class Scenes {
 				getCoinFromUser();
 			} else if (e.getSource() == coinTray) {
 				GUI.userRemovesCoins(currentStation);
-			} else if (e.getSource() == weighScale) {
-				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, true);
 				String nItem = GUI.getNextItemDescription(currentStation);
 				if (!nItem.equals("")) 
 					nextItem.setText(nItem);
 				
 			} else if (e.getSource() == handScanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, false);
 				String nItem = GUI.getNextItemDescription(currentStation);
 				if (!nItem.equals("")) 
 					nextItem.setText(nItem);
@@ -701,15 +700,11 @@ public class Scenes {
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
-				if (GUI.stationAttendantAccess()) {
-					// prompt attendant for password
-					// they must already be logged in to the attendant station
-					if (promptAttendantForPassword()) {
-						stationAttendantOptions();
-					}
+				if (promptAttendantForPassword()) {
+					stationAttendantOptions();	
 				}
 			} else if (e.getSource() == ownBags) {
-				GUI.userUsesOwnBags();
+				GUI.userUsesOwnBags(currentStation);
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
@@ -788,8 +783,8 @@ public class Scenes {
 			} else if (e.getSource() == swipe) {
 				GUI.userSwipesCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-			} else if (e.getSource() == insert) {
-				GUI.userInsertCard(promptCustomerForCard());
+			} else if (e.getSource() == insert) { 
+				GUI.userInsertCard(promptCustomerForCard(), /* somthing to get the pin from user*/);
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			}
 		}
@@ -935,9 +930,9 @@ public class Scenes {
 			} else if (e.getSource() == refillCoinDispensers) {
 				GUI.refillCoinDispenser();
 			} else if (e.getSource() == addPaper) {
-				GUI.addPaper();
+				GUI.addPaper(currentStation, 100);
 			} else if (e.getSource() == addInk) {
-				GUI.addInk();
+				GUI.addInk(currentStation, 100);
 			} else if (e.getSource() == bnEmptyStorage) {
 				GUI.emptyBanknoteStorage();
 			} else if (e.getSource() == coinEmptyStorage) {
@@ -1023,7 +1018,11 @@ public class Scenes {
 		shutdown.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GUI.shutdownStation();
+				try {
+					GUI.shutdownStation();
+				} catch (AuthorizationRequiredException e1) {
+					Scenes.errorMsg("incorrect login info");
+				}
 				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -1449,10 +1448,10 @@ public class Scenes {
 	}
 	
 	public void coinWalletReturnValue(BigDecimal value) {
-		GUI.userInsertsCoin(value, currentStation);
+		GUI.userInsertsCoin(currentStation, value);
 	}
 	
 	public void banknoteWalletReturnValue(int value) {
-		GUI.userInsertsBanknote(value, currentStation);
+		GUI.userInsertsBanknote(currentStation, value);
 	}
 }

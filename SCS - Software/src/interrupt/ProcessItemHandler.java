@@ -228,6 +228,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		if (this.scss.getPhase() != Phase.BAGGING_ITEM) {
 			this.scss.weightDiscrepancy();
 			this.scss.notifyObservers(observer -> observer.weightDiscrepancyInBaggingAreaDetected());
+			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.weightDiscrepancyDetected(this.scss));
 			return;
 		}
 
@@ -239,6 +240,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		if (discrepancy > DISCREPANCY) {
 			this.scss.weightDiscrepancy();
 			this.scss.notifyObservers(observer -> observer.weightDiscrepancyInBaggingAreaDetected());
+			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.weightDiscrepancyDetected(this.scss));
 			return;
 		}
 

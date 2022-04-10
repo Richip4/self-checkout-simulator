@@ -1,5 +1,6 @@
 package application;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,9 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.products.Product;
 
+import GUI.Scenes;
 import application.Main.Tangibles;
+import javafx.scene.Scene;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
 import software.SelfCheckoutSoftware.Phase;
@@ -339,43 +342,83 @@ public class AppControl {
 		}
 	}
 
-	public void customerTapsCreditCard() {
-		// TODO Auto-generated method stub
+	public void customerTapsCreditCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(1));
+		} catch (IOException e) {
+			Scenes.errorMsg("tap failed");
+		}
 		
 	}
 
-	public void customerTapsDebitCard() {
-		// TODO Auto-generated method stub
+	public void customerTapsDebitCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(2));
+		} catch (IOException e) {
+			Scenes.errorMsg("tap failed");
+		}
 		
 	}
 	
-	public void customerTapsMembershipCard() {
-		// TODO Auto-generated method stub
+	public void customerTapsMembershipCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.MEMBER_CARDS.get(1));
+		} catch (IOException e) {
+			Scenes.errorMsg("tap failed");
+		}
 		
 	}
 
-	public void customerSwipesCreditCard() {
-		// TODO Auto-generated method stub
+	public void customerSwipesCreditCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(1));
+		} catch (IOException e) {
+			Scenes.errorMsg("swipe failed");
+		}
 		
 	}
 
-	public void customerSwipesDebitCard() {
-		// TODO Auto-generated method stub
+	public void customerSwipesDebitCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(2));
+		} catch (IOException e) {
+			Scenes.errorMsg("swipe failed");
+		}
 		
 	}
 
-	public void customerSwipesMembershipCard() {
-		// TODO Auto-generated method stub
+	public void customerSwipesMembershipCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
+		} catch (IOException e) {
+			Scenes.errorMsg("swipe failed");
+		}
 		
 	}
 
-	public void customerInsertCreditCard() {
-		// TODO Auto-generated method stub
+	public void customerInsertCreditCard(int index, String pin) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+		} catch (IOException e) {
+			Scenes.errorMsg("insert failed");
+		}
 		
 	}
 
-	public void customerInsertDebitCard() {
-		// TODO Auto-generated method stub
+	public void customerInsertDebitCard(int index, String pin) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+		} catch (IOException e) {
+			Scenes.errorMsg("insert failed");
+		}
 		
 	}
 	

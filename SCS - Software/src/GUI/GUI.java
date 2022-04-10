@@ -17,10 +17,13 @@ import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
+import GUI.GUIObserver;
 import application.AppControl;
 import application.Main;
 import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
+import software.observers.SelfCheckoutObserver;
+import software.observers.SupervisionObserver;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
 import software.SelfCheckoutSoftware.Phase;
@@ -38,13 +41,21 @@ public class GUI {
 
 	private static AppControl ac;
 	private static Scenes scenes = new Scenes();
+	private static GUIObserver observer = new GUIObserver();
 	
+
 	private GUI() {}
 	
 	public static void init(AppControl appControl) {
 		ac = appControl;
 		// Initializes the openning scene, Self-Checkout Overview 
 		scenes.getScene(Scenes.SC_OVERVIEW);	
+		
+		Store.getSupervisionSoftware().addObserver(observer);
+		for(SelfCheckoutSoftware scs : Store.getSelfCheckoutSoftwareList())
+		{
+			scs.addObserver(observer);
+		}
 	}
 	
 	/**
@@ -275,29 +286,30 @@ public class GUI {
 
 	public static void userTapsCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerTapsCreditCard();
+			ac.customerTapsCreditCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerTapsDebitCard();
+			ac.customerTapsDebitCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerTapsMembershipCard();
+			ac.customerTapsMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
 	public static void userSwipesCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerSwipesCreditCard();
+			ac.customerSwipesCreditCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerSwipesDebitCard();
+			ac.customerSwipesDebitCard(scenes.getCurrentStation());
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerSwipesMembershipCard();
+			ac.customerSwipesMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
-	public static void userInsertCard(int cardType) {
+	public static void userInsertCard(int cardType, String pin) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerInsertCreditCard();
+			// pin is needed from a key pad
+			ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerInsertDebitCard();
+			ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
 		}
 	}
 
@@ -526,6 +538,12 @@ public class GUI {
 		} else {
 			scenes.getScene(Scenes.SCS_OVERVIEW);
 		}
+	}
+
+	public void customerDoesNotWantToBagItem()
+	{
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.notBaggingItem();
 	}
 
 	public static boolean isAttendantLoggedIn() {

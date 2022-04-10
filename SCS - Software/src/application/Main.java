@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JDialog;
 
@@ -75,11 +76,15 @@ public final class Main {
         expiry1.set(Calendar.YEAR, expiry1.get(Calendar.YEAR) + 1);
         String cardNo1 = "4510123456789000";
         rbc.addCardData(cardNo1, "Yunfan Yang", expiry1, "054", new BigDecimal("11903.56"));
+        Card card1 = new Card("credit", cardNo1, "Yunfan Yang", "054", "8522", true, true);
+        Tangibles.PAYMENT_CARDS.add(card1);
 
         Calendar expiry2 = Calendar.getInstance();
         expiry2.set(Calendar.YEAR, expiry2.get(Calendar.YEAR) + 1);
         String cardNo2 = "4510987654321000";
         scotia.addCardData(cardNo2, "Joshua Plosz", expiry2, "563", new BigDecimal("19532.20"));
+        Card card2 = new Card("debit", cardNo2, "Joshua Plosz", "563", "9423", true, true);
+        Tangibles.PAYMENT_CARDS.add(card2);
 
         Calendar expiry3 = Calendar.getInstance();
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);

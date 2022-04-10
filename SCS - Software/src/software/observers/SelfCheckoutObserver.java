@@ -15,50 +15,50 @@ import software.SelfCheckoutSoftware.Phase;
  */
 public interface SelfCheckoutObserver extends Observer {
     // Banknote Handler
-    public Void invalidBanknoteDetected();
+    public Void invalidBanknoteDetected();//
 
-    public Void banknoteAdded();
+    public Void banknoteAdded();//
 
-    public Void banknoteStorageFull();
+    public Void banknoteStorageFull();//-super
 
-    public Void banknoteDispenserEmpty();
+    public Void banknoteDispenserEmpty();//-super
 
     // Coin Handler
-    public Void invalidCoinDetected();
+    public Void invalidCoinDetected();//
 
-    public Void coinAdded();
+    public Void coinAdded();//
 
-    public Void coinStorageFull();
+    public Void coinStorageFull();//-super
 
-    public Void coinDispenserEmpty();
+    public Void coinDispenserEmpty();//-super
 
     // Card Handler
-    public Void invalidCardTypeDetected();
+    public Void invalidCardTypeDetected();//
 
-    public Void cardTransactionSucceeded();
+    public Void cardTransactionSucceeded();//
 
-    public Void invalidGiftCardDetected();
+    public Void invalidGiftCardDetected();//
 
-    public Void invalidMembershipCardDetected();
+    public Void invalidMembershipCardDetected();//
 
     public Void membershipCardDetected(String memberID);
 
-    public Void paymentHoldingAuthorizationFailed();
+    public Void paymentHoldingAuthorizationFailed();//
 
-    public Void paymentPostingTransactionFailed();
+    public Void paymentPostingTransactionFailed();//
 
-    public Void paymentCompleted();
+    public Void paymentCompleted();//
 
     // Process Item Handler
-    public Void placeInBaggingAreaBlocked();
+    public Void placeInBaggingAreaBlocked();//
 
     public Void placeInBaggingAreaUnblocked();
 
-    public Void weightDiscrepancyInBaggingAreaDetected();
+    public Void weightDiscrepancyInBaggingAreaDetected();//
 
     public Void weightDiscrepancyInBaggingAreaResolved();
 
-    public Void productCannotFound();
+    public Void productNotFound();//
 
     // Self-Checkout Software
 
@@ -66,7 +66,7 @@ public interface SelfCheckoutObserver extends Observer {
 
     public Void softwareStopped(SelfCheckoutSoftware scss);
 
-    public Void touchScreenBlocked();
+    public Void touchScreenBlocked();//
 
     public Void touchScreenUnblocked();
 
