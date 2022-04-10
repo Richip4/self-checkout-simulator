@@ -1398,20 +1398,20 @@ public class Scenes {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
 	
-	public static boolean promptBagItem() {
-		String[] options = {"Yes", "No" };
-		int answer = JOptionPane.showOptionDialog(null, "Would you like to bag this item?", 
-				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-		
-		while (answer == -1) {
-			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
-				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-		}
-		
-		//returns true if yes is selected
-		return answer == 0;
-	
-	}
+//	public static boolean promptBagItem() {
+//		String[] options = {"Yes", "No" };
+//		int answer = JOptionPane.showOptionDialog(null, "Would you like to bag this item?", 
+//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+//		
+//		while (answer == -1) {
+//			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
+//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+//		}
+//		
+//		//returns true if yes is selected
+//		return answer == 0;
+//	
+//	}
 
 	/**
 	 * When a Keypad object is created for number input it

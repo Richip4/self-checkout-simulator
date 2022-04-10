@@ -119,7 +119,10 @@ public class GUI {
 	public static void userBagsItem(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
+//			software.bagItem();
+//			hardware.baggingArea.add(item);
+			//remove item from auto generated list here because we are still dealing
+			//with the same item
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
@@ -177,12 +180,27 @@ public class GUI {
 		}
 	}
 
-	public static void userScansItem(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+	public static void userScansItem(int currentStation, boolean usedMainScanner) {
+		//we assume that it scans the first item in our list of auto generated items
+		Item item = ac.getCustomersNextItem(currentStation);
+		try {
+			BarcodedItem product = (BarcodedItem) item;
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 			
+			software.addItem();
+			
+			if (usedMainScanner) {
+				hardware.mainScanner.scan(item);
+			}else {
+				hardware.handheldScanner.scan(item);
+			}
+			
+			software.bagItem();
+			
+		}catch (Exception e) {
+			Scenes.errorMsg("You cannot scan this item");
 		}
 	}
 
@@ -360,26 +378,16 @@ public class GUI {
 				Customer customer = software.getCustomer();
 				customer.enterPLUCode(plu);
 				
-				//get the hardware and calls the hardware.
+				//get the hardware and weighs the item.
 				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 				hardware.scanningArea.add(item);
 				
 				software.bagItem();
-				hardware.baggingArea.add(item);
-				
-//				if(Scenes.promptBagItem()) {
-//					//Get the customer to bag the item
-//					software.bagItem();
-//					hardware.baggingArea.add(item);
-//				}else {
-//					software.notBaggingItem();
-//				}
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {
 			Scenes.errorMsg("The item you're trying to checkout is not a PLU item");
 		}
-
 	}
 
 	public static boolean attendantPassword(String password) {
