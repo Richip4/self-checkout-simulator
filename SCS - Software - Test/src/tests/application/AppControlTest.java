@@ -10,7 +10,6 @@ import user.Attendant;
 import user.Customer;
 
 public class AppControlTest {
-
 	@Test
 	public void testConstructor() {
 		Main m = new Main();
@@ -42,6 +41,9 @@ public class AppControlTest {
 
 	@Test
 	public void testNextActiveUser() {
+		Main m = new Main();
+		m.main(null);
+		AppControl ac = new AppControl();
 		fail("Not yet implemented"); // TODO
 	}
 
@@ -83,6 +85,82 @@ public class AppControlTest {
 	@Test
 	public void testAttendantLeavesStation() {
 		fail("Not yet implemented"); // TODO
+	}
+	@Test
+	public void testcustomerTapsCreditCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerTapsDebitCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerTapsMembershipCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerSwipesCreditCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerSwipesDebitCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerSwipesMembershipCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerInsertCreditCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerInsertDebitCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testcustomerInsertMembershipCard() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testremoveFromCart() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testattendantLogin() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testattendantPassword() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testgetCart() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Test
+	public void testAttendantIsLoggedIn() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Test
+	public void testCustomerNextItem() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

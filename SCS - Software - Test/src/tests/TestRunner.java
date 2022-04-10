@@ -13,7 +13,7 @@ import org.junit.runners.Suite;
         // All tests under tests.checkout
         tests.checkout.CheckoutTest.class, tests.checkout.ReceiptTest.class, tests.checkout.ScreenTest.class,
         // All tests under tests.gui
-        tests.gui.GUITest.class, tests.gui.KeypadTest.class, tests.gui.ScenesTest.class,
+        tests.gui.GUITest.class, tests.gui.ScenesTest.class,
         // All tests under tests.interrupt
         tests.interrupt.BanknoteHandlerTest.class, tests.interrupt.CardHandlerTest.class, tests.interrupt.CoinHandlerTest.class, tests.interrupt.ProcessItemHandlerTest.class,
         // All tests under tests.software
