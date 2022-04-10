@@ -111,12 +111,12 @@ public class Inventory {
 		return PLU_PRODUCT_DATABASE.get(plu);
 	}
 
-	/**
-	 * Required to display all available PLU products to the customer when searching
-	 * @return the collection of PLU coded products
-	 */
 	public static Map<PriceLookupCode, PLUCodedProduct> getPLUProducts() {
 		return Inventory.PLU_PRODUCT_DATABASE;
+	}
+
+	public static Map<Barcode, BarcodedProduct> getBarcodedProducts() {
+		return Inventory.BARCODED_PRODUCT_DATABASE;
 	}
 
 	public static List<Product> getProducts() {
