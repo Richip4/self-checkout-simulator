@@ -368,12 +368,7 @@ public class AppControl {
 		// TODO Auto-generated method stub
 		
 	}
-
-	public void customerInsertMembershipCard() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	public void removeItemFromCustomersCart(int station, int item) {
 		List<Product> cart = selfStationSoftwares.get(station).getCustomer().getCart();
 		cart.remove(item);
