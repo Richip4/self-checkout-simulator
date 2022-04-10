@@ -189,7 +189,6 @@ public class Checkout {
 					this.scs.coinDispensers.get(cash.value).emit();
 					newPendingChanges.remove(cash);
 				} catch (OverloadException | EmptyException | DisabledException e) {
-					System.out.println("error dispensing coins");
 					continue;
 				}
 			}
