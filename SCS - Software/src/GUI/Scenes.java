@@ -930,13 +930,9 @@ public class Scenes {
 				GUI.addInk();
 			} else if (e.getSource() == bnEmptyStorage) {
 				GUI.emptyBanknoteStorage();
-			} else if (e.getSource() == bnFillStorage) {
-				GUI.fillBankStorage();
 			} else if (e.getSource() == coinEmptyStorage) {
 				GUI.emptyCoinStorage();
-			} else if (e.getSource() == coinFillStorage) {
-				GUI.fillCoinStorage();
-			}
+			} 
 		}
 	}
 			
