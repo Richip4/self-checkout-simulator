@@ -448,9 +448,9 @@ public class Scenes {
 			} else if (e.getSource() == weighScale) {
 				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, true);
 			} else if (e.getSource() == handScanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, false);
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
