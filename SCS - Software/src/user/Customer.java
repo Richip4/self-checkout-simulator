@@ -169,6 +169,8 @@ public class Customer extends User {
 
 	public boolean hasSufficientCashBalance() {
 		return this.getCashBalance().compareTo(this.getCartSubtotal()) >= 0;
+	}
+	
 	public void enterPLUCode(PriceLookupCode plu) {
 		this.plu = plu;
 	}

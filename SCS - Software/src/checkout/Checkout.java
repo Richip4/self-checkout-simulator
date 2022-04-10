@@ -259,13 +259,12 @@ public class Checkout {
 			if (change.compareTo(cash.value) >= 0) {
 				// Add this to the pending change list
 				this.pendingChanges.add(cash);
+				change = change.subtract(cash.value);
 			} else {
 				// current denomination is bigger than 'change' amount. Remove it from
 				// consideration.
 				availableDenominations.remove(0);
 			}
-
-			change = change.subtract(cash.value);
 		}
 
 		return pendingChanges;
