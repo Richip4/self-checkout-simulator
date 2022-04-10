@@ -148,10 +148,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         return this.svs;
     }
 
-    public void notifyBanknoteEjected() {
-        this.checkout.makeChange();
-    }
-
     public void enableHardware() {
         this.banknoteHandler.enableHardware();
         this.cardHandler.enableHardware();
