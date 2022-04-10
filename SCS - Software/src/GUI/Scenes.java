@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -275,7 +276,6 @@ public class Scenes {
 		JButton maintenance;
 		JButton coinInSlot;
 		JButton coinTray;
-		JButton weighScale;
 		JButton scanner;
 		JButton handScanner;
 		JButton cardReader;
@@ -372,12 +372,13 @@ public class Scenes {
 			content.add(coinTray);
 			
 			// item weigh scale
-			weighScale = new JButton();
+			JLabel weighScale = new JLabel();
 			weighScale.setBounds(435, 250, 215, 90);
 			weighScale.setText("Item Weigh Scale");
+			weighScale.setHorizontalAlignment(SwingConstants.CENTER);
 			weighScale.setBorder(BorderFactory.createLineBorder(Color.black, 3, true));
-			weighScale.addActionListener(this);
 			weighScale.setFocusable(false);
+			weighScale.setOpaque(true);
 			content.add(weighScale);
 			
 			// stationary barcode scanner
@@ -449,8 +450,6 @@ public class Scenes {
 				getCoinFromUser();
 			} else if (e.getSource() == coinTray) {
 				GUI.userRemovesCoins(currentStation);
-			} else if (e.getSource() == weighScale) {
-				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
 				GUI.userScansItem(currentStation);
 				String nItem = GUI.getNextItemDescription(currentStation);
@@ -964,7 +963,7 @@ public class Scenes {
 	 */
 	private Color checkStationAttention(int station) {
 		return (GUI.stationStatus(station) != "BLOCKED" && GUI.stationStatus(station) != "WEIGHT DISCREPANCY" &&
-				GUI.stationStatus(station) != "MISSING ITEM") ? green_light : red_light;
+				GUI.stationStatus(station) != "ITEM NOT BAGGED") ? green_light : red_light;
 	}
 
 	/**
