@@ -14,12 +14,6 @@ import java.math.BigDecimal;
 
 import static org.junit.Assert.*;
 
-/**
- * The JUnit test class for the Inventory class in SCS - Software.
- *
- * @author Ricky Bhatti
- * @author Michelle Cheung
- */
 public class InventoryTest
 {
     // Declare the products
