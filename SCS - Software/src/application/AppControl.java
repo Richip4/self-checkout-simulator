@@ -197,7 +197,7 @@ public class AppControl {
 	 */
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
-//		users[station] = activeUser;
+		users[station] = activeUser;
 		selfStationSoftwares.get(station - 1).setUser(activeUser);
 	}
 
@@ -304,7 +304,7 @@ public class AppControl {
 	 */
 	public Phase getStationPhase(int station) {
 		
-		return selfStationSoftwares.get(station-1).getPhase();
+		return selfStationSoftwares.get(station).getPhase();
 	}
 
 	/**
@@ -340,89 +340,105 @@ public class AppControl {
 		}
 	}
 
-	public void customerTapsCreditCard(int index) {
+	public boolean customerTapsCreditCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(1));
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("tap failed");
+			return false;
 		}
 		
 	}
 
-	public void customerTapsDebitCard(int index) {
+	public boolean customerTapsDebitCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(2));
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("tap failed");
+			return false;
 		}
 		
 	}
 	
-	public void customerTapsMembershipCard(int index) {
+	public boolean customerTapsMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.MEMBER_CARDS.get(1));
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("tap failed");
+			return false;
 		}
 		
 	}
 
-	public void customerSwipesCreditCard(int index) {
+	public boolean customerSwipesCreditCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(1));
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("swipe failed");
+			return false;
 		}
 		
 	}
 
-	public void customerSwipesDebitCard(int index) {
+	public boolean customerSwipesDebitCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(2));
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("swipe failed");
+			return false;
 		}
 		
 	}
 
-	public void customerSwipesMembershipCard(int index) {
+	public boolean customerSwipesMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("swipe failed");
+			return false;
 		}
 		
 	}
 
-	public void customerInsertCreditCard(int index, String pin) {
+	public boolean customerInsertCreditCard(int index, String pin) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("insert failed");
+			return false;
 		}
 		
 	}
 
-	public void customerInsertDebitCard(int index, String pin) {
+	public boolean customerInsertDebitCard(int index, String pin) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+			return true;
 		} catch (IOException e) {
 			Scenes.errorMsg("insert failed");
+			return false;
 		}
 		
 	}
 	
 	public void removeItemFromCustomersCart(int station, int item) {
-		List<Product> cart = selfStationSoftwares.get(station).getCustomer().getCart();
-		cart.remove(item);
+		selfStationSoftwares.get(station).getCustomer().removeProduct(item);
+		
 	}
 
 	/**
@@ -492,6 +508,30 @@ public class AppControl {
 	
 	public void clearLastCheckedOutItem() {
 		lastCheckedOutItem = null;
+	}
+
+	public static SupervisionStation getSupervisor() {
+		return supervisor;
+	}
+
+	public SupervisionSoftware getSupervisorSoftware() {
+		return supervisorSoftware;
+	}
+
+	public List<SelfCheckoutStation> getSelfStations() {
+		return selfStations;
+	}
+
+	public List<SelfCheckoutSoftware> getSelfStationSoftwares() {
+		return selfStationSoftwares;
+	}
+
+	public int[] getStationsUserType() {
+		return stationsUserType;
+	}
+
+	public Map<User, List<Item>> getInventories() {
+		return inventories;
 	}
 
 

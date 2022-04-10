@@ -198,7 +198,7 @@ public final class Main {
 
     
     // We assume we are working in Canadian denominations
-    private static void initializeStore() {
+    public static void initializeStore() {
         Currency currency = Configurations.currency;
         int[] banknoteDenominations = { 5, 10, 20, 50, 100 };
         BigDecimal[] coinDenominations = {
