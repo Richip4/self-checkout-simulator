@@ -63,7 +63,7 @@ public class CheckoutTest
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
         BigDecimal price = new BigDecimal("1.00");
-        FakeProduct product = new FakeProduct(price);
+//        FakeProduct product = new FakeProduct(price);
         FakeItem item = new FakeItem(1.0);
  //       Inventory inv = new Inventory();
         
@@ -222,9 +222,9 @@ public class CheckoutTest
  //           selfCheckoutStation.coinSlot.accept(null);
             checkout.cancelCheckout();
     
-            assertFalse("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
-            assertFalse("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
-            assertFalse("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
+            assertTrue("Cancel checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Cancel checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Cancel checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
     
         @Test
@@ -868,19 +868,19 @@ public class CheckoutTest
     
             BarcodedProduct product_test = Inventory.getProduct(barcode);
 
-            assertEquals("product should be the same", product, product_test);
-            assertEquals("price should be the same", price, product_test.getPrice());
+            assertEquals("product should be the same", b, product_test);
+            assertEquals("price should be the same", new BigDecimal("0.99"), product_test.getPrice());
     
             Customer customer = new Customer();
             customer.addProduct(product_test);
     
-            ArrayList <Product> cart = (ArrayList<Product>) customer.getCart();
+            List <Product> cart = customer.getCart();
             assertEquals("cart should have one item", 1, cart.size());
             assertEquals("cart should have the same item", product_test, cart.get(0));
     
             Checkout checkout = new Checkout(scss);
             
             BigDecimal subtotal = customer.getCartSubtotal();
-            assertEquals("Subtotal should be 1.00", price, subtotal);
+            assertEquals("Subtotal should be 0.99", new BigDecimal("0.99"), subtotal);
         }
 }
