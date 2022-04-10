@@ -30,6 +30,7 @@ import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import store.Store;
 import store.credentials.IncorrectCredentialException;
+import store.credentials.AuthorizationRequiredException;
 import user.Attendant;
 import user.Customer;
 import user.User;
@@ -187,6 +188,16 @@ public class AppControlTest {
 	}
 	
 	@Test
+	public void testAttendantLeavesStationZero() {
+		ac.addNewAttendant();
+		ac.attendantUsesStation(1);
+		User attendant = ac.getActiveUser();
+		assertTrue(ac.getActiveUsers()[1] == attendant);
+		ac.attendantLeavesStation(0);
+		assertTrue(ac.getActiveUsers()[1] != null);
+	}
+	
+	@Test
 	public void testGetStationStateBlocking() {
 		ac.getSelfStationSoftwares().get(1).blockSystem();
 		assertTrue(ac.getStationState(1) == "BLOCKED");
@@ -227,6 +238,8 @@ public class AppControlTest {
 		ac.toggleBlock(1);
 		assertTrue(ac.getStationPhase(1) != Phase.BLOCKING);
 	}
+	
+	
 	
 	@Test
 	public void testApproveStationDiscrepancyWeight() {
@@ -274,6 +287,26 @@ public class AppControlTest {
 		assertTrue(success);
 		
 	}
+	
+	@Test
+	public void testcustomerTapsCreditCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		    final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+	        success = !ac.customerTapsCreditCard(1);
+		}	while(!success);
+		
+		
+		assertTrue(success);
+		
+	}
 	@Test
 	public void testcustomerTapsDebitCard() {
 		ac.addNewCustomer();
@@ -288,6 +321,25 @@ public class AppControlTest {
 		boolean success;
 		do {
 			success = ac.customerTapsDebitCard(1);
+		} while (!success);
+		assertTrue(success);
+		
+	}
+	
+	@Test
+	public void testcustomerTapsDebitCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+			success = !ac.customerTapsDebitCard(1);
+
 		} while (!success);
 		assertTrue(success);
 		
@@ -310,6 +362,26 @@ public class AppControlTest {
 		assertTrue(success);
 		
 	}
+	
+	@Test
+	public void testcustomerTapsMembershipCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+			success = !ac.customerTapsMembershipCard(1);
+
+		} while (!success);
+
+		assertTrue(success);
+		
+	}
 	@Test
 	public void testcustomerSwipesCreditCard() {
 		ac.addNewCustomer();
@@ -325,6 +397,26 @@ public class AppControlTest {
 		do {
 			success = ac.customerSwipesCreditCard(1);
 		} while (!success);
+		assertTrue(success);
+		
+	}
+	
+	@Test
+	public void testcustomerSwipesCreditCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+			success = !ac.customerSwipesCreditCard(1);
+
+		} while (!success);
+	
 		assertTrue(success);
 		
 	}
@@ -346,6 +438,26 @@ public class AppControlTest {
 		assertTrue(success);
 		
 	}
+	
+	@Test
+	public void testcustomerSwipesDebitCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+			success = !ac.customerSwipesDebitCard(1);
+		} while (!success);
+
+	
+		assertTrue(success);
+		
+	}
 	@Test
 	public void testcustomerSwipesMembershipCard() {
 		ac.addNewCustomer();
@@ -361,6 +473,25 @@ public class AppControlTest {
 		do {
 			success = ac.customerSwipesMembershipCard(1);
 		} while (!success);
+		assertTrue(success);
+		
+	}
+	
+	@Test
+	public void testcustomerSwipesMembershipCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+			success = !ac.customerSwipesMembershipCard(1);
+		} while (!success);
+	
 		assertTrue(success);
 		
 	}
@@ -383,6 +514,25 @@ public class AppControlTest {
 		assertTrue(success);		
 	}
 	@Test
+	public void testcustomerInsertCreditCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+			success = !ac.customerInsertCreditCard(1, "9423");
+			ac.getSelfStations().get(0).cardReader.remove();
+
+		} while (!success);
+	
+		assertTrue(success);		
+	}
+	@Test
 	public void testcustomerInsertDebitCard() {
 		ac.addNewCustomer();
 		ac.customerUsesStation(1);
@@ -398,6 +548,24 @@ public class AppControlTest {
 			success = ac.customerInsertDebitCard(1, "9423");
 			ac.getSelfStations().get(0).cardReader.remove();
 		} while (!success);
+		assertTrue(success);		
+	}
+	@Test
+	public void testcustomerInsertDebitCardFailure() {
+		ac.addNewCustomer();
+		ac.customerUsesStation(1);
+		boolean success;
+		do {
+		  final BarcodedProduct barcodedProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
+		    ac.getSelfStationSoftwares().get(0).getCustomer().addProduct(barcodedProduct);
+	        ac.getSelfStations().get(0).mainScanner.scan(new BarcodedItem(barcodedProduct.getBarcode(), barcodedProduct.getExpectedWeight()));
+	        ac.getSelfStationSoftwares().get(0).addItem();
+	        ac.getSelfStationSoftwares().get(0).checkout();
+	        ac.getSelfStationSoftwares().get(0).selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.BANK_CARD);
+	        success = !ac.customerInsertDebitCard(1, "9423");
+			ac.getSelfStations().get(0).cardReader.remove();
+		} while (!success);
+	
 		assertTrue(success);		
 	}
 	

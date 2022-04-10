@@ -537,28 +537,21 @@ public class AppControl {
 	}
 	
 	
-	// *****REWRITE
-	public static void errorMsg(String msg)
+	 public static void errorMsg(String msg)
 	    {
-	        JOptionPane errormsg = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
-	        final JDialog dlg = errormsg.createDialog("Attention");
-	        dlg.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-	        new Thread(new Runnable()
-	        {
-	            @Override
-	            public void run()
+	        JOptionPane errorMessagePopupParent = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
+	        final JDialog errorMessagePopup = errorMessagePopupParent.createDialog("Attention!");
+	        errorMessagePopup.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	        new Thread(() -> {
+	            try
 	            {
-	                try
-	                {
-	                    Thread.sleep(3000);
-	                } catch (InterruptedException e)
-	                {
-	                    e.printStackTrace();
-	                }
-	                dlg.setVisible(false);
+	                Thread.sleep(3000);
+	            } catch (InterruptedException ignored)
+	            {
 	            }
+	            errorMessagePopup.setVisible(false);
 	        }).start();
-	        dlg.setVisible(true);
+	        errorMessagePopup.setVisible(true);
 	    }
 
 
