@@ -318,7 +318,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * the product.
      */
     public void bagItem() {
-        if (this.phase != Phase.SCANNING_ITEM || this.phase != Phase.WEIGHING_PLU_ITEM) {
+        if (this.phase != Phase.SCANNING_ITEM && this.phase != Phase.WEIGHING_PLU_ITEM) {
             throw new IllegalStateException("Cannot add item when the system is not scanning item");
         }
 
