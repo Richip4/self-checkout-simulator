@@ -148,10 +148,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         return this.svs;
     }
 
-    public void notifyBanknoteEjected() {
-        this.checkout.makeChange();
-    }
-
     public void enableHardware() {
         this.banknoteHandler.enableHardware();
         this.cardHandler.enableHardware();
@@ -413,8 +409,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public void cancelCheckout() {
         // When the phase is not choosing payment method or processing their payment,
         // invalid operation
-        if ((this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD)
-                || this.customer == null) {
+        if (this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD) {
             throw new IllegalStateException("Cannot cancel checkout when the system is not processing payment");
         }
 
