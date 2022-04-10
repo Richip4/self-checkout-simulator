@@ -257,6 +257,16 @@ public class SelfCheckoutSoftwareTest
         selfCheckoutSoftware.blockSystem();
 
         assertEquals(SelfCheckoutSoftware.Phase.BLOCKING, selfCheckoutSoftware.getPhase());
+
+        selfCheckoutSoftware.errorOccur();
+
+        assertEquals(SelfCheckoutSoftware.Phase.ERROR, selfCheckoutSoftware.getPhase());
+    }
+
+    @Test
+    public void hasPendingChangesTest()
+    {
+        assertFalse(selfCheckoutSoftware.hasPendingChanges());
     }
 
     @Test
