@@ -171,26 +171,30 @@ public class Checkout {
 		// If there are still changes to be dispensed, dispense them
 		int size = this.pendingChanges.size();
 
+		// New pending changes list
+		List<Cash> newPendingChanges = new ArrayList<Cash>(this.pendingChanges);
+
 		// There's change pending to be returned to customer
 		// start emitting change to slot devices
 		for (Cash cash : this.pendingChanges) {
 			if (cash.type.equals("banknote")) {
 				try {
 					this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
-					this.pendingChanges.remove(cash);
+					newPendingChanges.remove(cash);
 				} catch (EmptyException | DisabledException | OverloadException e) {
 					continue;
 				}
 			} else if (cash.type.equals("coin")) {
 				try {
 					this.scs.coinDispensers.get(cash.value).emit();
-					this.pendingChanges.remove(cash);
+					newPendingChanges.remove(cash);
 				} catch (OverloadException | EmptyException | DisabledException e) {
-					System.out.println("error dispensing coins");
 					continue;
 				}
 			}
 		}
+
+		this.pendingChanges = newPendingChanges;
 
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
@@ -258,7 +262,7 @@ public class Checkout {
 
 			if (change.compareTo(cash.value) >= 0) {
 				// Add this to the pending change list
-				this.pendingChanges.add(cash);
+				pendingChanges.add(cash);
 				change = change.subtract(cash.value);
 			} else {
 				// current denomination is bigger than 'change' amount. Remove it from

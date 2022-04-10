@@ -355,4 +355,17 @@ public class SupervisionSoftwareTest
     {
         supervisionSoftware.approveItemNotBaggable(selfCheckoutSoftware1);
     }
+
+    @Test
+    public void resolveErrorTest()
+    {
+        selfCheckoutSoftware1.errorOccur();
+        supervisionSoftware.resolveError(selfCheckoutSoftware1);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void resolveErrorUnsuccessfullyTest()
+    {
+        supervisionSoftware.resolveError(selfCheckoutSoftware1);
+    }
 }

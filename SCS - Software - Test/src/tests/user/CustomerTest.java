@@ -113,6 +113,19 @@ public class CustomerTest
     }
 
     @Test
+    public void hasSufficientCashBalanceTest()
+    {
+        customer.addProduct(product1);
+        customer.addProduct(product2, product2Weight);
+
+        assertFalse(customer.hasSufficientCashBalance());
+
+        customer.addCashBalance(new BigDecimal(banknoteDenominations[banknoteDenominations.length - 1]));
+
+        assertTrue(customer.hasSufficientCashBalance());
+    }
+
+    @Test
     public void cartTest()
     {
         assertTrue(customer.getCart().isEmpty());
