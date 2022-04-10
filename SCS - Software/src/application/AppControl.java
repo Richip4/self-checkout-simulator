@@ -295,6 +295,16 @@ public class AppControl {
 			return "OKAY";
 		}
 	}
+	
+	/**
+	 * 
+	 * @param currentStation
+	 * @return
+	 */
+	public Phase getStationPhase(int station) {
+		
+		return selfStationSoftwares.get(station-1).getPhase();
+	}
 
 	/**
 	 * 
@@ -434,6 +444,5 @@ public class AppControl {
 		System.out.println("test");
 	}
 	//remove first item from inventories ^^ 
-
 
 }

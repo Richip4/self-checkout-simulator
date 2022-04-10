@@ -1,5 +1,6 @@
 package GUI;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -16,6 +17,8 @@ import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
 import application.Main;
+import software.SelfCheckoutSoftware.PaymentMethod;
+import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
 import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
@@ -132,7 +135,7 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsBanknote(int currentStation) {
+	public static void userInsertsBanknote(int value, int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -162,9 +165,9 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsCoin(int currentStation) {
-		// TODO Auto-generated method stub
+	public static void userInsertsCoin(BigDecimal value, int currentStation) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+			
 			
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
@@ -515,5 +518,50 @@ public class GUI {
 		}
 		System.out.println(desc);
 		return desc;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getUserInstruction(int scene) {
+		String instruction = null;
+		switch (scene) {
+		// Self-Checkout Station Overview Scene
+		case(Scenes.SCS_OVERVIEW):
+			
+			if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.CHOOSING_PAYMENT_METHOD) {
+				instruction = "Insert Banknote/Coin or pay with Card";
+			} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.PAYMENT_COMPLETE) {
+				instruction = "Take Change and Receipt";
+			} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.BAGGING_ITEM) {
+				instruction = "Put item in bagging area or request to Skip Bagging";
+			} else {
+				Item item = ac.getCustomersNextItem(scenes.getCurrentStation());
+				if (item instanceof PLUCodedItem) {
+					instruction = "Look up Product or enter PLU code on Touchscreen";
+				} else if (item instanceof BarcodedItem) {
+					instruction = "Scan Barcoded Item";
+				}
+			}
+		
+		// Attendant station scene
+		case(Scenes.AS_TOUCH):
+			break;
+		
+		// Self-Checkout Station Touchscreen Scene
+		case(Scenes.SCS_TOUCH):
+			break;
+		
+		// Self-Checkout Station Card Reader Scene
+		case(Scenes.SCS_CARDREADER):
+			break;
+		
+		// Self-Checkout Station Maintenance Scene
+		case(Scenes.SCS_MAINTENANCE):
+			break;
+		
+		}
+		return instruction;
 	}
 }
