@@ -300,6 +300,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.SCANNING_ITEM);
     }
 
+    public void addPLUItem()
+    {
+        this.disableHardware();
+        this.processItemHandler.enableHardware();
+
+        this.setPhase(Phase.WEIGHING_PLU_ITEM);
+    }
+    
     /**
      * When customer added a product to their cart, and now they need to bag the
      * item.
