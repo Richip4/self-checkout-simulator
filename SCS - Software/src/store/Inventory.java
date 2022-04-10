@@ -19,7 +19,8 @@ import org.lsmr.selfcheckout.products.Product;
  * The implementation is for software's own use.
  * 
  * This class contains useful helper methods for operating product database.
- * That is, intead of directly access ProductDatabases, use methods in this class.
+ * That is, intead of directly access ProductDatabases, use methods in this
+ * class.
  * 
  * @author joshuaplosz
  * @author Michelle Cheung
