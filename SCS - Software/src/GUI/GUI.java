@@ -4,7 +4,9 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.BarcodedItem;
+import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
@@ -20,6 +22,8 @@ import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import user.Customer;
 import user.User;
+import java.util.Currency;
+import java.math.BigDecimal;
 
 public class GUI {
 
@@ -177,15 +181,6 @@ public class GUI {
 		} */
 	}
 
-	public static void userPlacesItemOnWeighScale(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
-	}
-
 	public static void userScansItem(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
@@ -297,15 +292,63 @@ public class GUI {
 	}
 
 	public static void refillBanknoteDispensers() {
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		int[] banknoteDenoms = scs.banknoteDenominations;
+		Currency currency = Currency.getInstance("CAD");
+		
 		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
 		{
-			
+			// For every dispenser (there is one dispenser for each banknote denomination)
+			for(int denom: banknoteDenoms) {
+				int numBillsInDispenser = scs.banknoteDispensers.get(denom).size();
+				int dispenserCapacity = scs.BANKNOTE_DISPENSER_CAPACITY;
+				
+				Banknote note = new Banknote(currency,denom);
+				
+				while(numBillsInDispenser != dispenserCapacity) {
+					try {
+						scs.banknoteDispensers.get(denom).load(note);
+					} catch (OverloadException e) {
+						e.printStackTrace();
+					}
+					numBillsInDispenser++;
+				}
+			}
 		}
 		
 	}
 
 	public static void refillCoinDispenser() {
-		// TODO Auto-generated method stub
+		int currentStation = scenes.getCurrentStation();
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
+		
+		List<BigDecimal> coinDenoms = scs.coinDenominations;
+		Currency currency = Currency.getInstance("CAD");
+		
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			// For every dispenser (there is one dispenser for each banknote denomination)
+			for(BigDecimal denom: coinDenoms) {
+				int numCoinsInDispenser = scs.coinDispensers.get(denom).size();
+				int dispenserCapacity = scs.COIN_DISPENSER_CAPACITY;
+				
+				Coin coin = new Coin(currency,denom);
+				
+				while(numCoinsInDispenser != dispenserCapacity) {
+					try {
+						scs.coinDispensers.get(denom).load(coin);
+					} catch (OverloadException e) {
+						e.printStackTrace();
+					}
+					numCoinsInDispenser++;
+				}
+			}
+		}
+		
 		
 	}
 
@@ -334,10 +377,6 @@ public class GUI {
 		
 	}
 
-	public static void fillBankStorage() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	/* Emptying the coin storage is done with a key, but we assume the attendant would have
 	 * this. This can happen during any phase*/
@@ -353,10 +392,6 @@ public class GUI {
 		
 	}
 
-	public static void fillCoinStorage() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public static void proceedToCheckout() {
 		// TODO Auto-generated method stub
