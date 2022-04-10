@@ -54,6 +54,16 @@ public class CustomerTest
     }
 
     @Test
+    public void addAndGetPLUTest()
+    {
+        assertNull(customer.getPLU());
+
+        customer.enterPLUCode(product2.getPLUCode());
+
+        assertEquals(product2.getPLUCode(), customer.getPLU());
+    }
+
+    @Test
     public void setAndGetMembershipTest()
     {
         assertNull(customer.getMemberID());
