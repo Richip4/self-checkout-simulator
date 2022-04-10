@@ -61,7 +61,6 @@ public class Scenes {
 	private static final int xResolution = 1280;
 	private static final int yResolution = 720;
 	
-	private final GUI gui;
 	private static JFrame filterFrame = new JFrame();
 	
 	// reference to the current station we are interacting with
@@ -70,8 +69,7 @@ public class Scenes {
 	
 	private Color defaultBackground = new Color(220, 227, 230);
 
-	public Scenes(GUI gui) {
-		this.gui = gui;
+	public Scenes() {
 		initDimmingFilter();
 	}
 	
@@ -231,7 +229,7 @@ public class Scenes {
 			do {
 				newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
 			}
-			while (!gui.newUser(newUserType));
+			while (!GUI.newUser(newUserType));
 
 			return this;
 		}
@@ -240,7 +238,7 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			
 			if (e.getSource() == abn) { // attendant station
-				if(gui.userApproachesStation(0)) {					
+				if(GUI.userApproachesStation(0)) {					
 					banner_title.setText("Attendant");
 					this.repaint();
 				}
@@ -248,7 +246,7 @@ public class Scenes {
 				// self-checkout stations
 				int station = (int) ((JButton) e.getSource()).getClientProperty("station-id");
 
-				if(gui.userApproachesStation(station)) {					
+				if(GUI.userApproachesStation(station)) {					
 					banner_title.setText("Customer");
 					this.repaint();
 				}
@@ -310,7 +308,7 @@ public class Scenes {
 			nextItem.setBounds(200, 70, 150, 130);
 			nextItem.setFont(new Font("Arial", Font.BOLD, 16));
 			nextItem.setHorizontalAlignment(JLabel.CENTER);
-			nextItem.setText(gui.getNextItemDescription(currentStation));
+			nextItem.setText(GUI.getNextItemDescription(currentStation));
 			nextItem.setBorder(BorderFactory.createLineBorder(Color.gray));
 			nextItem.setFocusable(false);
 			nextItem.setOpaque(true);
@@ -437,29 +435,29 @@ public class Scenes {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bagScale) {
-				gui.userBagsItem(currentStation);
+				GUI.userBagsItem(currentStation);
 			} else if (e.getSource() == bnInSlot) {
-				gui.userInsertsBanknote(currentStation);
+				GUI.userInsertsBanknote(currentStation);
 			} else if (e.getSource() == bnOutSlot) {
-				gui.userRemovesBanknote(currentStation);
+				GUI.userRemovesBanknote(currentStation);
 			} else if (e.getSource() == maintenance) {
-				gui.userServicesStation(currentStation);
+				GUI.userServicesStation(currentStation);
 			} else if (e.getSource() == coinInSlot) {
-				gui.userInsertsCoin(currentStation);
+				GUI.userInsertsCoin(currentStation);
 			} else if (e.getSource() == coinTray) {
-				gui.userRemovesCoins(currentStation);
+				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == weighScale) {
-				gui.userPlacesItemOnWeighScale(currentStation);
+				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
-				gui.userScansItem(currentStation);
+				GUI.userScansItem(currentStation);
 			} else if (e.getSource() == handScanner) {
-				gui.userScansItem(currentStation);
+				GUI.userScansItem(currentStation);
 			} else if (e.getSource() == cardReader) {
-				gui.userAccessCardReader(currentStation);
+				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
-				gui.userRemovesReceipt(currentStation);
+				GUI.userRemovesReceipt(currentStation);
 			} else if (e.getSource() == touchscreen) {
-				gui.userAccessTouchscreen(currentStation);
+				GUI.userAccessTouchscreen(currentStation);
 			}
 		}
 	}
@@ -503,7 +501,7 @@ public class Scenes {
 				// display the stations relavent status to the attendant
 				station_status[i] = new JLabel();
 				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
-				station_status[i].setText(gui.stationStatus(i));
+				station_status[i].setText(GUI.stationStatus(i));
 				station_status[i].setBounds(30, 10, 200, 80);
 				station_status[i].setHorizontalAlignment(JLabel.CENTER);
 				station.add(station_status[i]);
@@ -554,7 +552,7 @@ public class Scenes {
 			this.setVisible(true);
 			
 			// only prompt attendant to log in if not already done so
-			if (!gui.isAttendantLoggedIn())	{
+			if (!GUI.isAttendantLoggedIn())	{
 				setDimmingFilter();
 				promptAttendantForLogIn();
 			}
@@ -566,13 +564,13 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			for (int i = 0; i < Tangibles.SUPERVISION_STATION.supervisedStationCount(); i++) {
 				if (e.getSource() == station_block[i]) {
-					gui.attendantBlockToggle(i);
+					GUI.attendantBlockToggle(i);
 					station_block[i].setText(checkBlockStatus(i));
-					station_status[i].setText(gui.stationStatus(i)); 
+					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				} else if (e.getSource() == station_approve[i]) {
-					gui.attendantApproveStation(i);
-					station_status[i].setText(gui.stationStatus(i)); 
+					GUI.attendantApproveStation(i);
+					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				}
 			}
@@ -692,9 +690,9 @@ public class Scenes {
 				expectingPLUCode = true;
 				getNumberFromUser("Enter the PLU code");
 			} else if (e.getSource() == checkout) {
-				gui.proceedToCheckout();
+				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
-				if (gui.stationAttendantAccess()) {
+				if (GUI.stationAttendantAccess()) {
 					// prompt attendant for password
 					// they must already be logged in to the attendant station
 					if (promptAttendantForPassword()) {
@@ -702,7 +700,7 @@ public class Scenes {
 					}
 				}
 			} else if (e.getSource() == ownBags) {
-				gui.userUsesOwnBags();
+				GUI.userUsesOwnBags();
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
@@ -776,13 +774,13 @@ public class Scenes {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			if (e.getSource() == tap) {
-				gui.userTapsCard(promptCustomerForCard());
+				GUI.userTapsCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == swipe) {
-				gui.userSwipesCard(promptCustomerForCard());
+				GUI.userSwipesCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == insert) {
-				gui.userInsertCard(promptCustomerForCard());
+				GUI.userInsertCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			}
 		}
@@ -924,21 +922,21 @@ public class Scenes {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == refillBnDispensers) {
-				gui.refillBanknoteDispensers();
+				GUI.refillBanknoteDispensers();
 			} else if (e.getSource() == refillCoinDispensers) {
-				gui.refillCoinDispenser();
+				GUI.refillCoinDispenser();
 			} else if (e.getSource() == addPaper) {
-				gui.addPaper();
+				GUI.addPaper();
 			} else if (e.getSource() == addInk) {
-				gui.addInk();
+				GUI.addInk();
 			} else if (e.getSource() == bnEmptyStorage) {
-				gui.emptyBanknoteStorage();
+				GUI.emptyBanknoteStorage();
 			} else if (e.getSource() == bnFillStorage) {
-				gui.fillBankStorage();
+				GUI.fillBankStorage();
 			} else if (e.getSource() == coinEmptyStorage) {
-				gui.emptyCoinStorage();
+				GUI.emptyCoinStorage();
 			} else if (e.getSource() == coinFillStorage) {
-				gui.fillCoinStorage();
+				GUI.fillCoinStorage();
 			}
 		}
 	}
@@ -954,8 +952,8 @@ public class Scenes {
 	 * @return a green Color if the station does not require attendants attention, a red Color otherwise
 	 */
 	private Color checkStationAttention(int station) {
-		return (gui.stationStatus(station) != "BLOCKED" && gui.stationStatus(station) != "WEIGHT DISCREPANCY" &&
-				gui.stationStatus(station) != "MISSING ITEM") ? green_light : red_light;
+		return (GUI.stationStatus(station) != "BLOCKED" && GUI.stationStatus(station) != "WEIGHT DISCREPANCY" &&
+				GUI.stationStatus(station) != "MISSING ITEM") ? green_light : red_light;
 	}
 	
 	/**
@@ -1006,7 +1004,7 @@ public class Scenes {
 		shutdown.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				gui.shutdownStation();
+				GUI.shutdownStation();
 				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -1022,7 +1020,7 @@ public class Scenes {
 	 * @return "UNBLOCK" if the station IS blocked, "BLOCK" otherwise
 	 */
 	private String checkBlockStatus(int station) {
-		return (gui.stationStatus(station) == "BLOCKED") 
+		return (GUI.stationStatus(station) == "BLOCKED") 
 				? "UNBLOCK" : "BLOCK";
 	}
 	
@@ -1074,7 +1072,7 @@ public class Scenes {
 	    
 	    JOptionPane.showConfirmDialog(null, box, "Attendant Log in", JOptionPane.OK_CANCEL_OPTION);
 	    
-	    return gui.attendantLogin( name.getText(), new String(password.getPassword()));
+	    return GUI.attendantLogin( name.getText(), new String(password.getPassword()));
 	}
 	
 	/**
@@ -1096,7 +1094,7 @@ public class Scenes {
 	    
 	    JOptionPane.showConfirmDialog(null, box, "Credentials Required", JOptionPane.OK_CANCEL_OPTION);
 	    
-	    return gui.attendantPassword(new String(password.getPassword()));
+	    return GUI.attendantPassword(new String(password.getPassword()));
 	}
 	
 	/**
@@ -1156,7 +1154,7 @@ public class Scenes {
 			prev.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (currentStation != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-					gui.selectPreviousUser();
+					GUI.selectPreviousUser();
 				}
 			});
 	
@@ -1175,7 +1173,7 @@ public class Scenes {
 					do {
 						newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
 					}
-					while (!gui.newUser(newUserType));
+					while (!GUI.newUser(newUserType));
 				}
 			});
 			swap.add(newUser);
@@ -1188,7 +1186,7 @@ public class Scenes {
 			next.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (getCurrentStation() != -1) window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-					gui.selectNextUser();
+					GUI.selectNextUser();
 				}
 			});
 			swap.add(next);
@@ -1223,7 +1221,7 @@ public class Scenes {
 			// only leave the station if this banner is neither attached to 
 			// the main overview scene or a hardware window
 			if (getCurrentStation() != -1 && !forHardware) {
-				gui.userLeavesStation(getCurrentStation());
+				GUI.userLeavesStation(getCurrentStation());
 				setCurrentStation(-1);
 			}
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
@@ -1294,7 +1292,7 @@ public class Scenes {
 	 * This method should only be used by a previously approved attendant.
 	 */
 	public void promptRemoveItems() {
-		List<Product> customerCart = gui.getBaggedItems(currentStation);
+		List<Product> customerCart = GUI.getBaggedItems(currentStation);
 		if (customerCart == null) {
 			errorMsg("No items have been bagged");
 			return;
@@ -1336,7 +1334,7 @@ public class Scenes {
 		remove.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				gui.removeItem(currentStation, dropMenu.getSelectedIndex());
+				GUI.removeItem(currentStation, dropMenu.getSelectedIndex());
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -1381,7 +1379,7 @@ public class Scenes {
 		select.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				gui.selectedItem(pluItems.get(dropMenu.getSelectedIndex()));
+				GUI.selectedItem(pluItems.get(dropMenu.getSelectedIndex()));
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -1408,10 +1406,10 @@ public class Scenes {
 	 */
 	public void keypadReturnValue(int number) {
 		if (expectingPLUCode) {
-			gui.userEntersPLUCode(number);
+			GUI.userEntersPLUCode(number);
 			expectingPLUCode = false;
 		} else if (expectingMembershipNum) {
-			gui.userEntersMembership(number);
+			GUI.userEntersMembership(number);
 			expectingMembershipNum = false;
 		}
 	}
