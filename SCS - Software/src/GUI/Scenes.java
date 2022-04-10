@@ -137,7 +137,7 @@ public class Scenes {
 		
 		public JFrame getScene() {
 			// init the scene and retrieve the JPanel canvas in which to build on
-			JPanel scene = preprocessScene(this, xResolution, yResolution);			
+			JPanel scene = preprocessScene(this, getXresolution(), getYresolution());			
 
 			// include a banner for navigation
 			generateBanner(scene, true, banner_info, banner_title);
@@ -1241,7 +1241,7 @@ public class Scenes {
 	 * Resets the dimming filter to cover all currently displayed windows
 	 */
 	private static void setDimmingFilter() {
-		filterFrame.setVisible(true);
+		getFilterFrame().setVisible(true);
 	}
 	
 	/**
@@ -1249,17 +1249,17 @@ public class Scenes {
 	 * windows to pull focus towards the current JFrame in focus.
 	 */
 	private static void initDimmingFilter() {
-		filterFrame.setSize(xResolution, yResolution);
-		filterFrame.setResizable(false);
-		filterFrame.setUndecorated(true);
-		filterFrame.setLocationRelativeTo(null);
+		getFilterFrame().setSize(getXresolution(), getYresolution());
+		getFilterFrame().setResizable(false);
+		getFilterFrame().setUndecorated(true);
+		getFilterFrame().setLocationRelativeTo(null);
 		
 		JPanel filter = new JPanel();
 		filter.setBackground(Color.black);
-		filterFrame.add(filter);
+		getFilterFrame().add(filter);
 		
-		filterFrame.setOpacity((float) 0.75);
-		filterFrame.setFocusableWindowState(false);
+		getFilterFrame().setOpacity((float) 0.75);
+		getFilterFrame().setFocusableWindowState(false);
 	}
 	
 	/**
@@ -1411,5 +1411,17 @@ public class Scenes {
 			GUI.userEntersMembership(number);
 			expectingMembershipNum = false;
 		}
+	}
+
+	public static JFrame getFilterFrame() {
+		return filterFrame;
+	}
+
+	public static int getYresolution() {
+		return yResolution;
+	}
+
+	public static int getXresolution() {
+		return xResolution;
 	}
 }

@@ -25,7 +25,7 @@ public class GUI {
 	public static void init(AppControl appControl) {
 		ac = appControl;
 		// Initializes the openning scene, Self-Checkout Overview 
-		scenes.getScene(Scenes.SC_OVERVIEW);	
+		getScenes().getScene(Scenes.SC_OVERVIEW);	
 	}
 	
 	/**
@@ -37,11 +37,11 @@ public class GUI {
 	 */
 	public static boolean newUser(int newUserType) {
 		if (newUserType == AppControl.CUSTOMER) {
-			ac.addNewCustomer();
+			getAc().addNewCustomer();
 			return true;
 		} else if (newUserType == AppControl.ATTENDANT) {
 			// check list of users for an existing attendant
-			User[] users = ac.getActiveUsers();
+			User[] users = getAc().getActiveUsers();
 			
 			for (int i = 0; i < users.length; i++) {
 				if (users[i] != null && users[i].getUserType() == AppControl.ATTENDANT) {
@@ -51,7 +51,7 @@ public class GUI {
 			}
 			
 			// no attendant found, add a new one
-			ac.addNewAttendant();
+			getAc().addNewAttendant();
 			return true;
 		}
 		return false;
@@ -64,34 +64,34 @@ public class GUI {
 	 * @return true if station is free, false otherwise
 	 */
 	public static boolean userApproachesStation(int station) {
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			if (station == 0) { // this is the attendant's station
 				Scenes.errorMsg("You are not authorized to view the attendant station.");
 				return false;
-			} else if (ac.getUserAt(station) != null) { 
-				if (ac.getUserAt(station).getUserType() == AppControl.ATTENDANT) {
+			} else if (getAc().getUserAt(station) != null) { 
+				if (getAc().getUserAt(station).getUserType() == AppControl.ATTENDANT) {
 					Scenes.errorMsg("Station being serviced");
 					return false;
-				} else if (ac.getUserAt(station).getUserType() == AppControl.CUSTOMER) {
+				} else if (getAc().getUserAt(station).getUserType() == AppControl.CUSTOMER) {
 					Scenes.errorMsg("A customer is already using this station");
 					return false;
 				} 
 			} else {
-				ac.customerUsesStation(station);
-				scenes.setCurrentStation(station);
-				scenes.getScene(Scenes.SCS_OVERVIEW);
+				getAc().customerUsesStation(station);
+				getScenes().setCurrentStation(station);
+				getScenes().getScene(Scenes.SCS_OVERVIEW);
 				return true;
 			}
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			if (station == 0) { // this is the attendant's station
-				scenes.setCurrentStation(station);
-				scenes.getScene(Scenes.AS_TOUCH);
+				getScenes().setCurrentStation(station);
+				getScenes().getScene(Scenes.AS_TOUCH);
 				return true;
 			} else {
-				if (ac.isAttendantLoggedIn()) {
-					ac.attendantUsesStation(station);
-					scenes.setCurrentStation(station);
-					scenes.getScene(Scenes.SCS_OVERVIEW);
+				if (getAc().isAttendantLoggedIn()) {
+					getAc().attendantUsesStation(station);
+					getScenes().setCurrentStation(station);
+					getScenes().getScene(Scenes.SCS_OVERVIEW);
 					return true;
 				} else {
 					Scenes.errorMsg("Please log in at the attendant station");
@@ -104,108 +104,108 @@ public class GUI {
 	}
 
 	public static void userLeavesStation(int station) {
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			ac.customerLeavesStation(station);
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			ac.attendantLeavesStation(station);
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
+			getAc().customerLeavesStation(station);
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			getAc().attendantLeavesStation(station);
 		}
 	}
 
 	//
 	public static void userBagsItem(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userInsertsBanknote(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userRemovesBanknote(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userServicesStation(int currentStation) {
-		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			// we assume the attendant has the key to the station
-			scenes.getScene(Scenes.SCS_MAINTENANCE);
+			getScenes().getScene(Scenes.SCS_MAINTENANCE);
 		}
 	}
 
 	public static void userInsertsCoin(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userPlacesItemOnWeighScale(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userScansItem(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userRemovesReceipt(int currentStation) {
 		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userAccessCardReader(int currentStation) {
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			scenes.getScene(Scenes.SCS_CARDREADER);
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
+			getScenes().getScene(Scenes.SCS_CARDREADER);
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
 		// TODO Auto-generated method stub
-		scenes.getScene(Scenes.SCS_TOUCH);
+		getScenes().getScene(Scenes.SCS_TOUCH);
 		
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+		if (getAc().getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+		} else if (getAc().getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
@@ -222,7 +222,7 @@ public class GUI {
 	 */
 	public static String stationStatus(int station) {
 
-		return ac.getStationState(station);
+		return getAc().getStationState(station);
 	}
 
 	/**
@@ -231,7 +231,7 @@ public class GUI {
 	 */
 	public static void attendantBlockToggle(int station) {
 		
-		ac.toggleBlock(station);
+		getAc().toggleBlock(station);
 	}
 
 	/**
@@ -240,41 +240,41 @@ public class GUI {
 	 */
 	public static void attendantApproveStation(int station) {
 		
-		ac.approveStationDiscrepancy(station);
+		getAc().approveStationDiscrepancy(station);
 	}
 
 	public static void userTapsCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerTapsCreditCard();
+			getAc().customerTapsCreditCard();
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerTapsDebitCard();
+			getAc().customerTapsDebitCard();
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerTapsMembershipCard();
+			getAc().customerTapsMembershipCard();
 		}
 	}
 
 	public static void userSwipesCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerSwipesCreditCard();
+			getAc().customerSwipesCreditCard();
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerSwipesDebitCard();
+			getAc().customerSwipesDebitCard();
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerSwipesMembershipCard();
+			getAc().customerSwipesMembershipCard();
 		}
 	}
 
 	public static void userInsertCard(int cardType) {
 		if (cardType == AppControl.CREDIT) {
-			ac.customerInsertCreditCard();
+			getAc().customerInsertCreditCard();
 		} if (cardType == AppControl.DEBIT) {
-			ac.customerInsertDebitCard();
+			getAc().customerInsertDebitCard();
 		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerInsertMembershipCard();
+			getAc().customerInsertMembershipCard();
 		}
 	}
 
 	public static void refillBanknoteDispensers() {
-		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		if(getAc().getActiveUser().getUserType() == AppControl.ATTENDANT)
 		{
 			
 		}
@@ -351,11 +351,11 @@ public class GUI {
 
 	public static boolean attendantPassword(String password) {
 		
-		return ac.attendantPassword(password);
+		return getAc().attendantPassword(password);
 	}
 
 	public static void removeItem(int station, int index) {
-		ac.removeItemFromCustomersCart(station, index);
+		getAc().removeItemFromCustomersCart(station, index);
 	}
 
 	public static void shutdownStation() {
@@ -365,11 +365,11 @@ public class GUI {
 
 	public static boolean attendantLogin(String name, String password) {
 		
-		return ac.attendantLogin(name, password);
+		return getAc().attendantLogin(name, password);
 	}
 
 	public static List<Product> getBaggedItems(int station) {
-		return ac.getCustomerCart(station);
+		return getAc().getCustomerCart(station);
 	}
 
 	/**
@@ -377,8 +377,8 @@ public class GUI {
 	 */
 	public static void selectPreviousUser() {
 		System.out.println("Select prev user");
-		ac.prevActiveUser();
-		updateScene(ac.getActiveUsersStation());
+		getAc().prevActiveUser();
+		updateScene(getAc().getActiveUsersStation());
 	}
 
 	/**
@@ -386,8 +386,8 @@ public class GUI {
 	 */
 	public static void selectNextUser() {
 		System.out.println("Select next user");
-		ac.nextActiveUser();
-		updateScene(ac.getActiveUsersStation());
+		getAc().nextActiveUser();
+		updateScene(getAc().getActiveUsersStation());
 	}
 	
 	/**
@@ -396,23 +396,23 @@ public class GUI {
 	 */
 	private static void updateScene(int station) {
 		System.out.println("updated scene " + station);
-		scenes.setCurrentStation(station);
+		getScenes().setCurrentStation(station);
 		if (station == -1) {
 			return;
 		} else if (station == 0) {
-			scenes.getScene(Scenes.AS_TOUCH);
+			getScenes().getScene(Scenes.AS_TOUCH);
 		} else {
-			scenes.getScene(Scenes.SCS_OVERVIEW);
+			getScenes().getScene(Scenes.SCS_OVERVIEW);
 		}
 	}
 
 	public static boolean isAttendantLoggedIn() {
-		return ac.isAttendantLoggedIn();
+		return getAc().isAttendantLoggedIn();
 	}
 
 	public static String getNextItemDescription(int station) {
 		String desc = "";
-		Item item = ac.getCustomersNextItem(station);
+		Item item = getAc().getCustomersNextItem(station);
 		if (item instanceof PLUCodedItem) {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
 			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
@@ -427,5 +427,13 @@ public class GUI {
 		}
 		System.out.println(desc);
 		return desc;
+	}
+
+	public static AppControl getAc() {
+		return ac;
+	}
+
+	public static Scenes getScenes() {
+		return scenes;
 	}
 }
