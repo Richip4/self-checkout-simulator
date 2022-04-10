@@ -49,6 +49,7 @@ public class AppControl {
 	// NOTE: active users not at an actual station are excluded
 	private User[] users;
 	
+	private Item lastCheckedOutItem;			//for bagging
 	private Map<User, List<Item>> inventories = new HashMap<>();
 
 	// the type of user combination at each station
@@ -435,14 +436,19 @@ public class AppControl {
 	}
 
 	public Item getCustomersNextItem(int station) {
+		if (inventories.get(users[station]).isEmpty())
+			return null;
 		return inventories.get(users[station]).get(0);
-		//return null if empty
 	}
 	
 	public void removeCustomerNextItem(int station) {
+		lastCheckedOutItem = inventories.get(users[station]).get(0);
 		inventories.get(users[station]).remove(0);
-		System.out.println("test");
 	}
-	//remove first item from inventories ^^ 
+	
+	public Item getLastCheckedOutItem() {
+		return lastCheckedOutItem;
+	}
+
 
 }

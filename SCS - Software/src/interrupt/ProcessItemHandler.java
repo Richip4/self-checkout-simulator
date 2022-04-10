@@ -30,7 +30,7 @@ import user.Customer;
  */
 public class ProcessItemHandler extends Handler implements BarcodeScannerObserver, ElectronicScaleObserver {
 
-	private static double DISCREPANCY = 0.1; // Scales have margins of errors, this is how much we allow
+	private static double DISCREPANCY = 1.0; // Scales have margins of errors, this is how much we allow
 
 	private final SelfCheckoutStation scs;
 	private final SelfCheckoutSoftware scss;
@@ -179,12 +179,14 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			return;
 		}
 
-		if (this.scss.getPhase() == Phase.WEIGHING_PLU_ITEM) {
-			if (scale == this.scs.scanningArea) {
+		if (scale.equals(this.scs.scanningArea)) {
+			if (this.scss.getPhase() == Phase.WEIGHING_PLU_ITEM) {
 				customer.addProduct(Inventory.getProduct(this.customer.getPLU()), weightInGrams);
 				this.expectedWeight = weightInGrams;
-				return;
+				this.scss.bagItem();
+				return; //we want to get the call from bagging area.
 			}
+			return;
 		}
 
 		if (this.scss.getPhase() == Phase.PAYMENT_COMPLETE) {
@@ -232,8 +234,11 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		}
 
 		// ========= The rest is only for bagging item phase ========= //
+
 		double expected = this.currentWeight + this.expectedWeight;
 		double discrepancy = Math.abs(expected - weightInGrams);
+		
+		
 
 		// If the discrepancy is too large
 		if (discrepancy > DISCREPANCY) {
@@ -244,6 +249,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 		// Accept new weight
 		this.acceptNewWeight(weightInGrams);
+
 	}
 
 	private void acceptNewWeight(double weightInGrams) {

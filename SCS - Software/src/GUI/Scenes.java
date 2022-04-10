@@ -41,6 +41,7 @@ import org.lsmr.selfcheckout.products.Product;
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import store.Store;
 
@@ -297,8 +298,7 @@ public class Scenes {
 			this.addWindowFocusListener(new WindowAdapter() {
                 public void windowGainedFocus(WindowEvent e) {
                     banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
-                    nextItem.setText(GUI.getNextItemDescription(currentStation));
-                    nextItem.repaint();
+                    updateDisplay();
                 }
             });
 			
@@ -439,6 +439,7 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bagScale) {
 				GUI.userBagsItem(currentStation);
+				updateDisplay();
 			} else if (e.getSource() == bnInSlot) {
 				getBanknoteFromUser();
 			} else if (e.getSource() == bnOutSlot) {
@@ -453,18 +454,13 @@ public class Scenes {
 				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
 				GUI.userScansItem(currentStation, true);
+				updateDisplay();
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation, false);
 				String nItem = GUI.getNextItemDescription(currentStation);
+				updateDisplay();
 				if (!nItem.equals("")) 
 					nextItem.setText(nItem);
-				
-			} else if (e.getSource() == handScanner) {
-				GUI.userScansItem(currentStation);
-				String nItem = GUI.getNextItemDescription(currentStation);
-				if (!nItem.equals("")) 
-					nextItem.setText(nItem);
-				
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
@@ -472,6 +468,17 @@ public class Scenes {
 			} else if (e.getSource() == touchscreen) {
 				GUI.userAccessTouchscreen(currentStation);
 			}
+		}
+		
+		private void updateDisplay() {
+			if (GUI.getPhase(currentStation) == Phase.BAGGING_ITEM) {
+				nextItem.setText("Please place item in bagging area!");
+                nextItem.repaint();
+			} else {
+				nextItem.setText(GUI.getNextItemDescription(currentStation));
+                nextItem.repaint();
+			}
+			
 		}
 	}
 	
@@ -1451,6 +1458,8 @@ public class Scenes {
 			expectingMembershipNum = false;
 		}
 	}
+	
+	
 	
 	public void coinWalletReturnValue(BigDecimal value) {
 		GUI.userInsertsCoin(value, currentStation);

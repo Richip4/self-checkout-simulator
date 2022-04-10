@@ -22,6 +22,7 @@ import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
 import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
+import store.Store;
 import user.Customer;
 import user.User;
 
@@ -123,16 +124,10 @@ public class GUI {
 
 	//
 	public static void userBagsItem(int currentStation) {
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
-			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
-			
-			hardware.baggingArea.add(ac.getCustomersNextItem(currentStation));
-			
-			ac.removeCustomerNextItem(currentStation);
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+		SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+		SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+		
+		hardware.baggingArea.add(ac.getLastCheckedOutItem());
 	}
 
 	public static void userInsertsBanknote(int value, int currentStation) {
@@ -210,7 +205,7 @@ public class GUI {
 			}else {
 				hardware.handheldScanner.scan(item);
 			}
-			
+			ac.removeCustomerNextItem(currentStation);
 		}catch (Exception e) {
 			Scenes.errorMsg("You cannot scan this item");
 		}
@@ -422,7 +417,7 @@ public class GUI {
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
 				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
-				software.addItem();
+				software.addPLUItem();
 				
 				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
@@ -432,7 +427,9 @@ public class GUI {
 				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 				hardware.scanningArea.add(item);
 				
-				userBagsItem(currentStation);
+				
+				ac.removeCustomerNextItem(currentStation);
+				hardware.scanningArea.remove(item);
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {
@@ -504,6 +501,9 @@ public class GUI {
 	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
+		
+		if (item == null)
+			return "No more items";
 		if (item instanceof PLUCodedItem) {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
 			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
@@ -563,5 +563,10 @@ public class GUI {
 		
 		}
 		return instruction;
+	}
+	
+	public static Phase getPhase(int stationNumber) {
+		System.out.println(ac.getSelfCheckoutSoftware(stationNumber).getPhase());
+		return ac.getSelfCheckoutSoftware(stationNumber).getPhase();
 	}
 }
