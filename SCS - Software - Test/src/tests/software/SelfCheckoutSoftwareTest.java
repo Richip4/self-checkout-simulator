@@ -242,7 +242,7 @@ public class SelfCheckoutSoftwareTest
         assertTrue(selfCheckoutStation.mainScanner.isDisabled());
         assertTrue(selfCheckoutStation.handheldScanner.isDisabled());
         assertTrue(selfCheckoutStation.scanningArea.isDisabled());
-        assertTrue(selfCheckoutStation.baggingArea.isDisabled());
+        assertFalse(selfCheckoutStation.baggingArea.isDisabled());
     }
 
     @Test
