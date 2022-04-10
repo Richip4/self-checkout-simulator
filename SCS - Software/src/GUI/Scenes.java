@@ -2,19 +2,18 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -30,7 +29,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -74,12 +72,10 @@ public class Scenes {
 	}
 	
 	public int getCurrentStation() {
-		System.out.println("Get Station: " + currentStation);
 		return currentStation;
 	}
 
 	public void setCurrentStation(int currentStation) {
-		System.out.println("Set Station: " + currentStation);
 		this.currentStation = currentStation;
 	}
 	
@@ -298,6 +294,12 @@ public class Scenes {
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
 			
+			this.addWindowFocusListener(new WindowAdapter() {
+				public void windowGainedFocus(WindowEvent e) {
+					banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));		
+				}
+			});
+			
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
@@ -436,21 +438,29 @@ public class Scenes {
 			if (e.getSource() == bagScale) {
 				GUI.userBagsItem(currentStation);
 			} else if (e.getSource() == bnInSlot) {
-				GUI.userInsertsBanknote(currentStation);
+				getBanknoteFromUser();
 			} else if (e.getSource() == bnOutSlot) {
 				GUI.userRemovesBanknote(currentStation);
 			} else if (e.getSource() == maintenance) {
 				GUI.userServicesStation(currentStation);
 			} else if (e.getSource() == coinInSlot) {
-				GUI.userInsertsCoin(currentStation);
+				getCoinFromUser();
 			} else if (e.getSource() == coinTray) {
 				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == weighScale) {
 				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
-				GUI.userScansItem(currentStation, true);
+				GUI.userScansItem(currentStation);
+				String nItem = GUI.getNextItemDescription(currentStation);
+				if (!nItem.equals("")) 
+					nextItem.setText(nItem);
+				
 			} else if (e.getSource() == handScanner) {
-				GUI.userScansItem(currentStation, false);
+				GUI.userScansItem(currentStation);
+				String nItem = GUI.getNextItemDescription(currentStation);
+				if (!nItem.equals("")) 
+					nextItem.setText(nItem);
+				
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
@@ -959,6 +969,20 @@ public class Scenes {
 	public void getNumberFromUser(String msg) {
 		new Keypad(msg, this);
 	}
+	
+	/**
+	 * 
+	 */
+	public void getCoinFromUser() {
+		new CoinWallet(this);
+	}
+
+	/**
+	 * 
+	 */
+	public void getBanknoteFromUser() {
+		new BanknoteWallet(this);
+	}
 
 	/**
 	 * Displays a window with self checkout station options that only
@@ -1422,5 +1446,13 @@ public class Scenes {
 			GUI.userEntersMembership(number);
 			expectingMembershipNum = false;
 		}
+	}
+	
+	public void coinWalletReturnValue(BigDecimal value) {
+		GUI.userInsertsCoin(value, currentStation);
+	}
+	
+	public void banknoteWalletReturnValue(int value) {
+		GUI.userInsertsBanknote(value, currentStation);
 	}
 }

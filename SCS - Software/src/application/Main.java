@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Currency;
 import java.util.List;
 
+import javax.swing.JDialog;
 
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
@@ -21,6 +22,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
+import GUI.BanknoteWallet;
+import GUI.CoinWallet;
 import GUI.GUI;
 import bank.Bank;
 import store.Membership;
@@ -146,16 +149,17 @@ public final class Main {
             Inventory.setQuantity(p6, 1);
         }
     }
-
+    
+    // We assume we are working in Canadian denominations
     private static void initializeStore() {
         Currency currency = Configurations.currency;
-        int[] banknoteDenominations = { 1, 5, 10, 20, 100 };
+        int[] banknoteDenominations = { 5, 10, 20, 50, 100 };
         BigDecimal[] coinDenominations = {
-                new BigDecimal("0.01"),
                 new BigDecimal("0.05"),
                 new BigDecimal("0.1"),
                 new BigDecimal("0.25"),
-                new BigDecimal("1.00")
+                new BigDecimal("1.00"),
+                new BigDecimal("2.00")
         };
 
         // Initialize supervision station
