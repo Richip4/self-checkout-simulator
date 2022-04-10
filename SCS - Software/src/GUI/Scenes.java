@@ -691,13 +691,11 @@ public class Scenes {
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
-				if (GUI.stationAttendantAccess()) {
-					// prompt attendant for password
-					// they must already be logged in to the attendant station
-					if (promptAttendantForPassword()) {
-						stationAttendantOptions();
-					}
+				
+				if (promptAttendantForPassword()) {
+					stationAttendantOptions();
 				}
+				
 			} else if (e.getSource() == ownBags) {
 				GUI.userUsesOwnBags();
 			} else if (e.getSource() == membership) {
@@ -1083,7 +1081,7 @@ public class Scenes {
 	 * goes back to the attendant station.
 	 * @return true if password matches logged in attendant
 	 */
-	private boolean promptAttendantForPassword() {
+	private static boolean promptAttendantForPassword() {
 		Box box = Box.createVerticalBox();
 
 		JLabel passwordPrompt = new JLabel("  Password");

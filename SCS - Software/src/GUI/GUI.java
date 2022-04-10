@@ -15,6 +15,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import application.Main;
 import software.SelfCheckoutSoftware;
 import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
@@ -380,10 +381,7 @@ public class GUI {
 		// TODO Auto-generated method stub
 	}
 
-	public static boolean stationAttendantAccess() {
-		// TODO Auto-generated method stub
-		return true;
-	}
+
 
 	public static void userUsesOwnBags() {
 		// TODO Auto-generated method stub
