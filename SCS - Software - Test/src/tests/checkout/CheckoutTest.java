@@ -67,7 +67,7 @@ public class CheckoutTest
         FakeItem item = new FakeItem(1.0);
  //       Inventory inv = new Inventory();
         
-        BarcodedProduct b = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("5.00"), 3.12);
+        BarcodedProduct b = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("0.99"), 3.12);
     
         
 //        @Test(expected = IllegalStateException.class)
@@ -420,6 +420,9 @@ public class CheckoutTest
             return sum;
         }
     
+        /*
+         * This test leads to infinite recursion
+         */
         @Test
         public void makeChangeSingleCoin1()
         {
@@ -428,7 +431,8 @@ public class CheckoutTest
             checkout.setCustomer(customer);
             scss.setUser(customer);
             customer.addProduct(b);
-            customer.addCashBalance(price);
+            customer.addCashBalance(new BigDecimal("1.00"));
+            System.out.println(customer.getCartSubtotal());
             BigDecimal change = new BigDecimal("0.01");
             Coin.DEFAULT_CURRENCY = currency;
     
@@ -439,9 +443,11 @@ public class CheckoutTest
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
             checkout.enablePaymentHardware(PaymentMethod.CASH);
+            System.out.println(customer.getCashBalance());
+            System.out.println(customer.getCartSubtotal());
             checkout.makeChange();
     
-            System.out.println(customer.getCashBalance());
+
             BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
             
     
@@ -450,12 +456,19 @@ public class CheckoutTest
     
         
 
+        /*
+         * This test leads to infinite recursion
+         */
          @Test
          public void makeChangeSingleCoin2() {
+        	 BarcodedProduct twoDollarsTest = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
              Customer customer = new Customer();
              Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
              scss.setUser(customer);
+             
+             customer.addProduct(twoDollarsTest);
+             customer.addCashBalance(new BigDecimal("2.00"));
              BigDecimal change = new BigDecimal("1.00");
              Coin.DEFAULT_CURRENCY = currency;
     
