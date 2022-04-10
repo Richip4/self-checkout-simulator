@@ -1,9 +1,10 @@
 package GUI;
 
+import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.swing.JOptionPane;
+import javax.swing.JFrame;
 
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
@@ -15,7 +16,6 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
-import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
@@ -33,6 +33,10 @@ public class GUI {
 		ac = appControl;
 		// Initializes the openning scene, Self-Checkout Overview 
 		scenes.getScene(Scenes.SC_OVERVIEW);	
+	}
+	
+	public static void close() {
+		System.exit(0);
 	}
 	
 	/**
@@ -345,7 +349,7 @@ public class GUI {
 	 * @param pluCodedProduct
 	 */
 	public static void selectedItem(PLUCodedProduct pluCodedProduct) {
-		System.out.println(pluCodedProduct.getDescription());
+		// TODO
 	}
 
 	public static void userEntersPLUCode(int code, int currentStation) {
@@ -400,7 +404,6 @@ public class GUI {
 	 * Simulate the user at the previous station
 	 */
 	public static void selectPreviousUser() {
-		System.out.println("Select prev user");
 		ac.prevActiveUser();
 		updateScene(ac.getActiveUsersStation());
 	}
@@ -409,7 +412,6 @@ public class GUI {
 	 * Simulate the user at the next station
 	 */
 	public static void selectNextUser() {
-		System.out.println("Select next user");
 		ac.nextActiveUser();
 		updateScene(ac.getActiveUsersStation());
 	}
@@ -419,7 +421,6 @@ public class GUI {
 	 * @param station
 	 */
 	private static void updateScene(int station) {
-		System.out.println("updated scene " + station);
 		scenes.setCurrentStation(station);
 		if (station == -1) {
 			return;
@@ -449,7 +450,6 @@ public class GUI {
 			desc = "<html>Barcoded Item<br>";
 			desc += b.getDescription() +" "+ b.getPrice() + "</html>";
 		}
-		System.out.println(desc);
 		return desc;
 	}
 

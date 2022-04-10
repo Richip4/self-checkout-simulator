@@ -142,7 +142,7 @@ public class Scenes {
 			// terminate the actual program.  Set a window
 			// listener here to exit when scene is exitted.
 			this.addWindowListener(new WindowAdapter() {
-				public void windowActivated(WindowEvent e) {
+				public void windowGainedFocus(WindowEvent e) {
 					
 				}
 				public void windowClosing(WindowEvent e) {
@@ -296,7 +296,9 @@ public class Scenes {
 			
 			this.addWindowFocusListener(new WindowAdapter() {
 				public void windowGainedFocus(WindowEvent e) {
-					banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));		
+					banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
+					nextItem.setText(GUI.getNextItemDescription(currentStation));
+					nextItem.repaint();
 				}
 			});
 			
@@ -964,7 +966,7 @@ public class Scenes {
 		return (GUI.stationStatus(station) != "BLOCKED" && GUI.stationStatus(station) != "WEIGHT DISCREPANCY" &&
 				GUI.stationStatus(station) != "MISSING ITEM") ? green_light : red_light;
 	}
-	
+
 	/**
 	 * Sends a keypad prompt to the user to input a number.
 	 * A message is passed along to the keypad.

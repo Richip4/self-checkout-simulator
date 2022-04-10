@@ -90,10 +90,8 @@ public class AppControl {
 	 */
 	public void nextActiveUser() {
 		for (int i = 0; i < users.length; i++) {
-			//System.out.println("Checking station " + i + " for active user");
 			if (users[i] == activeUser) {
 				do {
-					//System.out.println("Checking station " + i + " for next valid user");
 					i++;
 					if (i > users.length - 1) {
 						i = 0;
@@ -110,10 +108,8 @@ public class AppControl {
 	 */
 	public void prevActiveUser() {
 		for (int i = 0; i < users.length; i++) {
-			//System.out.println("Checking station " + i + " for active user");
 			if (users[i] == activeUser) {
 				do {
-					//System.out.println("Checking station " + i + " for next valid user");
 					i--;
 					if (i < 0) {
 						i = users.length - 1;
@@ -174,7 +170,7 @@ public class AppControl {
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station - 1).setUser(activeUser);
+		selfStationSoftwares.get(station - 1).start((Customer)activeUser);
 		
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();

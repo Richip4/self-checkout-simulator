@@ -1,22 +1,16 @@
 package GUI;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import java.awt.SystemColor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.math.BigDecimal;
-import java.awt.Color;
 
 public class BanknoteWallet extends JFrame implements MouseListener {
 
