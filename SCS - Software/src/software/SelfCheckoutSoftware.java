@@ -38,7 +38,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         PLACING_OWN_BAG,
 
         HAVING_WEIGHT_DISCREPANCY,
-        BLOCKING
+        BLOCKING,
+        ERROR
     };
 
     public static enum PaymentMethod {
@@ -50,6 +51,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private Phase phase;
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
+    private boolean isError;
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
@@ -146,10 +148,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
     public SupervisionSoftware getSupervisionSoftware() {
         return this.svs;
-    }
-
-    public void notifyBanknoteEjected() {
-        this.checkout.makeChange();
     }
 
     public void enableHardware() {
@@ -257,7 +255,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * @return
      */
     public Phase getPhase() {
-        if (this.isBlocked) {
+        if (this.isError) {
+            return Phase.ERROR;
+        } else if (this.isBlocked) {
             return Phase.BLOCKING;
         } else if (this.isWeightDiscrepancy) {
             return Phase.HAVING_WEIGHT_DISCREPANCY;
@@ -318,7 +318,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * the product.
      */
     public void bagItem() {
-        if (this.phase != Phase.SCANNING_ITEM) {
+        if (this.phase != Phase.SCANNING_ITEM && this.phase != Phase.WEIGHING_PLU_ITEM) {
             throw new IllegalStateException("Cannot add item when the system is not scanning item");
         }
 
@@ -413,14 +413,12 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public void cancelCheckout() {
         // When the phase is not choosing payment method or processing their payment,
         // invalid operation
-        if ((this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD)
-                || this.customer == null) {
+        if (this.phase != Phase.PROCESSING_PAYMENT && this.phase != Phase.CHOOSING_PAYMENT_METHOD) {
             throw new IllegalStateException("Cannot cancel checkout when the system is not processing payment");
         }
 
         // Relative devices are disabled in checkout
         this.disableHardware();
-        this.checkout.cancelCheckout();
 
         this.setPhase(Phase.SCANNING_ITEM);
     }
@@ -447,4 +445,27 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
+    
+    public boolean hasPendingChanges() {
+        return this.checkout.hasPendingChange();
+    }
+
+    public void errorOccur() {
+        this.disableHardware();
+        this.processItemHandler.enableBaggingArea();
+        this.isError = true;
+
+        this.notifyObservers(observer -> observer.phaseChanged(Phase.ERROR));
+        this.notifyObservers(observer -> observer.touchScreenBlocked());
+    }
+
+    protected void resolveError() {
+        if (!this.isError) {
+            throw new IllegalStateException("Cannot resolve error when the system is not in error");
+        }
+
+        this.isError = false;
+        this.notifyObservers(observer -> observer.phaseChanged(this.phase));
+    }
+
 }

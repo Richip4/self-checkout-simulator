@@ -276,6 +276,7 @@ public class Scenes {
 		JButton maintenance;
 		JButton coinInSlot;
 		JButton coinTray;
+		JLabel weighScale;
 		JButton scanner;
 		JButton handScanner;
 		JButton cardReader;
@@ -373,6 +374,7 @@ public class Scenes {
 			
 			// item weigh scale
 			JLabel weighScale = new JLabel();
+			weighScale = new JLabel();
 			weighScale.setBounds(435, 250, 215, 90);
 			weighScale.setText("Item Weigh Scale");
 			weighScale.setHorizontalAlignment(SwingConstants.CENTER);

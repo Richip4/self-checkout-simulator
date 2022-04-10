@@ -285,7 +285,10 @@ public class GUI {
 	}
 
 	public static void refillBanknoteDispensers() {
-		// TODO Auto-generated method stub
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			
+		}
 		
 	}
 
