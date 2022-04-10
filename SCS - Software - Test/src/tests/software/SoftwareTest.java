@@ -169,6 +169,12 @@ public class SoftwareTest
             }
 
             @Override
+            public Void productNotFound()
+            {
+                return null;
+            }
+
+            @Override
             public Void productCannotFound()
             {
                 return null;
