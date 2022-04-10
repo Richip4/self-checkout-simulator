@@ -1,5 +1,6 @@
 package GUI;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -136,13 +137,9 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsBanknote(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+	public static void userInsertsBanknote(int currentStation, int value) {
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
 	}
 	
 	
@@ -166,13 +163,9 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsCoin(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
+	public static void userInsertsCoin(int currentStation, BigDecimal value) {
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.getCustomer().addCashBalance(value);
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
@@ -184,15 +177,6 @@ public class GUI {
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
 			scs.coinTray.collectCoins();
 		} */
-	}
-
-	public static void userPlacesItemOnWeighScale(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
@@ -220,7 +204,6 @@ public class GUI {
 	}
 	
 	public static void userRemovesReceipt(int currentStation) {
-		// TODO Auto-generated method stub
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
@@ -252,7 +235,8 @@ public class GUI {
 	}
 	
 	public static void removePaidItemsFromBagging() {
-		// TODO Auto-generated method stub
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.checkoutComplete();
 	}
 
 	/**
@@ -360,11 +344,6 @@ public class GUI {
 		}
 		
 	}
-
-	public static void fillBankStorage() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	/* Emptying the coin storage is done with a key, but we assume the attendant would have
 	 * this. This can happen during any phase*/
@@ -383,11 +362,6 @@ public class GUI {
 	public static void proceedToCheckout() {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 		scs.checkout();
-	}
-
-	public static boolean stationAttendantAccess() {
-		// TODO Auto-generated method stub
-		return true;
 	}
 
 	public static void userUsesOwnBags() {
