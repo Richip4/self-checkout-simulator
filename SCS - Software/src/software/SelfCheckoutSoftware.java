@@ -419,7 +419,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         // Relative devices are disabled in checkout
         this.disableHardware();
-        this.checkout.cancelCheckout();
 
         this.setPhase(Phase.SCANNING_ITEM);
     }
