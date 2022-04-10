@@ -101,7 +101,28 @@ public class SupervisionSoftwareTest
         assertTrue(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware2));
     }
 
-    // TODO: Double check why this is failing since logic seems correct on implementation & testing
+    @Test
+    public void addAndRemoveTest()
+    {
+        assertTrue(supervisionSoftware.getSoftwareList().isEmpty());
+        assertFalse(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware1));
+        assertFalse(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware2));
+
+        supervisionSoftware.add(selfCheckoutSoftware1);
+        supervisionSoftware.add(selfCheckoutSoftware2);
+
+        assertEquals(2, supervisionSoftware.getSoftwareList().size());
+        assertTrue(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware1));
+        assertTrue(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware2));
+
+        supervisionSoftware.remove(selfCheckoutSoftware1);
+        supervisionSoftware.remove(selfCheckoutSoftware2);
+
+        assertTrue(supervisionSoftware.getSoftwareList().isEmpty());
+        assertFalse(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware1));
+        assertFalse(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware2));
+    }
+
     @Test
     public void clearTest()
     {
@@ -111,8 +132,8 @@ public class SupervisionSoftwareTest
         supervisionSoftware.clear();
 
         assertTrue(supervisionSoftware.getSoftwareList().isEmpty());
-        assertTrue(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware1));
-        assertTrue(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware2));
+        assertFalse(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware1));
+        assertFalse(supervisionSoftware.getSoftwareList().contains(selfCheckoutSoftware2));
     }
 
     @Test
@@ -290,8 +311,18 @@ public class SupervisionSoftwareTest
         supervisionSoftware.unblockStation(selfCheckoutSoftware1);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test()
     public void approveWeightDiscrepancyTest() throws IncorrectCredentialException, AuthorizationRequiredException
+    {
+        supervisionSoftware.login(username, password);
+        supervisionSoftware.add(selfCheckoutSoftware1);
+        selfCheckoutSoftware1.weightDiscrepancy();
+
+        supervisionSoftware.approveWeightDiscrepancy(selfCheckoutSoftware1);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void approveWeightDiscrepancyUnsuccessfullyTest() throws AuthorizationRequiredException, IncorrectCredentialException
     {
         supervisionSoftware.login(username, password);
         supervisionSoftware.add(selfCheckoutSoftware1);
@@ -300,7 +331,7 @@ public class SupervisionSoftwareTest
     }
 
     @Test(expected = AuthorizationRequiredException.class)
-    public void approveWeightDiscrepancyUnsuccessfullyTest() throws AuthorizationRequiredException
+    public void approveWeightDiscrepancyUnsuccessfullyTest2() throws AuthorizationRequiredException
     {
         selfCheckoutSoftware1.weightDiscrepancy();
         supervisionSoftware.approveWeightDiscrepancy(selfCheckoutSoftware1);
