@@ -14,8 +14,13 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import application.Main;
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import store.Inventory;
+import store.Store;
+import store.credentials.AuthorizationRequiredException;
+import user.Attendant;
 import user.Customer;
 import user.User;
 
@@ -117,10 +122,8 @@ public class GUI {
 
 	//
 	public static void userBagsItem(int currentStation) {
-		// TODO Auto-generated method stub
+		//todo
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			
 		}
 	}
@@ -168,15 +171,6 @@ public class GUI {
 		}
 	}
 
-	public static void userPlacesItemOnWeighScale(int currentStation) {
-		// TODO Auto-generated method stub
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
-	}
-
 	public static void userScansItem(int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
@@ -204,19 +198,12 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		// TODO Auto-generated method stub
 		scenes.getScene(Scenes.SCS_TOUCH);
-		
-		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
-			
-		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			
-		}
 	}
 
 	public static void attendantLogsOut() {
-		// TODO Auto-generated method stub
-		
+		SupervisionSoftware svs = Store.getSupervisionSoftware();
+		svs.logout();
 	}
 
 	/**
@@ -379,9 +366,12 @@ public class GUI {
 		ac.removeItemFromCustomersCart(station, index);
 	}
 
-	public static void shutdownStation() {
-		// TODO Auto-generated method stub
-		
+	public static void shutdownStation() throws AuthorizationRequiredException {
+		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
+		{
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.stopSystem();
+		}
 	}
 
 	public static boolean attendantLogin(String name, String password) {
