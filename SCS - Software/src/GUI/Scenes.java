@@ -466,7 +466,6 @@ public class Scenes {
 				updateDisplay();
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation, false);
-				String nItem = GUI.getNextItemDescription(currentStation);
 				updateDisplay();
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
@@ -596,7 +595,7 @@ public class Scenes {
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				} else if (e.getSource() == station_approve[i]) {
-					GUI.attendantApproveStation(i);
+					GUI.attendantApprovesStation(i);
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				}
@@ -623,10 +622,21 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		boolean shouldClose = false;
+		
 		public JFrame getScene() {
+			JFrame window = this;
 			JPanel scene = preprocessScene(this, 750, 500);
 
 			generateBanner(scene, true, banner_info, banner_title);
+			
+			this.addWindowFocusListener(new WindowAdapter() {
+                public void windowGainedFocus(WindowEvent e) {
+                    if (shouldClose) {
+                    	window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+                    }
+                }
+            });
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -713,9 +723,11 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == search) {
 				promptSelectItems();
+				shouldClose = true;
 			} else if (e.getSource() == plu_code) {
 				expectingPLUCode = true;
 				getNumberFromUser("Enter the PLU code");
+				shouldClose = true;
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
@@ -727,6 +739,8 @@ public class Scenes {
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
+			} else if (e.getSource() == membership) {
+				GUI.userSkipsBagging();
 			} 
 		}	
 	}
@@ -1430,21 +1444,6 @@ public class Scenes {
 	public static void errorMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
-	
-//	public static boolean promptBagItem() {
-//		String[] options = {"Yes", "No" };
-//		int answer = JOptionPane.showOptionDialog(null, "Would you like to bag this item?", 
-//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-//		
-//		while (answer == -1) {
-//			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
-//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-//		}
-//		
-//		//returns true if yes is selected
-//		return answer == 0;
-//	
-//	}
 
 	/**
 	 * When a Keypad object is created for number input it
@@ -1460,8 +1459,6 @@ public class Scenes {
 			expectingMembershipNum = false;
 		}
 	}
-	
-	
 	
 	public void coinWalletReturnValue(BigDecimal value) {
 		GUI.userInsertsCoin(currentStation, value);

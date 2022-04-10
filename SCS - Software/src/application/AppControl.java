@@ -178,7 +178,7 @@ public class AppControl {
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();
 		int selectionSize = Tangibles.ITEMS.size();
-		int itemsGrabbed = random.nextInt(selectionSize/10);
+		int itemsGrabbed = Math.min(random.nextInt(selectionSize), 4); // customer takes at most 4 items
 		
 		List<Item> inventory = new ArrayList<>();
 		for (int i = 0; i < itemsGrabbed; i++) {
@@ -492,6 +492,13 @@ public class AppControl {
 	
 	public void clearLastCheckedOutItem() {
 		lastCheckedOutItem = null;
+	}
+
+	public void skipBagging(int station) {
+		if (stationsUserType[station] == ATTENDANT ||
+			stationsUserType[station] == BOTH) {
+			selfStationSoftwares.get(station).notBaggingItem();
+		}
 	}
 
 

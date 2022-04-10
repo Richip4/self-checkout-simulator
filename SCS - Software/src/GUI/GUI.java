@@ -193,10 +193,8 @@ public class GUI {
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
-		//we assume that it scans the first item in our list of auto generated items
 		Item item = ac.getCustomersNextItem(currentStation);
 		try {
-			BarcodedItem product = (BarcodedItem) item;
 			
 			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
 			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
@@ -205,11 +203,12 @@ public class GUI {
 			
 			if (usedMainScanner) {
 				hardware.mainScanner.scan(item);
-			}else {
+			} else {
 				hardware.handheldScanner.scan(item);
 			}
+			
 			ac.removeCustomerNextItem(currentStation);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			Scenes.errorMsg("You cannot scan this item");
 		}
 	}
@@ -237,7 +236,11 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		scenes.getScene(Scenes.SCS_TOUCH);
+		if (ac.getStationPhase(currentStation) != Phase.BLOCKING) {
+			scenes.getScene(Scenes.SCS_TOUCH);
+		} else {
+			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
+		}
 	}
 
 	public static void attendantLogsOut() {
@@ -273,7 +276,7 @@ public class GUI {
 	 * 
 	 * @param station
 	 */
-	public static void attendantApproveStation(int station) {
+	public static void attendantApprovesStation(int station) {
 		
 		ac.approveStationDiscrepancy(station);
 	}
@@ -306,6 +309,10 @@ public class GUI {
 			ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
 		}
 	}
+	
+	public static void userSkipsBagging() {
+		ac.skipBagging(scenes.getCurrentStation());
+	}
 
 	public static void refillBanknoteDispensers() {
 		int currentStation = scenes.getCurrentStation();
@@ -320,7 +327,7 @@ public class GUI {
 			// For every dispenser (there is one dispenser for each banknote denomination)
 			for(int denom: banknoteDenoms) {
 				int numBillsInDispenser = scs.banknoteDispensers.get(denom).size();
-				int dispenserCapacity = scs.BANKNOTE_DISPENSER_CAPACITY;
+				int dispenserCapacity = SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY;
 				
 				Banknote note = new Banknote(currency,denom);
 				
@@ -444,7 +451,13 @@ public class GUI {
 	 * @param pluCodedProduct
 	 */
 	public static void selectedItem(PLUCodedProduct pluCodedProduct) {
-		// TODO
+		int code = 0;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(0).getValue() * 1000;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(1).getValue() * 100;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(2).getValue() * 10;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(3).getValue();
+		System.out.println(code);
+		userEntersPLUCode(code, scenes.getCurrentStation());
 	}
 
 	public static void userEntersPLUCode(int code, int currentStation) {
@@ -466,6 +479,7 @@ public class GUI {
 				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
 				software.addPLUItem();
+				software.bagItem();
 				
 				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
@@ -558,6 +572,7 @@ public class GUI {
 		
 		if (item == null)
 			return "No more items";
+		
 		if (item instanceof PLUCodedItem) {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
 			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 

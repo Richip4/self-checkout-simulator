@@ -183,14 +183,16 @@ public final class Main {
         // no need for uniqueness as weight is not recorded per item
         Vector<BarcodedItem> bItems = new Vector<>();
         
-    	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
-    	Inventory.setQuantity(coffee, 4); 
-    	
-    	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
-    	Inventory.setQuantity(fruitLoops, 8); 
-    	
-    	bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
-    	Inventory.setQuantity(kraftDinner, 10); 
+        int quantityOfEachBarcodedItem = 5;
+        for (int i = 0; i < quantityOfEachBarcodedItem; i++) {
+        	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
+        	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
+        	bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
+        }
+        
+    	Inventory.setQuantity(coffee, quantityOfEachBarcodedItem); 
+    	Inventory.setQuantity(fruitLoops, quantityOfEachBarcodedItem); 
+    	Inventory.setQuantity(kraftDinner, quantityOfEachBarcodedItem); 
     	
     	bItems.forEach(bi -> Tangibles.ITEMS.add(bi));
     	
