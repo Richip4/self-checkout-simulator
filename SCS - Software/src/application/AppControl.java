@@ -137,6 +137,10 @@ public class AppControl {
 		return users;
 	}
 	
+	public SelfCheckoutSoftware getSelfCheckoutSoftware(int stationNumber) {
+		return selfStationSoftwares.get(stationNumber-1);
+	}
+	
 	/**
 	 * Checks all the stations to see if the active user is 
 	 * currently at that station.  
@@ -432,6 +436,9 @@ public class AppControl {
 
 	public Item getCustomersNextItem(int station) {
 		return inventories.get(users[station]).get(0);
+		//return null if empty
 	}
+	
+	//remove first item from inventories ^^ 
 
 }

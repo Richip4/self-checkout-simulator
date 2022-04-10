@@ -1419,7 +1419,7 @@ public class Scenes {
 	 */
 	public void keypadReturnValue(int number) {
 		if (expectingPLUCode) {
-			GUI.userEntersPLUCode(number);
+			GUI.userEntersPLUCode(number, currentStation);
 			expectingPLUCode = false;
 		} else if (expectingMembershipNum) {
 			GUI.userEntersMembership(number);

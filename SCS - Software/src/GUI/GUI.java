@@ -7,13 +7,17 @@ import javax.swing.JOptionPane;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
+import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
 import software.SelfCheckoutSoftware.Phase;
+import software.SelfCheckoutSoftware;
 import store.Inventory;
+import user.Customer;
 import user.User;
 
 public class GUI {
@@ -342,9 +346,29 @@ public class GUI {
 		System.out.println(pluCodedProduct.getDescription());
 	}
 
-	public static void userEntersPLUCode(int code) {
-		// TODO Auto-generated method stub
-		
+	public static void userEntersPLUCode(int code, int currentStation) {
+		//errorMsg("No items have been bagged");
+		try {
+			Item item = ac.getCustomersNextItem(currentStation);
+			PLUCodedItem pluItem = (PLUCodedItem)item;
+
+			//check if the plu exists in the Inventory
+			PriceLookupCode plu = new PriceLookupCode(Integer.toString(code));
+			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
+				//get software and customer
+				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+				
+				Customer customer = software.getCustomer();
+				customer.enterPLUCode(plu);
+				
+				SelfCheckoutStation station = software.getSelfCheckoutStation();
+				station.scanningArea.add(item);
+			} else 
+				Scenes.errorMsg("PLU code does not exist!");
+		} catch(Exception e) {
+			Scenes.errorMsg("The item you're trying to checkout is not a PLU item");
+		}
+
 	}
 
 	public static boolean attendantPassword(String password) {
