@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 
+import application.Main.Tangibles;
 import store.Store;
 import store.credentials.AuthorizationRequiredException;
 import store.credentials.CredentialsSystem;
@@ -65,11 +66,15 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * at start up or attendant can change.
 	 * 
 	 * @param attendant
+	 * 
+	 * I don't think this is relevant since we shouldn't have an Attendant present 
+	 * unless they've already logged in.  A successful log in should set the attendant.
 	 */
-	public void setAttendant(Attendant attendant) {
-		this.attendant = attendant;
-		this.logged_in = false;
-	}
+//    public void setAttendant(Attendant attendant){
+//        this.attendant = attendant;
+//        this.logged_in = false;
+//    }
+
 
 	public void add(SelfCheckoutSoftware software) {
 		this.softwareList.add(software);
@@ -83,9 +88,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
 	public void clear() {
 		// For each software, remove from list
-		for (SelfCheckoutSoftware software : this.softwareList) {
-			this.remove(software);
-		}
+		this.softwareList.clear();
 	}
 
 	public List<SelfCheckoutSoftware> getSoftwareList() {
@@ -93,24 +96,27 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	}
 
 	/**
-	 * Prompts the attendant for it's login creds, once that is complete, we get the
-	 * username
-	 * and password and check the login. If the login was successful, we change the
-	 * loggedIn flag.
-	 * 
-	 * @return T/F whether we've logged in successfully
+	 * Given a username and password, checks if they exist in the database and then
+	 * sets the stations attendant to the matching attendant stored in Tangibles.
+	 * @param username provided from the user via gui
+	 * @param password provided from the user via gui
+	 * @throws IncorrectCredentialException
 	 */
-	public void login() throws IncorrectCredentialException {
-		String username = attendant.getUsername();
-		String password = attendant.getPassword();
-
-		if (CredentialsSystem.checkLogin(username, password)) {
+	public void login(String username, String password) throws IncorrectCredentialException {
+		if(CredentialsSystem.checkLogin(username, password)) {
 			this.logged_in = true;
+			Tangibles.ATTENDANTS.forEach( att -> {
+				if (att.getUsername().equals(username) && att.getPassword().equals(password)) {
+					System.out.println("supervision station attendant updated");
+					this.attendant = att;
+					return;
+				}
+			});
 		} else {
 			throw new IncorrectCredentialException("Attendant credential is invalid");
 		}
 	}
-
+	
 	/**
 	 * Logout method to make sure that someone has logged out.
 	 * 
@@ -118,6 +124,14 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 */
 	public void logout() {
 		this.logged_in = false;
+	}
+	
+	/**
+	 * Check whether an attendant is logged into the supervision station
+	 * @return
+	 */
+	public boolean isLoggedIn() {
+		return logged_in;
 	}
 
 	/**

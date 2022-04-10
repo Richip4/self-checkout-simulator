@@ -1,5 +1,6 @@
 package user;
 
+import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
@@ -21,7 +22,7 @@ public class Customer extends User {
 			this.product = product;
 			this.weight = weight;
 		}
-		
+
 		public Product getProduct() {
 			return this.product;
 		}
@@ -38,6 +39,7 @@ public class Customer extends User {
 	private boolean ownBagsUsed = false;
 	private int numOfPlasticBags = 0;
 	private String memberID;
+	private PriceLookupCode plu;
 
 	public void addCashBalance(BigDecimal value) {
 		this.cashBalance = this.cashBalance.add(value);
@@ -161,16 +163,22 @@ public class Customer extends User {
 		this.numOfPlasticBags = numOfPlasticBags;
 	}
 
-	@Override
-	public int getUserType() {
-		return AppControl.CUSTOMER;
-	}
-
 	public int getPlasticBags() {
 		return numOfPlasticBags;
 	}
 
 	public boolean hasSufficientCashBalance() {
 		return this.getCashBalance().compareTo(this.getCartSubtotal()) >= 0;
+	public void enterPLUCode(PriceLookupCode plu) {
+		this.plu = plu;
+	}
+
+	public PriceLookupCode getPLU() {
+		return this.plu;
+	}
+
+	@Override
+	public int getUserType() {
+		return AppControl.CUSTOMER;
 	}
 }

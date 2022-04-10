@@ -36,7 +36,7 @@ public class Checkout {
 
 	// This list contains "banknote" cash objects, the cash object is simply the
 	// denomination of banknotes and coins
-	private List<Cash> pendingChanges = new ArrayList<Cash>(); 
+	private List<Cash> pendingChanges = new ArrayList<Cash>();
 
 	public Checkout(SelfCheckoutSoftware scss) {
 		this.scss = scss;
@@ -94,7 +94,8 @@ public class Checkout {
 		BigDecimal subtotal = this.customer.getCartSubtotal();
 
 		if (subtotal.compareTo(customer.getCashBalance()) < 1 // x.compareTo(y): returns 1 if x is < y
-															// this may be backwards ^ consider the reverse when testing
+																// this may be backwards ^ consider the reverse when
+																// testing
 				&& subtotal.compareTo(BigDecimal.ZERO) != 0) {
 			throw new IllegalStateException("Customer has paid clear");
 		}
