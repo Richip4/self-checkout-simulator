@@ -18,6 +18,7 @@ import application.Main;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
 import store.Inventory;
+import store.Membership;
 import store.Store;
 import store.credentials.AuthorizationRequiredException;
 import user.Attendant;
@@ -289,24 +290,15 @@ public class GUI {
 		
 	}
 
-	public static void fillBankStorage() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public static void emptyCoinStorage() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public static void fillCoinStorage() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public static void proceedToCheckout() {
-		// TODO Auto-generated method stub
-		
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.checkout();
 	}
 
 	public static boolean stationAttendantAccess() {
@@ -320,8 +312,12 @@ public class GUI {
 	}
 
 	public static void userEntersMembership(int num) {
-		// TODO Auto-generated method stub
-		
+
+		if(Membership.isMember(Integer.toString(num)))
+		{
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.getCustomer().setMemberID(Integer.toString(num));
+		}
 	}
 
 	/**
