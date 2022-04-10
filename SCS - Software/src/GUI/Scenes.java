@@ -968,7 +968,7 @@ public class Scenes {
 	 * Displays a window with self checkout station options that only
 	 * a logged in attendant can do.
 	 */
-	public void stationAttendantOptions() {
+	public JFrame stationAttendantOptions() {
 		JFrame authorizedWindow = new JFrame();
 		authorizedWindow.addWindowFocusListener(new WindowAdapter() {
 			public void windowLostFocus(WindowEvent e) {
@@ -1011,6 +1011,7 @@ public class Scenes {
 		
 		authorizedWindow.add(options);
 		authorizedWindow.setVisible(true);
+		return authorizedWindow;
 	}
 
 	/**

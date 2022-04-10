@@ -1,5 +1,6 @@
 package tests.gui;
 
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -18,7 +19,14 @@ public class ScenesTest
 {
 	final Scenes scenes = new Scenes();
 	
-	
+	@Before
+	public void setup() {
+		Main.initializeCardAndIssuers();
+	    Main.initializeProductDatabase();
+	    Main.initializeStore();
+	    Main.initializeMembership();
+	    Main.initializeCredentialsSytem();
+	}
 	@Test 
 	public void DimmingTest() {
 				
@@ -49,10 +57,19 @@ public class ScenesTest
 //	    Main.initializeStore();
 //	    Main.initializeMembership();
 //	    Main.initializeCredentialsSytem();
-//		JFrame window = scenes.getScene(Scenes.SC_OVERVIEW);
+//		JFrame window = scenes.getScene(Scenes.AS_TOUCH);
 //		assertTrue(window.isVisible()==true);
 //		window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 //	}
+	
+	@Test
+	public void stationAttendantOptionsTest() {
+		JFrame window = scenes.stationAttendantOptions();
+		assertTrue(window.isVisible() == true);
+		window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+	}
+	
+	
 	
 	
 	

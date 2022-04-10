@@ -21,8 +21,13 @@ public class GUITest
 	private AppControl ac;
 	@Before
 	public void setup() {
-		Main.main(null);
+		Main.initializeCardAndIssuers();
+	    Main.initializeProductDatabase();
+	    Main.initializeStore();
+	    Main.initializeMembership();
+	    Main.initializeCredentialsSytem();
 		ac = new AppControl();
+		GUI.init(ac);
 	}
 
 	@Test
