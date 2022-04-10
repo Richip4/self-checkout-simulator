@@ -96,25 +96,6 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	}
 
 	/**
-	 * Prompts the attendant for it's login creds, once that is complete, we get the
-	 * username
-	 * and password and check the login. If the login was successful, we change the
-	 * loggedIn flag.
-	 * 
-	 * @return T/F whether we've logged in successfully
-	 */
-	public void login() throws IncorrectCredentialException {
-		String username = attendant.getUsername();
-		String password = attendant.getPassword();
-
-		if (CredentialsSystem.checkLogin(username, password)) {
-			this.logged_in = true;
-		} else {
-			throw new IncorrectCredentialException("Attendant credential is invalid");
-		}
-	}
-
-	/**
 	 * Given a username and password, checks if they exist in the database and then
 	 * sets the stations attendant to the matching attendant stored in Tangibles.
 	 * @param username provided from the user via gui
