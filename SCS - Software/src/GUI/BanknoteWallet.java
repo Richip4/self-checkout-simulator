@@ -6,38 +6,51 @@ import java.awt.FlowLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import java.awt.SystemColor;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.math.BigDecimal;
 import java.awt.Color;
 
-public class BanknoteWallet extends JDialog {
+public class BanknoteWallet extends JFrame implements MouseListener {
 
 	private final JPanel contentPanel = new JPanel();
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			BanknoteWallet dialog = new BanknoteWallet();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
+	JFrame window;
+	JLabel fiveDollar;
+	JLabel tenDollar;
+	JLabel twentyDollar;
+	JLabel fiftyDollar;
+	JLabel hundredDollar;
+	Scenes parent;
+	
 	/**
 	 * Create the dialog.
 	 */
-	public BanknoteWallet() {
+	public BanknoteWallet(Scenes parent) {
+		this.parent = parent;
+		window = this;
+		
+		addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
 		setResizable(false);
-		setBounds(100, 100, 268, 510);
-		getContentPane().setLayout(new BorderLayout());
+		setBounds(100, 100, 268, 450);
+		setUndecorated(true);
+		setLayout(new BorderLayout());
+		add(contentPanel, BorderLayout.CENTER);
+		setLocationRelativeTo(null);
+		
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
 		{
 			JLabel lblNewLabel = new JLabel("Banknote Wallet");
@@ -45,51 +58,69 @@ public class BanknoteWallet extends JDialog {
 			contentPanel.add(lblNewLabel);
 		}
 		{
-			JLabel fiveDollar = new JLabel("five");
+			fiveDollar = new JLabel("five");
 			ImageIcon five = new ImageIcon("src/GUI/images/fiveDollar.jpg");
 			fiveDollar.setIcon(five);
 			fiveDollar.setBounds(46, 44, 179, 64);
+			fiveDollar.addMouseListener(this);
 			contentPanel.add(fiveDollar);
 		}
 		{
-			JLabel tenDollar = new JLabel("ten");
+			tenDollar = new JLabel("ten");
 			ImageIcon ten = new ImageIcon("src/GUI/images/tenDollar.jpg");
 			tenDollar.setIcon(ten);
 			tenDollar.setBounds(46, 120, 179, 64);
+			tenDollar.addMouseListener(this);
 			contentPanel.add(tenDollar);
 		}
 		{
-			JLabel twentyDollar = new JLabel("twenty");
+			twentyDollar = new JLabel("twenty");
 			ImageIcon twenty = new ImageIcon("src/GUI/images/twentyDollar.jpg");
 			twentyDollar.setIcon(twenty);
 			twentyDollar.setBounds(46, 196, 179, 64);
+			twentyDollar.addMouseListener(this);
 			contentPanel.add(twentyDollar);
 		}
 		{
-			JLabel fiftyDollar = new JLabel("fifty");
+			fiftyDollar = new JLabel("fifty");
 			ImageIcon fifty = new ImageIcon("src/GUI/images/fiftyDollar.jpg");
 			fiftyDollar.setIcon(fifty);
 			fiftyDollar.setBounds(46, 272, 179, 64);
+			fiftyDollar.addMouseListener(this);
 			contentPanel.add(fiftyDollar);
 		}
 		{
-			JLabel hundredDollar = new JLabel("hundred");
+			hundredDollar = new JLabel("hundred");
 			ImageIcon hundred = new ImageIcon("src/GUI/images/hundredDollar.jpg");
 			hundredDollar.setIcon(hundred);
 			hundredDollar.setBounds(46, 348, 179, 64);
+			hundredDollar.addMouseListener(this);
 			contentPanel.add(hundredDollar);
 		}
-		{
-			JPanel buttonPane = new JPanel();
-			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
-			{
-				JButton okButton = new JButton("Insert");
-				okButton.setBackground(Color.WHITE);
-				okButton.setActionCommand("OK");
-				buttonPane.add(okButton);
-				getRootPane().setDefaultButton(okButton);
-			}
+		
+		setVisible(true);
+	}
+	
+	public void mouseClicked(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {
+		if (e.getSource() == fiveDollar) {
+			parent.banknoteWalletReturnValue(5);
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		} else if (e.getSource() == tenDollar) {
+			parent.banknoteWalletReturnValue(10);
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		} else if (e.getSource() == twentyDollar) {
+			parent.banknoteWalletReturnValue(20);
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		} else if (e.getSource() == fiftyDollar) {
+			parent.banknoteWalletReturnValue(50);
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		} else if (e.getSource() == hundredDollar) {
+			parent.banknoteWalletReturnValue(100);
+			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		}
 	}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
 }

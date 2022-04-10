@@ -1,5 +1,6 @@
 package GUI;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -14,6 +15,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
 import store.Inventory;
@@ -126,7 +128,7 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsBanknote(int currentStation) {
+	public static void userInsertsBanknote(int value, int currentStation) {
 		// TODO Auto-generated method stub
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			
@@ -151,9 +153,9 @@ public class GUI {
 		}
 	}
 
-	public static void userInsertsCoin(int currentStation) {
-		// TODO Auto-generated method stub
+	public static void userInsertsCoin(BigDecimal value, int currentStation) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
+			
 			
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			

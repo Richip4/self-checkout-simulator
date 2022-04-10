@@ -303,7 +303,7 @@ public class AppControl {
 	 */
 	public Phase getStationPhase(int station) {
 		
-		return selfStationSoftwares.get(station).getPhase();
+		return selfStationSoftwares.get(station-1).getPhase();
 	}
 
 	/**
