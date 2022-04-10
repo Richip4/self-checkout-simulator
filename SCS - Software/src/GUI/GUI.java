@@ -386,22 +386,34 @@ public class GUI {
 	}
 
 	public static void userEntersPLUCode(int code, int currentStation) {
-		//errorMsg("No items have been bagged");
 		try {
 			Item item = ac.getCustomersNextItem(currentStation);
-			PLUCodedItem pluItem = (PLUCodedItem)item;
 
 			//check if the plu exists in the Inventory
 			PriceLookupCode plu = new PriceLookupCode(Integer.toString(code));
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
-				//get software and customer
+				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+				software.addItem();
 				
+				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
 				customer.enterPLUCode(plu);
 				
-				SelfCheckoutStation station = software.getSelfCheckoutStation();
-				station.scanningArea.add(item);
+				//get the hardware and calls the hardware.
+				SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+				hardware.scanningArea.add(item);
+				
+				software.bagItem();
+				hardware.baggingArea.add(item);
+				
+//				if(Scenes.promptBagItem()) {
+//					//Get the customer to bag the item
+//					software.bagItem();
+//					hardware.baggingArea.add(item);
+//				}else {
+//					software.notBaggingItem();
+//				}
 			} else 
 				Scenes.errorMsg("PLU code does not exist!");
 		} catch(Exception e) {
