@@ -168,8 +168,8 @@ public class CheckoutTest
             assertTrue(checkout.hasPendingChange() == false);
         }
         
-        @Test
-        public void makeChangeTest() {
+        @Test(expected = IllegalStateException.class)
+        public void makeChangeNoPaymentTest() {
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
@@ -404,6 +404,7 @@ public class CheckoutTest
             try
             {
                 danglingBanknotes = scs.banknoteOutput.removeDanglingBanknotes();
+
             } catch (NullPointerSimulationException e)
             {
                 // No more banknotes
@@ -420,9 +421,7 @@ public class CheckoutTest
             return sum;
         }
     
-        /*
-         * This test leads to infinite recursion
-         */
+
         @Test
         public void makeChangeSingleCoin1()
         {
@@ -456,9 +455,7 @@ public class CheckoutTest
     
         
 
-        /*
-         * This test leads to infinite recursion
-         */
+
          @Test
          public void makeChangeSingleCoin2() {
         	 BarcodedProduct twoDollarsTest = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
@@ -482,6 +479,7 @@ public class CheckoutTest
     
              checkout.makeChange();
     
+
              BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
     
              assertEquals("Coin tray should have coins with sum of $1.00", change.doubleValue(), sum.doubleValue(), 0.01);
@@ -489,10 +487,15 @@ public class CheckoutTest
     
          @Test
          public void makeChangeMultipleCoins1() {
+        	 BarcodedProduct twoCoins = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.65"), 3.12);
              Customer customer = new Customer();
              Checkout checkout = new Checkout(scss);
              checkout.setCustomer(customer);
              scss.setUser(customer);
+             
+             customer.addProduct(twoCoins);
+             customer.addCashBalance(new BigDecimal("2.00"));
+
              BigDecimal change = new BigDecimal("0.35"); // Could be 0.25 + 0.01 or other combinations
              Coin.DEFAULT_CURRENCY = currency;
     
@@ -514,10 +517,14 @@ public class CheckoutTest
         @Test
         public void makeChangeMultipleCoins2()
         {
+        	BarcodedProduct multipleCoin = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.25"), 3.12);
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
             scss.setUser(customer);
+            
+            customer.addProduct(multipleCoin);
+            customer.addCashBalance(new BigDecimal("2.00"));
     
             BigDecimal change = new BigDecimal("0.75"); // Could be 0.50 + 0.25 or other combinations
             Coin.DEFAULT_CURRENCY = currency;
@@ -583,12 +590,16 @@ public class CheckoutTest
         @Test
         public void makeChangeSingleBanknote1()
         {
+        	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
             scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("6.00"));
     
-            BigDecimal change = new BigDecimal("1.00");
+            BigDecimal change = new BigDecimal("5.00");
             Coin.DEFAULT_CURRENCY = currency;
     
             this.clearDispensers(); // Force using banknote for change, since coins are empty
@@ -602,15 +613,19 @@ public class CheckoutTest
     
             BigDecimal sum = this.getSumOfBanknotesInBanknoteOutput();
     
-            assertEquals("Banknote output should have banknotes with sum of $1.00", change.doubleValue(), sum.doubleValue(), 0.01);
+            assertEquals("Banknote output should have banknotes with sum of $5.00", change.doubleValue(), sum.doubleValue(), 0.01);
         }
     
          @Test
          public void makeChangeSingleBanknote2() {
-             Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
-             scss.setUser(customer);
+         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("10.00"), 3.12);
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("30.00"));
     
              BigDecimal change = new BigDecimal("20.00");
              Coin.DEFAULT_CURRENCY = currency;
@@ -632,10 +647,14 @@ public class CheckoutTest
     
          @Test
          public void makeChangeMultipleBanknote1() {
-             Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
-             scss.setUser(customer);
+         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("10.00"), 3.12);
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("50.00"));
     
              BigDecimal change = new BigDecimal("40.00"); // Could be 20.00 + 20.00, or other combinations
              Coin.DEFAULT_CURRENCY = currency;
@@ -660,10 +679,14 @@ public class CheckoutTest
         @Test
         public void makeChangeMultipleBanknote2()
         {
+        	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
             scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("102.00"));
     
             BigDecimal change = new BigDecimal("101.00"); // Could be 100.00 + 1.00, or other combinations
             Coin.DEFAULT_CURRENCY = currency;
@@ -686,10 +709,14 @@ public class CheckoutTest
         @Test
         public void makeChangeOneCoinAndOneBanknote()
         {
+        	BarcodedProduct coinandnotes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
             scss.setUser(customer);
+            
+            customer.addProduct(coinandnotes);
+            customer.addCashBalance(new BigDecimal("21.25"));
     
             BigDecimal change = new BigDecimal("20.25"); // Could be 20.00 bn + 0.25 c, or other combinations
             Coin.DEFAULT_CURRENCY = currency;
@@ -716,10 +743,14 @@ public class CheckoutTest
     
          @Test
          public void makeChangeMultipleCoinsAndOneBanknote() {
-             Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
-             scss.setUser(customer);
+         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("21.85"));
     
              BigDecimal change = new BigDecimal("20.85"); // Could be 20.00 bn + 0.25 c + 0.50 c + 0.10 c, or other
                                                           // combinations
@@ -748,10 +779,14 @@ public class CheckoutTest
     
          @Test
          public void makeChangeOneCoinAndMultipleBanknotes() {
-             Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
-             scss.setUser(customer);
+         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("121.25"));
     
              BigDecimal change = new BigDecimal("120.25"); // 100.00 bn + 20.00 bn + 0.25 c, or other combinations
              Coin.DEFAULT_CURRENCY = currency;
@@ -779,10 +814,14 @@ public class CheckoutTest
         @Test
         public void makeChangeMultipleCoinsAndMultipleBanknotes()
         {
+        	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
             scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("137.78"));
     
             BigDecimal change = new BigDecimal("136.78");
             Coin.DEFAULT_CURRENCY = currency;
@@ -811,10 +850,14 @@ public class CheckoutTest
     
          @Test
          public void makeChangeMultipleCoinsAndMultipleBanknotesBigAmount() {
-             Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
-             scss.setUser(customer);
+         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            scss.setUser(customer);
+            
+            customer.addProduct(notes);
+            customer.addCashBalance(new BigDecimal("5949.94"));
     
             BigDecimal change = new BigDecimal("5948.94");
              Coin.DEFAULT_CURRENCY = currency;
