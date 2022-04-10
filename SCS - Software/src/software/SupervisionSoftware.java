@@ -88,32 +88,11 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
 	public void clear() {
 		// For each software, remove from list
-		for (SelfCheckoutSoftware software : this.softwareList) {
-			this.remove(software);
-		}
+		this.softwareList.clear();
 	}
 
 	public List<SelfCheckoutSoftware> getSoftwareList() {
 		return this.softwareList;
-	}
-
-	/**
-	 * Prompts the attendant for it's login creds, once that is complete, we get the
-	 * username
-	 * and password and check the login. If the login was successful, we change the
-	 * loggedIn flag.
-	 * 
-	 * @return T/F whether we've logged in successfully
-	 */
-	public void login() throws IncorrectCredentialException {
-		String username = attendant.getUsername();
-		String password = attendant.getPassword();
-
-		if (CredentialsSystem.checkLogin(username, password)) {
-			this.logged_in = true;
-		} else {
-			throw new IncorrectCredentialException("Attendant credential is invalid");
-		}
 	}
 
 	/**
