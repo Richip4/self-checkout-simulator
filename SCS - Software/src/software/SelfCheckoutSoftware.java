@@ -38,7 +38,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         PLACING_OWN_BAG,
 
         HAVING_WEIGHT_DISCREPANCY,
-        BLOCKING
+        BLOCKING,
+        ERROR
     };
 
     public static enum PaymentMethod {
@@ -50,6 +51,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private Phase phase;
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
+    private boolean isError;
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
@@ -253,7 +255,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
      * @return
      */
     public Phase getPhase() {
-        if (this.isBlocked) {
+        if (this.isError) {
+            return Phase.ERROR;
+        } else if (this.isBlocked) {
             return Phase.BLOCKING;
         } else if (this.isWeightDiscrepancy) {
             return Phase.HAVING_WEIGHT_DISCREPANCY;
@@ -415,7 +419,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         // Relative devices are disabled in checkout
         this.disableHardware();
-        this.checkout.cancelCheckout();
 
         this.setPhase(Phase.SCANNING_ITEM);
     }
@@ -443,8 +446,30 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
 
-	public void approveMissingItem() {
-		// TODO attendant approves not bagging an item
-		
-	}
+    public void approveMissingItem() {
+        // TODO attendant approves not bagging an item
+
+    }
+    
+    public boolean hasPendingChanges() {
+        return this.checkout.hasPendingChange();
+    }
+
+    public void errorOccur() {
+        this.disableHardware();
+        this.processItemHandler.enableBaggingArea();
+        this.isError = true;
+
+        this.notifyObservers(observer -> observer.phaseChanged(Phase.ERROR));
+        this.notifyObservers(observer -> observer.touchScreenBlocked());
+    }
+
+    protected void resolveError() {
+        if (!this.isError) {
+            throw new IllegalStateException("Cannot resolve error when the system is not in error");
+        }
+
+        this.isError = false;
+        this.notifyObservers(observer -> observer.phaseChanged(this.phase));
+    }
 }

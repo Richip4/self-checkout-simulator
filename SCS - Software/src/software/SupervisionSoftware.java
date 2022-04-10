@@ -60,22 +60,6 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 		return this.attendant;
 	}
 
-	/**
-	 * Sets the attendant. It's here because sometimes we don't have an immediate
-	 * attendant
-	 * at start up or attendant can change.
-	 * 
-	 * @param attendant
-	 * 
-	 * I don't think this is relevant since we shouldn't have an Attendant present 
-	 * unless they've already logged in.  A successful log in should set the attendant.
-	 */
-//    public void setAttendant(Attendant attendant){
-//        this.attendant = attendant;
-//        this.logged_in = false;
-//    }
-
-
 	public void add(SelfCheckoutSoftware software) {
 		this.softwareList.add(software);
 		software.setSupervisionSoftware(this);
@@ -88,6 +72,10 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 
 	public void clear() {
 		// For each software, remove from list
+		for (SelfCheckoutSoftware software : this.softwareList) {
+			this.remove(software);
+		}
+
 		this.softwareList.clear();
 	}
 
@@ -104,11 +92,10 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 */
 	public void login(String username, String password) throws IncorrectCredentialException {
 		if(CredentialsSystem.checkLogin(username, password)) {
-			this.logged_in = true;
-			Tangibles.ATTENDANTS.forEach( att -> {
-				if (att.getUsername().equals(username) && att.getPassword().equals(password)) {
-					System.out.println("supervision station attendant updated");
-					this.attendant = att;
+			Tangibles.ATTENDANTS.forEach(attendant -> {
+				if (attendant.getUsername().equals(username) && attendant.getPassword().equals(password)) {
+					this.attendant = attendant;
+					this.logged_in = true;
 					return;
 				}
 			});
@@ -123,6 +110,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * @return true if it successfully logs out
 	 */
 	public void logout() {
+		this.attendant = null;
 		this.logged_in = false;
 	}
 	
@@ -131,7 +119,7 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 	 * @return
 	 */
 	public boolean isLoggedIn() {
-		return logged_in;
+		return this.logged_in;
 	}
 
 	/**
@@ -245,5 +233,9 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 		} else {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
+	}
+
+	public void resolveError(SelfCheckoutSoftware scss) {
+		scss.resolveError();
 	}
 }

@@ -122,6 +122,10 @@ public class Checkout {
 		this.scs.cardReader.enable();
 	}
 
+	public boolean hasPendingChange() {
+		return !this.pendingChanges.isEmpty();
+	}
+
 	/**
 	 * Returns change to the customer by dispensing banknotes and coins,
 	 * prioritizing the highest denomination value.
@@ -138,57 +142,81 @@ public class Checkout {
 	public void makeChange() {
 		// Dispense remaining pending change to customer
 		if (this.scss.getPhase() != Phase.PROCESSING_PAYMENT) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Cannot make change if it currently is not processing payment");
 		}
 
-		if (!this.pendingChanges.isEmpty()) {
-			int size = this.pendingChanges.size();
-
-			// There's change pending to be returned to customer
-			// start emitting change to slot devices
-			for (Cash cash : this.pendingChanges) {
-				if (cash.type.equals("banknote")) {
-					try {
-						this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
-						this.pendingChanges.remove(cash);
-					} catch (EmptyException | DisabledException | OverloadException e) {
-						continue;
-					}
-				} else if (cash.type.equals("coin")) {
-					try {
-						this.scs.coinDispensers.get(cash.value).emit();
-						this.pendingChanges.remove(cash);
-					} catch (OverloadException | EmptyException | DisabledException e) {
-						continue;
-					}
-				}
-			}
-
-			if (size >= this.pendingChanges.size()) {
-				// No change is successfully emmited for customer, encounters error, notify
-				// attendant
-				this.scss.getSupervisionSoftware()
-						.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
-				return;
-			}
-			if (pendingChanges.isEmpty()) {
-				this.scss.paymentCompleted();
-				return;
-			}
-			return;
+		// If customer does not have enough cash balance
+		if (this.customer.getCashBalance().compareTo(this.customer.getCartSubtotal()) <= -1) {
+			throw new IllegalStateException("Customer has insufficient cash balance to make change");
 		}
 
-		// Calculate how much change to return to customer
-		BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
+		// If the pending change has not been calculated yet, calculate it
+		if (this.pendingChanges.isEmpty()) {
+			// Calculate how much change to return to customer
+			BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
+			this.pendingChanges = this.calculatePendingChanges(change);
 
-		// No change needs to be returned to customer
-		if (change.equals(BigDecimal.ZERO)) {
+			// print pendingChangesd
+			for (Cash c : this.pendingChanges) {
+				System.out.println("loop: " + c.value + " " + c.type);
+			}
+		}
+
+		// If no pending changes, return
+		if (this.pendingChanges.isEmpty()) {
 			this.scss.paymentCompleted();
 			return;
 		}
 
+		// If there are still changes to be dispensed, dispense them
+		int size = this.pendingChanges.size();
+
+		// There's change pending to be returned to customer
+		// start emitting change to slot devices
+		for (Cash cash : this.pendingChanges) {
+			if (cash.type.equals("banknote")) {
+				try {
+					this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
+					this.pendingChanges.remove(cash);
+				} catch (EmptyException | DisabledException | OverloadException e) {
+					continue;
+				}
+			} else if (cash.type.equals("coin")) {
+				try {
+					this.scs.coinDispensers.get(cash.value).emit();
+					this.pendingChanges.remove(cash);
+				} catch (OverloadException | EmptyException | DisabledException e) {
+					System.out.println("error dispensing coins");
+					continue;
+				}
+			}
+		}
+
+		// If size does not change, meaning no change is successfully emmited for
+		// customer, encounters error, notify attendant
+		if (size >= this.pendingChanges.size()) {
+			System.out.println("no dispensing");
+			this.scss.errorOccur();
+			this.scss.getSupervisionSoftware()
+					.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
+			return;
+		}
+
+		// If the last one is dispensed, to next phase
+		if (pendingChanges.isEmpty()) {
+			this.scss.paymentCompleted();
+			return;
+		}
+	}
+
+	private List<Cash> calculatePendingChanges(BigDecimal change) {
 		// Clear pending change list
-		this.pendingChanges = new ArrayList<Cash>();
+		List<Cash> pendingChanges = new ArrayList<Cash>();
+
+		// No change needs to be returned to customer
+		if (change.equals(BigDecimal.ZERO)) {
+			return pendingChanges;
+		}
 
 		// Establish what banknote and coin denominations are available
 		ArrayList<Cash> availableDenominations = new ArrayList<>();
@@ -231,6 +259,7 @@ public class Checkout {
 			if (change.compareTo(cash.value) >= 0) {
 				// Add this to the pending change list
 				this.pendingChanges.add(cash);
+				change = change.subtract(cash.value);
 			} else {
 				// current denomination is bigger than 'change' amount. Remove it from
 				// consideration.
@@ -238,8 +267,7 @@ public class Checkout {
 			}
 		}
 
-		// Start pending change to customer
-		this.makeChange();
+		return pendingChanges;
 	}
 
 	/**
@@ -267,9 +295,5 @@ public class Checkout {
 		public int compareTo(Cash other) {
 			return this.value.compareTo(other.value);
 		}
-	}
-
-	public boolean hasPendingChange() {
-		return !this.pendingChanges.isEmpty();
 	}
 }
