@@ -130,8 +130,10 @@ public class GUI {
 	public static void userLeavesStation(int station) {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER) {
 			ac.customerLeavesStation(station);
+			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			ac.attendantLeavesStation(station);
+			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		}
 	}
 
@@ -544,17 +546,19 @@ public class GUI {
 	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
-		if (item instanceof PLUCodedItem) {
-			PLUCodedItem pluItem = (PLUCodedItem) item;
-			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
-			desc = "<html>PLU Coded Item<br>";
-			desc += p.getDescription() +"  $"+ p.getPrice();
-			desc += "<br>Code: " + p.getPLUCode() + "</html>";
-		} else if (item instanceof BarcodedItem) {
-			BarcodedItem barItem = (BarcodedItem) item;
-			BarcodedProduct b = Inventory.getProduct(barItem.getBarcode()); 
-			desc = "<html>Barcoded Item<br>";
-			desc += b.getDescription() +" "+ b.getPrice() + "</html>";
+		if (item != null) {
+			if (item instanceof PLUCodedItem) {
+				PLUCodedItem pluItem = (PLUCodedItem) item;
+				PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
+				desc = "<html>PLU Coded Item<br>";
+				desc += p.getDescription() +"  $"+ p.getPrice();
+				desc += "<br>Code: " + p.getPLUCode() + "</html>";
+			} else if (item instanceof BarcodedItem) {
+				BarcodedItem barItem = (BarcodedItem) item;
+				BarcodedProduct b = Inventory.getProduct(barItem.getBarcode()); 
+				desc = "<html>Barcoded Item<br>";
+				desc += b.getDescription() +" "+ b.getPrice() + "</html>";
+			}
 		}
 		return desc;
 	}

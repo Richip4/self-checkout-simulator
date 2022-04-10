@@ -66,6 +66,7 @@ public class Scenes {
 	// reference to the current station we are interacting with
 	// 0 = attendant station; 1-6 = self checkout 1-6; -1 = not at a station
 	private int currentStation;
+	public int newUserPrompt = -1;
 	
 	private Color defaultBackground = new Color(220, 227, 230);
 
@@ -132,6 +133,7 @@ public class Scenes {
 		
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
+
 		
 		public JFrame getScene() {
 			// init the scene and retrieve the JPanel canvas in which to build on
@@ -144,11 +146,24 @@ public class Scenes {
 			// terminate the actual program.  Set a window
 			// listener here to exit when scene is exitted.
 			this.addWindowListener(new WindowAdapter() {
-				public void windowGainedFocus(WindowEvent e) {
-					
-				}
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
+				}
+			});
+			
+			
+			this.addWindowFocusListener(new WindowAdapter() {
+				public void windowGainedFocus(WindowEvent e) {
+					if (newUserPrompt == -1) {
+						// prompt the user to reply with what type of user they are
+						do {
+							int userType = promptForUserType();
+							if (userType == -1) { System.exit(0); }
+							newUserPrompt = (userType == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
+	
+						}
+						while (!GUI.newUser(newUserPrompt));
+					}
 				}
 			});
 			
@@ -222,13 +237,6 @@ public class Scenes {
 			// to display frame, make visible after adding all components
 			this.setVisible(true);
 
-			// prompt the user to reply with what type of user they are
-			int newUserType;
-			do {
-				newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
-			}
-			while (!GUI.newUser(newUserType));
-
 			return this;
 		}
 
@@ -277,7 +285,6 @@ public class Scenes {
 		JButton maintenance;
 		JButton coinInSlot;
 		JButton coinTray;
-		JLabel weighScale;
 		JButton scanner;
 		JButton handScanner;
 		JButton cardReader;
@@ -1054,12 +1061,7 @@ public class Scenes {
 	private static int promptForUserType() {
 		String[] userTypes = {"Customer", "Attendant" };
 		int answer = JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
-				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0);
-		
-		while (answer == -1) {
-			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
-					"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0);
-		}
+				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, -1);
 		
 		return answer;
 	}

@@ -113,8 +113,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public void removeUser(User user) {
         if (user instanceof Customer) {
             customer = null;
+            idle();
         } else if (user instanceof Attendant) {
             attendant = null;
+            idle();
         }
     }
 

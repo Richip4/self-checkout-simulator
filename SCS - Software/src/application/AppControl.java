@@ -176,12 +176,14 @@ public class AppControl {
 		
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();
-		int pick = Tangibles.ITEMS.size();
-		int itemsGrabbed = random.nextInt(6) + 4;
+		int selectionSize = Tangibles.ITEMS.size();
+		int itemsGrabbed = random.nextInt(selectionSize/10);
 		
 		List<Item> inventory = new ArrayList<>();
 		for (int i = 0; i < itemsGrabbed; i++) {
-			inventory.add(Tangibles.ITEMS.get(random.nextInt(pick)));
+			Item grabbedItem = Tangibles.ITEMS.get(random.nextInt(selectionSize--)); 
+			inventory.add(grabbedItem);
+			Tangibles.ITEMS.remove(grabbedItem);
 		}
 		
 		inventories.put(activeUser, inventory);
@@ -467,9 +469,17 @@ public class AppControl {
 		return supervisorSoftware.isLoggedIn();
 	}
 
+	/**
+	 * Gets the list if items the customer wants to add
+	 * @param station
+	 * @return null if customer has no more items to add
+	 */
 	public Item getCustomersNextItem(int station) {
-		return inventories.get(users[station]).get(0);
-		//return null if empty
+		List<Item> customersInventory = inventories.get(users[station]);
+		if (customersInventory.size() == 0) { // empty inventory
+			return null;
+		}
+		return customersInventory.get(0);
 	}
 	
 	//remove first item from inventories ^^ 
