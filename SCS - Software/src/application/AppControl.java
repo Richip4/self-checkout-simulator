@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
@@ -346,7 +349,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(1));
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("tap failed");
+			errorMsg("tap failed");
 			return false;
 		}
 		
@@ -358,7 +361,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(2));
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("tap failed");
+			errorMsg("tap failed");
 			return false;
 		}
 		
@@ -370,7 +373,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.MEMBER_CARDS.get(1));
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("tap failed");
+			errorMsg("tap failed");
 			return false;
 		}
 		
@@ -382,7 +385,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(1));
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("swipe failed");
+			errorMsg("swipe failed");
 			return false;
 		}
 		
@@ -394,7 +397,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(2));
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("swipe failed");
+			errorMsg("swipe failed");
 			return false;
 		}
 		
@@ -406,7 +409,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("swipe failed");
+			errorMsg("swipe failed");
 			return false;
 		}
 		
@@ -418,7 +421,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("insert failed");
+			errorMsg("insert failed");
 			return false;
 		}
 		
@@ -430,7 +433,7 @@ public class AppControl {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
 			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("insert failed");
+			errorMsg("insert failed");
 			return false;
 		}
 		
@@ -533,6 +536,31 @@ public class AppControl {
 	public Map<User, List<Item>> getInventories() {
 		return inventories;
 	}
+	
+	
+	// *****REWRITE
+	public static void errorMsg(String msg)
+	    {
+	        JOptionPane errormsg = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
+	        final JDialog dlg = errormsg.createDialog("Attention");
+	        dlg.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	        new Thread(new Runnable()
+	        {
+	            @Override
+	            public void run()
+	            {
+	                try
+	                {
+	                    Thread.sleep(3000);
+	                } catch (InterruptedException e)
+	                {
+	                    e.printStackTrace();
+	                }
+	                dlg.setVisible(false);
+	            }
+	        }).start();
+	        dlg.setVisible(true);
+	    }
 
 
 }
