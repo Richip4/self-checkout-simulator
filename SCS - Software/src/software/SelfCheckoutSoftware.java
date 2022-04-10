@@ -462,6 +462,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.isError = true;
 
         this.notifyObservers(observer -> observer.phaseChanged(Phase.ERROR));
+        this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
 
     protected void resolveError() {
