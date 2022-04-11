@@ -9,6 +9,7 @@ import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -16,6 +17,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import application.Main;
 import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
@@ -153,7 +155,15 @@ public class GUI {
 		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
-			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
+			try {
+				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
+				
+			} catch (DisabledException e) {
+				e.printStackTrace();
+			} catch (OverloadException e) {
+				e.printStackTrace();
+			}
+			System.out.println("Test");
 		}
 			
 	}
@@ -183,7 +193,7 @@ public class GUI {
 		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
-			scs.getCustomer().addCashBalance(value);
+			
 		}
 	}
 	
