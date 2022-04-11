@@ -92,6 +92,8 @@ public final class Main {
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
         String cardNo3 = "4511220329440683";
         scotia.addCardData(cardNo3, "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
+        Card card3 = new Card("debit", cardNo3, "Tyler Chen", "232", "1111", true, true);
+        Tangibles.PAYMENT_CARDS.add(card3);
 
         Bank.addIssuer(rbc);
         Bank.addIssuer(scotia);
@@ -183,7 +185,7 @@ public final class Main {
         // no need for uniqueness as weight is not recorded per item
         Vector<BarcodedItem> bItems = new Vector<>();
         
-        int quantityOfEachBarcodedItem = 5;
+        int quantityOfEachBarcodedItem = 20;
         for (int i = 0; i < quantityOfEachBarcodedItem; i++) {
         	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
         	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
@@ -223,7 +225,7 @@ public final class Main {
         // and add them to the supervision station to be supervised
         for (int t = 0; t < Configurations.stations; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
-                    coinDenominations, 8000, 2);
+                    coinDenominations, 80000, 2);
 
             // Add ink to the station
             try {

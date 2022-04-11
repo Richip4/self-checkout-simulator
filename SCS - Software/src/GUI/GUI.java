@@ -135,7 +135,6 @@ public class GUI {
 			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			ac.attendantLeavesStation(station);
-			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		}
 	}
 
@@ -194,6 +193,7 @@ public class GUI {
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
 		Item item = ac.getCustomersNextItem(currentStation);
+		if (item instanceof BarcodedItem) {
 		try {
 			
 			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
@@ -201,15 +201,18 @@ public class GUI {
 			
 			software.addItem();
 			
-			if (usedMainScanner) {
-				hardware.mainScanner.scan(item);
-			} else {
-				hardware.handheldScanner.scan(item);
+			while(ac.getStationPhase(currentStation) != Phase.BAGGING_ITEM) {
+				if (usedMainScanner) {
+					hardware.mainScanner.scan(item);
+				} else {
+					hardware.handheldScanner.scan(item);
+				}
 			}
 			
 			ac.removeCustomerNextItem(currentStation);
 		} catch (Exception e) {
 			Scenes.errorMsg("You cannot scan this item");
+		}
 		}
 	}
 	
@@ -455,7 +458,6 @@ public class GUI {
 		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(1).getValue() * 100;
 		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(2).getValue() * 10;
 		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(3).getValue();
-		System.out.println(code);
 		userEntersPLUCode(code, scenes.getCurrentStation());
 	}
 
@@ -564,12 +566,20 @@ public class GUI {
 		return ac.isAttendantLoggedIn();
 	}
 
+	public static String getSubtotal(int station) {
+		String subtotal = ac.getCustomersSubtotal(station);
+		if (subtotal == null) {
+			return "$0.00";
+		}
+		return "$" + subtotal; 
+	}
+	
 	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
 		
 		if (item == null)
-			return "No more items";
+			return "";
 		
 		if (item instanceof PLUCodedItem) {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
@@ -632,7 +642,7 @@ public class GUI {
 	}
 	
 	public static Phase getPhase(int stationNumber) {
-		System.out.println(ac.getSelfCheckoutSoftware(stationNumber).getPhase());
+		System.out.println(ac.getSelfCheckoutSoftware(stationNumber).getPhase()); // TODO remove after testing
 		return ac.getSelfCheckoutSoftware(stationNumber).getPhase();
 	}
 }

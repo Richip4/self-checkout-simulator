@@ -295,6 +295,7 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		JLabel subtotal;
 		JLabel nextItem;
 		
 		public JFrame getScene() {
@@ -314,6 +315,18 @@ public class Scenes {
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
+			
+			// update subtotal
+			subtotal = new JLabel();
+			subtotal.setBounds(200, 25, 150, 40);
+			subtotal.setFont(new Font("Arial", Font.BOLD, 16));
+			subtotal.setHorizontalAlignment(JLabel.CENTER);
+			subtotal.setText(GUI.getSubtotal(currentStation));
+			subtotal.setBorder(BorderFactory.createLineBorder(Color.blue));
+			subtotal.setFocusable(false);
+			subtotal.setOpaque(true);
+			//if (!subtotal.getText().equals("")) 
+			content.add(subtotal);
 			
 			// customers next item to process
 			nextItem = new JLabel();
@@ -479,12 +492,14 @@ public class Scenes {
 		private void updateDisplay() {
 			if (GUI.getPhase(currentStation) == Phase.BAGGING_ITEM) {
 				nextItem.setText("Bag Item");
-                nextItem.repaint();
 			} else {
 				nextItem.setText(GUI.getNextItemDescription(currentStation));
-                nextItem.repaint();
 			}
 			
+			nextItem.repaint();
+			
+			subtotal.setText(GUI.getSubtotal(currentStation));
+			subtotal.repaint();
 		}
 	}
 	
@@ -850,9 +865,7 @@ public class Scenes {
 		JButton addInk;
 		JButton refillCoinDispensers;
 		JButton bnEmptyStorage;
-		JButton bnFillStorage;
 		JButton coinEmptyStorage;
-		JButton coinFillStorage;
 		
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
@@ -924,16 +937,10 @@ public class Scenes {
 			bnStorage.setOpaque(true);
 			
 			bnEmptyStorage = new JButton();
-			bnEmptyStorage.setBounds(10, 10, 230, 45);
+			bnEmptyStorage.setBounds(10, 25, 230, 75);
 			bnEmptyStorage.setText("EMPTY BANKNOTE STORAGE");
 			bnEmptyStorage.addActionListener(this);
 			bnStorage.add(bnEmptyStorage);
-	
-			bnFillStorage = new JButton();
-			bnFillStorage.setBounds(10, 70, 230, 45);
-			bnFillStorage.setText("FILL BANKNOTE STORAGE");
-			bnFillStorage.addActionListener(this);
-			bnStorage.add(bnFillStorage);
 			
 			content.add(bnStorage);
 			
@@ -945,16 +952,10 @@ public class Scenes {
 			coinStorage.setOpaque(true);
 			
 			coinEmptyStorage = new JButton();
-			coinEmptyStorage.setBounds(10, 10, 230, 45);
+			coinEmptyStorage.setBounds(10, 25, 230, 75);
 			coinEmptyStorage.setText("EMPTY COIN STORAGE");
 			coinEmptyStorage.addActionListener(this);
 			coinStorage.add(coinEmptyStorage);
-	
-			coinFillStorage = new JButton();
-			coinFillStorage.setBounds(10, 70, 230, 45);
-			coinFillStorage.setText("FILL COIN STORAGE");
-			coinFillStorage.addActionListener(this);
-			coinStorage.add(coinFillStorage);
 			
 			content.add(coinStorage);
 			

@@ -267,6 +267,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 	@Override
 	public void overload(ElectronicScale scale) {
+		System.out.println("Scale overloaded");
 		this.scaleOverloaded = true;
 		this.scss.blockSystem();
 		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.scaleOverloadedDetected(this.scss));
@@ -274,6 +275,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
+		System.out.println("Scale out of overloaded");
 		this.scaleOverloaded = false;
 		this.scss.blockSystem();
 		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.scaleOverloadedResolved(this.scss));
