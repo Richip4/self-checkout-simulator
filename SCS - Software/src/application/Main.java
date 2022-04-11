@@ -206,7 +206,7 @@ public final class Main {
         int[] banknoteDenominations = { 5, 10, 20, 50, 100 };
         BigDecimal[] coinDenominations = {
                 new BigDecimal("0.05"),
-                new BigDecimal("0.1"),
+                new BigDecimal("0.10"),
                 new BigDecimal("0.25"),
                 new BigDecimal("1.00"),
                 new BigDecimal("2.00")

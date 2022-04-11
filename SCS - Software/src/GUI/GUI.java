@@ -191,9 +191,14 @@ public class GUI {
 	}
 
 	public static void userInsertsCoin(int currentStation, BigDecimal value) {
-		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
-			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-			scs.selectedPaymentMethod(PaymentMethod.CASH);
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
+			scs.selectedPaymentMethod(PaymentMethod.CASH);			
+		}
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
 			try {
 				scs.getSelfCheckoutStation().coinSlot.accept(new Coin(Main.Configurations.currency, value));
 			} catch (DisabledException e) {
