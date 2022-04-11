@@ -456,6 +456,16 @@ public class AppControl {
 		}
 		return false;
 	}
+	
+
+	public String getCustomersSubtotal(int station) {
+		Customer c = selfStationSoftwares.get(station).getCustomer();
+		if (c != null) {
+			return c.getCartSubtotal().toString();
+		}
+		
+		return null;
+	}
 
 	public List<Product> getCustomerCart(int station) {
 		Customer c = selfStationSoftwares.get(station).getCustomer();
@@ -476,7 +486,9 @@ public class AppControl {
 	 * @return null if customer has no more items to add
 	 */
 	public Item getCustomersNextItem(int station) {
-		if (inventories.get(users[station]).isEmpty())
+		List<Item> customersInventory = inventories.get(users[station]); 
+		if (customersInventory == null ||
+			customersInventory.isEmpty())
 			return null;
 		return inventories.get(users[station]).get(0);
 	}
@@ -500,6 +512,4 @@ public class AppControl {
 			selfStationSoftwares.get(station).notBaggingItem();
 		}
 	}
-
-
 }
