@@ -400,6 +400,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
         this.disableHardware();
         this.processItemHandler.enableBaggingArea();
+        this.receipt.printReceipt();
         this.setPhase(Phase.PAYMENT_COMPLETE);
     }
 
@@ -410,7 +411,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.processItemHandler.resetScale();
         this.disableHardware();
-        this.receipt.printReceipt();
         this.idle();
     }
 
