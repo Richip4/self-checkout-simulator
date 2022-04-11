@@ -152,7 +152,16 @@ public class Receipt implements ReceiptPrinterObserver {
 	public void updateInkUsed(int inkAdded) {
 		this.inkUsed -= inkAdded;
 	}
-
+	
+	// Added getters
+	public int getPaperUsed() {
+		return this.paperUsed;
+	}
+	
+	public int getInkUsed() {
+		return this.inkUsed;
+	}
+	
 	@Override
 	public void enabled(AbstractDevice<? extends AbstractDeviceObserver> device) {
 		// we don't currently handle any events when the receipt printer is enabled
