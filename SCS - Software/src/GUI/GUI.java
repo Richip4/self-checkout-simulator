@@ -157,6 +157,9 @@ public class GUI {
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
 			try {
 				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
+				if(scs.getCustomer().hasSufficientCashBalance()) {
+					scs.makeChange();
+				}
 			} catch (DisabledException e) {
 				e.printStackTrace();
 			} catch (OverloadException e) {
@@ -170,14 +173,14 @@ public class GUI {
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
-				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
+				&& (scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.PROCESSING_PAYMENT)
 				&& !(scs.banknoteOutput.hasSpace()))
 		{
 			if(scss.getBanknoteDangling()) {
-				scs.banknoteOutput.removeDanglingBanknotes();
 				scss.setBanknoteDangling(false);
+				scs.banknoteOutput.removeDanglingBanknotes();
+				System.out.println("bill taken"); //TODO
 			}
-			
 			
 			
 		} 
@@ -204,10 +207,14 @@ public class GUI {
 				
 				if (scs.getCustomer().hasSufficientCashBalance()) {
 					
-					//scs.makeChange();
+					scs.makeChange();
 					
-					System.out.println("Enough money!");
+					System.out.println("Enough money!"); //TODO
 				}			
+				if(scs.getCustomer().hasSufficientCashBalance()) {
+					scs.makeChange();
+				}
+				
 			} catch (DisabledException e) {
 				e.printStackTrace();
 			} catch (OverloadException e) {
@@ -229,8 +236,9 @@ public class GUI {
 			{
 				scs.coinTray.collectCoins();
 				scss.setCoinInTray(false);
+				System.out.println("Coins taken");
 			}
-			
+	
 		}
 	}
 
