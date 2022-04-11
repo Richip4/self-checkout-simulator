@@ -410,7 +410,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         this.processItemHandler.resetScale();
         this.disableHardware();
-        idle();
+        this.receipt.printReceipt();
+        this.idle();
     }
 
     /**

@@ -77,27 +77,33 @@ public class Receipt implements ReceiptPrinterObserver {
 	 * @throws OverloadException
 	 * @throws EmptyException
 	 */
-	private void printLine(String line) throws EmptyException, OverloadException {
-		for (int t = 0; t < line.length(); t++) {
-			// When reaches the maximum character of a line, start a new line
-			if (t % (ReceiptPrinter.CHARACTERS_PER_LINE - 1) == 0 && t != 0) {
-				this.scs.printer.print('\n');
-			}
+	private void printLine(String line) {
+		try{
+			for (int t = 0; t < line.length(); t++) {
+				// When reaches the maximum character of a line, start a new line
+				if (t % (ReceiptPrinter.CHARACTERS_PER_LINE - 1) == 0 && t != 0) {
+					this.scs.printer.print('\n');
+				}
 
-			if (Character.isWhitespace(line.charAt(t))) {
-				this.scs.printer.print(' ');
-			} else {
-				this.scs.printer.print(line.charAt(t));
+				if (Character.isWhitespace(line.charAt(t))) {
+					this.scs.printer.print(' ');
+				} else {
+					this.scs.printer.print(line.charAt(t));
+				}
 			}
+			this.scs.printer.print('\n');
+			
+			// update the amount of paper and ink that has been used
+			this.paperUsed++;
+			this.inkUsed += line.length();
+		} catch (OverloadException e) {
+			System.out.println("OverloadException: " + e.getMessage());
+		} catch (EmptyException e) {
+			System.out.println("EmptyException: " + e.getMessage());
 		}
-		this.scs.printer.print('\n');
-		
-		// update the amount of paper and ink that has been used
-		this.paperUsed++;
-		this.inkUsed += line.length();
 	}
 
-	public void printReceipt() throws EmptyException, OverloadException {
+	public void printReceipt() {
 		// Print Membership
 		if (this.customer.getMemberID() != null) {
 			String membership = "Member ID: " + this.customer.getMemberID();
