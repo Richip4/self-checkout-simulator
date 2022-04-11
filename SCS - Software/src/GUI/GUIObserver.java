@@ -273,5 +273,4 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 		// TODO Auto-generated method stub
 		return null;
 	}
-    
 }

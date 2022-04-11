@@ -152,14 +152,9 @@ public class GUI {
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
-		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-		
-		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
-			scs.selectedPaymentMethod(PaymentMethod.CASH);			
-		}
-		
-		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
-			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
+		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.selectedPaymentMethod(PaymentMethod.CASH);
 			try {
 				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
 			} catch (DisabledException e) {
@@ -178,7 +173,12 @@ public class GUI {
 				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
 				&& !(scs.banknoteOutput.hasSpace()))
 		{
-			scs.banknoteOutput.removeDanglingBanknotes();
+			if(scss.getBanknoteDangling()) {
+				scs.banknoteOutput.removeDanglingBanknotes();
+				scss.setBanknoteDangling(false);
+			}
+			
+			
 			
 		} 
 	}
@@ -225,7 +225,12 @@ public class GUI {
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
-			scs.coinTray.collectCoins();
+			if(scss.getCoinInTray())
+			{
+				scs.coinTray.collectCoins();
+				scss.setCoinInTray(false);
+			}
+			
 		}
 	}
 

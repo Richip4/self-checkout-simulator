@@ -184,6 +184,7 @@ public class Checkout {
 				try {
 					this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
 					newPendingChanges.remove(cash);
+					this.scss.setBanknoteDangling(true);
 				} catch (EmptyException | DisabledException | OverloadException e) {
 					continue;
 				}
@@ -191,6 +192,7 @@ public class Checkout {
 				try {
 					this.scs.coinDispensers.get(cash.value).emit();
 					newPendingChanges.remove(cash);
+					this.scss.setCoinInTray(true);
 				} catch (OverloadException | EmptyException | DisabledException e) {
 					continue;
 				}
