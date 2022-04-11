@@ -142,7 +142,7 @@ public final class Main {
 
         Barcode plasticBagCode = new Barcode(new Numeral[] { Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero });
         int plasticBagWeight = 1;
-        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.05"), plasticBagWeight);
+        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.1"), plasticBagWeight);
         Inventory.addProduct(plasticBag);
 
         // Add 1 of each plu item 
