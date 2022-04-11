@@ -170,7 +170,6 @@ public class GUI {
 	
 	
 	public static void userRemovesBanknote(int currentStation) {
-		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
@@ -179,7 +178,7 @@ public class GUI {
 		{
 			scs.banknoteOutput.removeDanglingBanknotes();
 			
-		} */
+		} 
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -198,14 +197,12 @@ public class GUI {
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
-		// TODO Auto-generated method stub
-		/*
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
 			scs.coinTray.collectCoins();
-		} */
+		}
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
