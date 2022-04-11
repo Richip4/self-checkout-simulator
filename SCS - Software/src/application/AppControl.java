@@ -287,11 +287,11 @@ public class AppControl {
 	 * @return
 	 */
 	public String getStationState(int station) {
-		if (selfStationSoftwares.get(station-1).getPhase() == Phase.BLOCKING) {
+		if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
 			return "BLOCKED";
-		} else if (selfStationSoftwares.get(station-1).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
 			return "WEIGHT DISCREPANCY";
-		} else if (selfStationSoftwares.get(station-1).getPhase() == Phase.NON_BAGGABLE_ITEM) {
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			return "ITEM NOT BAGGED";
 		} else {
 			return "OKAY";
@@ -313,14 +313,14 @@ public class AppControl {
 	 * @param station
 	 */
 	public void toggleBlock(int station) {
-		if (selfStationSoftwares.get(station-1).getPhase() != Phase.BLOCKING) {
+		if (selfStationSoftwares.get(station).getPhase() != Phase.BLOCKING) {
 			try {
-				supervisorSoftware.blockStation(selfStationSoftwares.get(station-1));
+				supervisorSoftware.blockStation(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}
 
-		} else if (selfStationSoftwares.get(station-1).getPhase() == Phase.BLOCKING) {
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
 			try {
-				supervisorSoftware.unblockStation(selfStationSoftwares.get(station-1));
+				supervisorSoftware.unblockStation(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}
 		}
 	}
@@ -342,7 +342,7 @@ public class AppControl {
 	}
 
 	public void customerTapsCreditCard(int index) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(1));
 		} catch (IOException e) {
@@ -352,7 +352,7 @@ public class AppControl {
 	}
 
 	public void customerTapsDebitCard(int index) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(2));
 		} catch (IOException e) {
@@ -362,7 +362,7 @@ public class AppControl {
 	}
 	
 	public void customerTapsMembershipCard(int index) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.MEMBER_CARDS.get(1));
 		} catch (IOException e) {
@@ -372,7 +372,7 @@ public class AppControl {
 	}
 
 	public void customerSwipesCreditCard(int index) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(1));
 		} catch (IOException e) {
@@ -382,7 +382,7 @@ public class AppControl {
 	}
 
 	public void customerSwipesDebitCard(int index) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(2));
 		} catch (IOException e) {
@@ -392,7 +392,7 @@ public class AppControl {
 	}
 
 	public void customerSwipesMembershipCard(int index) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
 		} catch (IOException e) {
@@ -402,7 +402,7 @@ public class AppControl {
 	}
 
 	public void customerInsertCreditCard(int index, String pin) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
 		} catch (IOException e) {
@@ -412,7 +412,7 @@ public class AppControl {
 	}
 
 	public void customerInsertDebitCard(int index, String pin) {
-		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index-1);
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
 		} catch (IOException e) {
@@ -422,7 +422,7 @@ public class AppControl {
 	}
 	
 	public void removeItemFromCustomersCart(int station, int item) {
-		List<Product> cart = selfStationSoftwares.get(station-1).getCustomer().getCart();
+		List<Product> cart = selfStationSoftwares.get(station).getCustomer().getCart();
 		cart.remove(item);
 	}
 
@@ -458,6 +458,16 @@ public class AppControl {
 		return false;
 	}
 	
+	public String getCustomerPaidAmount(int station) {
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		if (c != null) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			String paid = String.valueOf(df.format(c.getCashBalance())); 
+			System.out.println("Paid " + paid);
+			return paid;
+		}
+		return null;
+	}
 
 	public String getCustomersSubtotal(int station) {
 		Customer c = selfStationSoftwares.get(station-1).getCustomer();

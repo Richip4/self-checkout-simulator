@@ -152,9 +152,14 @@ public class GUI {
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
-		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
-			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-			scs.selectedPaymentMethod(PaymentMethod.CASH);
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
+			scs.selectedPaymentMethod(PaymentMethod.CASH);			
+		}
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
 			try {
 				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
 			} catch (DisabledException e) {
@@ -167,7 +172,6 @@ public class GUI {
 	
 	
 	public static void userRemovesBanknote(int currentStation) {
-		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
@@ -176,7 +180,7 @@ public class GUI {
 		{
 			scs.banknoteOutput.removeDanglingBanknotes();
 			
-		} */
+		} 
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -202,14 +206,12 @@ public class GUI {
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
-		// TODO Auto-generated method stub
-		/*
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
 			scs.coinTray.collectCoins();
-		} */
+		}
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
@@ -603,13 +605,21 @@ public class GUI {
 	public static boolean isAttendantLoggedIn() {
 		return ac.isAttendantLoggedIn();
 	}
+	
+	public static String getAmountPaid(int station) {
+		String paid = ac.getCustomerPaidAmount(station);
+		if (paid == null) {
+			return "Paid $0.00";
+		}
+		return "Paid $" + paid; 
+	}
 
 	public static String getSubtotal(int station) {
 		String subtotal = ac.getCustomersSubtotal(station);
 		if (subtotal == null) {
-			return "$0.00";
+			return "Subtotal $0.00";
 		}
-		return "$" + subtotal; 
+		return "Subtotal $" + subtotal; 
 	}
 	
 	public static String getNextItemDescription(int station) {
