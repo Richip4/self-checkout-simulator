@@ -138,7 +138,7 @@ public class Receipt implements ReceiptPrinterObserver {
 
 			String line = itemDescription + " ";
 			if (!product.isPerUnit()) {
-				line += Configurations.currency.getSymbol() + currentPrice + "/kg" + " (" + weight + " kg)";
+				line += Configurations.currency.getSymbol() + currentPrice + "/kg" + " (" + weight + " g)";
 			} else {
 				line += Configurations.currency.getSymbol() + currentPrice;
 			}
