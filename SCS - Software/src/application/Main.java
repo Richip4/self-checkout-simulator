@@ -185,7 +185,7 @@ public final class Main {
         // no need for uniqueness as weight is not recorded per item
         Vector<BarcodedItem> bItems = new Vector<>();
         
-        int quantityOfEachBarcodedItem = 20;
+        int quantityOfEachBarcodedItem = 6;
         for (int i = 0; i < quantityOfEachBarcodedItem; i++) {
         	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
         	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));

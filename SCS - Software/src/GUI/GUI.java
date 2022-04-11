@@ -16,7 +16,6 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
-import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
