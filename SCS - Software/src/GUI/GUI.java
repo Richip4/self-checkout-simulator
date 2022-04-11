@@ -204,7 +204,7 @@ public class GUI {
 				
 				if (scs.getCustomer().hasSufficientCashBalance()) {
 					
-					scs.makeChange();
+					//scs.makeChange();
 					
 					System.out.println("Enough money!");
 				}			
