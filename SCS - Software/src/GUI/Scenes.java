@@ -509,6 +509,9 @@ public class Scenes {
 			
 			nextItem.repaint();
 			
+			paid.setText(GUI.getAmountPaid(currentStation));
+			paid.repaint();
+			
 			subtotal.setText(GUI.getSubtotal(currentStation));
 			subtotal.repaint();
 		}

@@ -9,6 +9,7 @@ import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -16,6 +17,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import application.Main;
 import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
@@ -153,15 +155,19 @@ public class GUI {
 		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
-			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
-			
+			try {
+				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
+				
+			} catch (DisabledException e) {
+				e.printStackTrace();
+			} catch (OverloadException e) {
+				e.printStackTrace();
+			}
 		}
-			
 	}
 	
 	
 	public static void userRemovesBanknote(int currentStation) {
-		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
@@ -170,7 +176,7 @@ public class GUI {
 		{
 			scs.banknoteOutput.removeDanglingBanknotes();
 			
-		} */
+		} 
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -184,19 +190,17 @@ public class GUI {
 		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
-			scs.getCustomer().addCashBalance(value);
+			
 		}
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
-		// TODO Auto-generated method stub
-		/*
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
 			scs.coinTray.collectCoins();
-		} */
+		}
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {

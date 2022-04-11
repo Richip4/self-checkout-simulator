@@ -108,6 +108,7 @@ public class Checkout {
 		this.scs.banknoteInput.enable();
 		this.scs.banknoteOutput.enable();
 		this.scs.banknoteValidator.enable();
+		this.scs.banknoteStorage.enable();
 	}
 
 	private void enableCoinInput() {
@@ -115,6 +116,7 @@ public class Checkout {
 		this.scs.coinSlot.enable();
 		this.scs.coinTray.enable();
 		this.scs.coinValidator.enable();
+		this.scs.coinStorage.enable();
 	}
 
 	private void enableCardReader() {

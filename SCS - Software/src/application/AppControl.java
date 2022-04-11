@@ -462,9 +462,9 @@ public class AppControl {
 		Customer c = selfStationSoftwares.get(station-1).getCustomer();
 		if (c != null) {
 			DecimalFormat df = new DecimalFormat("0.00");
-			String subtotal = String.valueOf(df.format(c.getCartSubtotal())); 
-			System.out.println(subtotal);
-			return subtotal;
+			String paid = String.valueOf(df.format(c.getCashBalance())); 
+			System.out.println("Paid " + paid);
+			return paid;
 		}
 		return null;
 	}
