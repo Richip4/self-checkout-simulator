@@ -185,7 +185,7 @@ public final class Main {
         // no need for uniqueness as weight is not recorded per item
         Vector<BarcodedItem> bItems = new Vector<>();
         
-        int quantityOfEachBarcodedItem = 5;
+        int quantityOfEachBarcodedItem = 20;
         for (int i = 0; i < quantityOfEachBarcodedItem; i++) {
         	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
         	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
@@ -225,7 +225,7 @@ public final class Main {
         // and add them to the supervision station to be supervised
         for (int t = 0; t < Configurations.stations; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
-                    coinDenominations, 1000, 2);
+                    coinDenominations, 80000, 2);
 
             // Add ink to the station
             try {

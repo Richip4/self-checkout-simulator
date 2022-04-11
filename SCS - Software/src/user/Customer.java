@@ -98,7 +98,6 @@ public class Customer extends User {
 	}
 
 	public BigDecimal getCartSubtotal() {
-		System.out.println("got cart subtotal");
 		BigDecimal subtotal = BigDecimal.ZERO;
 
 		for (CartEntry entry : this.cart) {
