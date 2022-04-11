@@ -265,8 +265,8 @@ public class GUI {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
 				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
 			try {
-				scs.printer.cutPaper();
-				scs.printer.removeReceipt();
+				String receipt = scs.printer.removeReceipt();
+				System.out.println(receipt);
 			}catch(Exception e){
 				Scenes.errorMsg("You are trying to remove a non-existent receipt");
 			}	
