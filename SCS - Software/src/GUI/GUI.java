@@ -163,7 +163,6 @@ public class GUI {
 			} catch (OverloadException e) {
 				e.printStackTrace();
 			}
-			System.out.println("Test");
 		}
 			
 	}
