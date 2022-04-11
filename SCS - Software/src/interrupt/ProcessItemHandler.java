@@ -200,7 +200,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		// their own bag to the bagging area
 		if (this.scss.getPhase() == Phase.PLACING_OWN_BAG) {
 			this.currentWeight = weightInGrams; // Record the new weight (with the bag)
-			this.scss.addItem(); // go back to add item phase
+			// this.scss.addItem(); // go back to add item phase !!!! not until attendant says so!
 			return;
 		}
 		

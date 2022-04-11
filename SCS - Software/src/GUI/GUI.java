@@ -243,27 +243,29 @@ public class GUI {
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
-		Item item = ac.getCustomersNextItem(currentStation);
-		if (item instanceof BarcodedItem) {
-		try {
-			
-			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
-			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
-			
-			software.addItem();
-			
-			while(ac.getStationPhase(currentStation) != Phase.BAGGING_ITEM) {
-				if (usedMainScanner) {
-					hardware.mainScanner.scan(item);
-				} else {
-					hardware.handheldScanner.scan(item);
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+			Item item = ac.getCustomersNextItem(currentStation);
+			if (item instanceof BarcodedItem) {
+				try {
+					
+					SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+					SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+					
+					software.addItem();
+					
+					while(ac.getStationPhase(currentStation) != Phase.BAGGING_ITEM) {
+						if (usedMainScanner) {
+							hardware.mainScanner.scan(item);
+						} else {
+							hardware.handheldScanner.scan(item);
+						}
+					}
+					
+					ac.removeCustomerNextItem(currentStation);
+				} catch (Exception e) {
+					Scenes.errorMsg("You cannot scan this item");
 				}
 			}
-			
-			ac.removeCustomerNextItem(currentStation);
-		} catch (Exception e) {
-			Scenes.errorMsg("You cannot scan this item");
-		}
 		}
 	}
 	
@@ -290,10 +292,12 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		if (ac.getStationPhase(currentStation) != Phase.BLOCKING) {
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
 			scenes.getScene(Scenes.SCS_TOUCH);
-		} else {
+		} else if (ac.getStationPhase(currentStation) == Phase.BLOCKING) { 
 			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
+		} else if (ac.getStationPhase(currentStation) == Phase.PLACING_OWN_BAG) {
+			Scenes.errorMsg("Wait for an attendant to approve your bags.");
 		}
 	}
 
@@ -498,7 +502,11 @@ public class GUI {
 
 	public static void proceedToCheckout() {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-		scs.checkout();
+		try {
+			scs.checkout();
+		} catch (IllegalStateException e) {
+			
+		}
 	}
 
 	public static void userUsesOwnBags(int currentStation) {
@@ -538,10 +546,10 @@ public class GUI {
 			PLUCodedItem pluItem = (PLUCodedItem)ac.getCustomersNextItem(currentStation);
 			
 			//for simulation purpose only
-			if (!plu.equals(pluItem.getPLUCode())) {
-				Scenes.errorMsg("Simulation error! Please enter the PLU at the top of your cart!");
-				return;
-			}
+//			if (!plu.equals(pluItem.getPLUCode())) {
+//				Scenes.errorMsg("PLU Code does not match.");
+//				return;
+//			}
 			
 			//check if the PLU exists in the Inventory
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
@@ -661,7 +669,7 @@ public class GUI {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
 			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
 			desc = "<html>PLU Coded Item<br>";
-			desc += p.getDescription() +"  $"+ p.getPrice();
+			desc += p.getDescription() +"  $"+ p.getPrice() + "/kg";
 			desc += "<br>Code: " + p.getPLUCode() + "</html>";
 		} else if (item instanceof BarcodedItem) {
 			BarcodedItem barItem = (BarcodedItem) item;
@@ -678,41 +686,20 @@ public class GUI {
 	 */
 	public static String getUserInstruction(int scene) {
 		String instruction = null;
-		switch (scene) {
-		// Self-Checkout Station Overview Scene
-		case(Scenes.SCS_OVERVIEW):
 			
-			if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.CHOOSING_PAYMENT_METHOD) {
-				instruction = "Insert Banknote/Coin or pay with Card";
-			} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.PAYMENT_COMPLETE) {
-				instruction = "Take Change and Receipt";
-			} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.BAGGING_ITEM) {
-				instruction = "Put item in bagging area or request to Skip Bagging";
-			} else {
-				Item item = ac.getCustomersNextItem(scenes.getCurrentStation());
-				if (item instanceof PLUCodedItem) {
-					instruction = "Look up Product or enter PLU code on Touchscreen";
-				} else if (item instanceof BarcodedItem) {
-					instruction = "Scan Barcoded Item";
-				}
+		if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.CHOOSING_PAYMENT_METHOD) {
+			instruction = "Insert Banknote/Coin or pay with Card";
+		} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.PAYMENT_COMPLETE) {
+			instruction = "Take Change and Receipt";
+		} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.BAGGING_ITEM) {
+			instruction = "Put item in bagging area or request to Skip Bagging";
+		} else {
+			Item item = ac.getCustomersNextItem(scenes.getCurrentStation());
+			if (item instanceof PLUCodedItem) {
+				instruction = "Look up Product or enter PLU code on Touchscreen";
+			} else if (item instanceof BarcodedItem) {
+				instruction = "Scan Barcoded Item";
 			}
-		
-		// Attendant station scene
-		case(Scenes.AS_TOUCH):
-			break;
-		
-		// Self-Checkout Station Touchscreen Scene
-		case(Scenes.SCS_TOUCH):
-			break;
-		
-		// Self-Checkout Station Card Reader Scene
-		case(Scenes.SCS_CARDREADER):
-			break;
-		
-		// Self-Checkout Station Maintenance Scene
-		case(Scenes.SCS_MAINTENANCE):
-			break;
-		
 		}
 		return instruction;
 	}
