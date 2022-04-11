@@ -266,7 +266,7 @@ public class GUI {
 				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
 			try {
 				String receipt = scs.printer.removeReceipt();
-				System.out.println(receipt);
+				System.out.println("\n\n" + receipt + "\n");
 			}catch(Exception e){
 				Scenes.errorMsg("You are trying to remove a non-existent receipt");
 			}	
