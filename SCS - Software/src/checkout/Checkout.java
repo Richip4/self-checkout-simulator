@@ -109,6 +109,7 @@ public class Checkout {
 		this.scs.banknoteOutput.enable();
 		this.scs.banknoteValidator.enable();
 		this.scs.banknoteStorage.enable();
+		this.scs.banknoteDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCoinInput() {
@@ -196,10 +197,10 @@ public class Checkout {
 
 		this.pendingChanges = new ArrayList<Cash>(newPendingChanges);
 
-
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
-		if (size <= newPendingChanges.size()) {
+
+		if (size <= this.pendingChanges.size()) {
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()
 					.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
@@ -294,8 +295,8 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
-		
-		Cash(Cash copy){
+
+		Cash(Cash copy) {
 			this.type = copy.type;
 			this.value = copy.value;
 		}
