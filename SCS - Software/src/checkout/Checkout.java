@@ -109,6 +109,7 @@ public class Checkout {
 		this.scs.banknoteOutput.enable();
 		this.scs.banknoteValidator.enable();
 		this.scs.banknoteStorage.enable();
+		this.scs.banknoteDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCoinInput() {
@@ -176,7 +177,7 @@ public class Checkout {
 
 		// New pending changes list
 		List<Cash> newPendingChanges = new ArrayList<Cash>(this.pendingChanges);
-
+		
 		// There's change pending to be returned to customer
 		// start emitting change to slot devices
 		for (Cash cash : this.pendingChanges) {
@@ -203,7 +204,7 @@ public class Checkout {
 
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
-		if (size >= this.pendingChanges.size()) {
+		if (size <= this.pendingChanges.size()) {
 			System.out.println("no dispensing");
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()

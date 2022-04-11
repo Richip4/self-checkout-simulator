@@ -173,12 +173,12 @@ public class GUI {
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
-				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
+				&& (scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.PROCESSING_PAYMENT)
 				&& !(scs.banknoteOutput.hasSpace()))
 		{
 			if(scss.getBanknoteDangling()) {
-				scs.banknoteOutput.removeDanglingBanknotes();
 				scss.setBanknoteDangling(false);
+				scs.banknoteOutput.removeDanglingBanknotes();
 				System.out.println("bill taken"); //TODO
 			}
 			
