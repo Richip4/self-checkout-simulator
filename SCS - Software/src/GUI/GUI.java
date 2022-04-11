@@ -154,6 +154,7 @@ public class GUI {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
 			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
+			
 		}
 			
 	}
@@ -589,13 +590,21 @@ public class GUI {
 	public static boolean isAttendantLoggedIn() {
 		return ac.isAttendantLoggedIn();
 	}
+	
+	public static String getAmountPaid(int station) {
+		String paid = ac.getCustomerPaidAmount(station);
+		if (paid == null) {
+			return "Paid $0.00";
+		}
+		return "Paid $" + paid; 
+	}
 
 	public static String getSubtotal(int station) {
 		String subtotal = ac.getCustomersSubtotal(station);
 		if (subtotal == null) {
-			return "$0.00";
+			return "Subtotal $0.00";
 		}
-		return "$" + subtotal; 
+		return "Subtotal $" + subtotal; 
 	}
 	
 	public static String getNextItemDescription(int station) {

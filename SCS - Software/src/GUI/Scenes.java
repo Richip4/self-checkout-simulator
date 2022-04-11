@@ -295,6 +295,7 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		JLabel paid;
 		JLabel subtotal;
 		JLabel nextItem;
 		
@@ -316,28 +317,38 @@ public class Scenes {
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
 			
+			// update amount paind
+			paid = new JLabel();
+			paid.setBounds(200, 170, 150, 40);
+			paid.setFont(new Font("Arial", Font.BOLD, 16));
+			paid.setHorizontalAlignment(JLabel.CENTER);
+			paid.setText(GUI.getAmountPaid(currentStation));
+			paid.setBorder(BorderFactory.createLineBorder(Color.red));
+			paid.setFocusable(false);
+			paid.setOpaque(true);
+			content.add(paid);
+			
 			// update subtotal
 			subtotal = new JLabel();
-			subtotal.setBounds(200, 25, 150, 40);
+			subtotal.setBounds(200, 10, 150, 40);
 			subtotal.setFont(new Font("Arial", Font.BOLD, 16));
 			subtotal.setHorizontalAlignment(JLabel.CENTER);
 			subtotal.setText(GUI.getSubtotal(currentStation));
 			subtotal.setBorder(BorderFactory.createLineBorder(Color.blue));
 			subtotal.setFocusable(false);
 			subtotal.setOpaque(true);
-			//if (!subtotal.getText().equals("")) 
 			content.add(subtotal);
 			
 			// customers next item to process
 			nextItem = new JLabel();
-			nextItem.setBounds(200, 70, 150, 130);
+			nextItem.setBounds(200, 55, 150, 110);
 			nextItem.setFont(new Font("Arial", Font.BOLD, 16));
 			nextItem.setHorizontalAlignment(JLabel.CENTER);
 			nextItem.setText(GUI.getNextItemDescription(currentStation));
 			nextItem.setBorder(BorderFactory.createLineBorder(Color.gray));
 			nextItem.setFocusable(false);
 			nextItem.setOpaque(true);
-			if (!nextItem.getText().equals("")) content.add(nextItem);
+			content.add(nextItem);
 			
 			// bagging scale
 			bagScale = new JButton();
@@ -542,7 +553,7 @@ public class Scenes {
 				// display the stations relavent status to the attendant
 				station_status[i] = new JLabel();
 				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
-				station_status[i].setText(GUI.stationStatus(i+1));
+				station_status[i].setText(GUI.stationStatus(i));
 				station_status[i].setBounds(30, 10, 200, 80);
 				station_status[i].setHorizontalAlignment(JLabel.CENTER);
 				station.add(station_status[i]);
