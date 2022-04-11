@@ -8,6 +8,7 @@ import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.EmptyException;
 import org.lsmr.selfcheckout.devices.OverloadException;
+import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -65,6 +66,26 @@ public class ReceiptTest
     public void printLineTest() throws EmptyException, OverloadException{
     	Receipt receipt = new Receipt(selfCheckoutSoftware);
     }
+    
+    @Test
+    public void printReceiptProduct() throws EmptyException, OverloadException
+    {
+        supervision.add(selfCheckoutSoftware);
+        Customer customer = new Customer();
+        Inventory.addProduct(product);
+        //Inventory.addProduct(b);
+        
+        Receipt receipt = new Receipt(selfCheckoutSoftware);
+        receipt.setCustomer(customer);
+        customer.setMemberID("10");
+        customer.addProduct(plu, 100);
+        customer.addProduct(product);
+        selfCheckoutStation.printer.addPaper(100);
+        selfCheckoutStation.printer.addInk(100);
+        receipt.printReceipt();
+        assertNotNull(selfCheckoutStation.printer.removeReceipt());
+        }
+    
     
     @Test
     public void printReceiptTest() throws EmptyException, OverloadException
@@ -158,43 +179,77 @@ public class ReceiptTest
         assertTrue(receipt.getPaperUsed() >= (selfCheckoutStation.printer.MAXIMUM_PAPER*9)/10);
     }
     
-    
-    /*
-     * Still a work in progress
-     */
+
     @Test
     public void testLowCapacityAndInkUsed() throws OverloadException, EmptyException {
         supervision.add(selfCheckoutSoftware);
         Customer customer = new Customer();
-        
-
         Inventory.addProduct(b);
         Receipt receipt = new Receipt(selfCheckoutSoftware);
         receipt.setCustomer(customer);
         customer.setMemberID("10");
-        selfCheckoutStation.printer.addInk(1 << 20);
-
-        // Simulate running out of ink
- //       for(int j = 0; j < 50; j++) {
-        	for(int i = 0; i < 1000;i++) {
-        	customer.addProduct(b);
-        	}
-            selfCheckoutStation.printer.addPaper(1013);	
-            receipt.printReceipt();
-            
-//       	}
-        
- //       selfCheckoutStation.printer.addPaper(1 << 10);	// 1024
-  //      selfCheckoutStation.printer.addInk(1 << 20);
-        
-//        receipt.printReceipt();
-//        System.out.println(receipt.getInkUsed());
- //       System.out.println(1<<20);
-  //      receipt.updateInkUsed((selfCheckoutStation.printer.MAXIMUM_INK*9)/10);
-  //      receipt.checkLowPrinterCapacity();
+        receipt.updateInkUsed(-(int)((ReceiptPrinter.MAXIMUM_INK * 9) / 10));
+        receipt.checkLowPrinterCapacity();
         assertTrue(receipt.getInkUsed() == (selfCheckoutStation.printer.MAXIMUM_INK*9)/10);
     }
     
+    @Test
+    public void notlowCapacityPaper() throws EmptyException, OverloadException
+    {
+        supervision.add(selfCheckoutSoftware);
+        Customer customer = new Customer();
+        Inventory.addProduct(plu);
+        Receipt receipt = new Receipt(selfCheckoutSoftware);
+        receipt.setCustomer(customer);
+        customer.setMemberID("10");
+        customer.addProduct(plu, 100);
+        selfCheckoutStation.printer.addPaper(1000);
+        selfCheckoutStation.printer.addInk(1000);
+        receipt.checkLowPrinterCapacity();
+        
+        assertTrue(receipt.getPaperUsed() <= (selfCheckoutStation.printer.MAXIMUM_PAPER*9)/10);
+        }
+    
+    @Test
+    public void notlowCapacityInk() throws EmptyException, OverloadException
+    {
+        supervision.add(selfCheckoutSoftware);
+        Customer customer = new Customer();
+        Inventory.addProduct(plu);
+        Receipt receipt = new Receipt(selfCheckoutSoftware);
+        receipt.setCustomer(customer);
+        customer.setMemberID("10");
+        customer.addProduct(plu, 100);
+        selfCheckoutStation.printer.addPaper(1000);
+        selfCheckoutStation.printer.addInk(1000);
+        receipt.printReceipt();
+        receipt.checkLowPrinterCapacity();
+        assertTrue(receipt.getInkUsed() <= (selfCheckoutStation.printer.MAXIMUM_INK*9)/10);
+        }
+    
+    @Test
+    public void lowPaperhighInk() throws EmptyException, OverloadException
+    {
+        supervision.add(selfCheckoutSoftware);
+        Customer customer = new Customer();
+        Inventory.addProduct(plu);
+        Receipt receipt = new Receipt(selfCheckoutSoftware);
+        receipt.setCustomer(customer);
+        customer.setMemberID("10");
+        customer.addProduct(b);
+        selfCheckoutStation.printer.addInk(1 << 20);
+        
+       	for(int i = 0; i < 1000;i++) {
+        	customer.addProduct(b);
+        	}
+       	
+        selfCheckoutStation.printer.addPaper(1 << 10);	
+        receipt.printReceipt();
+        receipt.checkLowPrinterCapacity();
+        assertTrue(receipt.getPaperUsed() >= (selfCheckoutStation.printer.MAXIMUM_PAPER*9)/10);
+        assertTrue(receipt.getInkUsed() <= (selfCheckoutStation.printer.MAXIMUM_INK*9)/10);
+
+    }
     
     @Test
     public void updatePaperTest() throws EmptyException, OverloadException

@@ -68,20 +68,11 @@ public class CheckoutTest
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
         BigDecimal price = new BigDecimal("1.00");
-//        FakeProduct product = new FakeProduct(price);
         FakeItem item = new FakeItem(1.0);
- //       Inventory inv = new Inventory();
+
         
         BarcodedProduct b = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("0.99"), 3.12);
-    
-        
-//        @Test(expected = IllegalStateException.class)
-//        public void enablePaymentTest() {
-//            Customer customer = new Customer();
-//            Checkout checkout = new Checkout(selfCheckoutSoftware);
-//            checkout.enablePaymentHardware(PaymentMethod.CASH);
-//            
-//        }
+
         
         
         @Test
@@ -106,16 +97,6 @@ public class CheckoutTest
         }
         
         
-//        @Test(expected = IllegalStateException.class)
-//        public void readyToCheckoutNullPaymentTest()
-//        {
-//            Customer customer = new Customer();
-//            Checkout checkout = new Checkout(scss);
-//            checkout.setCustomer(customer);
-//            checkout.enablePaymentHardware(null);
-//            	
-//
-//        }
         @Test
         public void readyToCheckoutCashTest()
         {
@@ -204,28 +185,7 @@ public class CheckoutTest
             
         }
     
-//        @Test
-//        public void readyToCheckoutTest2()
-//        {
-//            Checkout checkout = new Checkout(selfCheckoutSoftware);
-//            try
-//            {
-//                checkout.checkout(PaymentMethod.CASH);
-//            } catch (IllegalStateException e)
-//            {
-//                // This is expected because no customer is set.
-//    
-//                // Test the rest of the devices.
-//                assertFalse("There is no customer intiialized, scanner should not be disabled", selfCheckoutStation.mainScanner.isDisabled());
-//                assertFalse("There is no customer intiialized, scanner should not be disabled", selfCheckoutStation.handheldScanner.isDisabled());
-//                assertFalse("There is no customer intiialized, scanning area should not be disabled", selfCheckoutStation.scanningArea.isDisabled());
-//    
-//                return;
-//            }
-//    
-//            fail("Customer is not set and readyToCheckout() should throw an IllegalStateException");
-//        }
-    
+
         @Test
         public void cancelCheckout() throws DisabledException, OverloadException
         {
@@ -245,30 +205,61 @@ public class CheckoutTest
             assertTrue("Cancel checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
         }
     
-        @Test
+        @Test(expected = IllegalStateException.class)
         public void cancelCheckout2()
         {
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
             checkout.setCustomer(null);
+            checkout.cancelCheckout();
+        }
+        
+        @Test(expected = IllegalStateException.class)
+        public void cancelCheckoutPaidMoreThanSubtotal() throws DisabledException, OverloadException
+        {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            
+            BarcodedProduct twoDollarsTest = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
+         	sup.add(scss);
+            scss.setUser(customer);
+            checkout.setCustomer(customer);
+            customer.addProduct(twoDollarsTest);
+
+            this.scss.addItem();
+            this.scss.checkout();
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
+            scss.selectedPaymentMethod(PaymentMethod.CASH);
+            customer.addCashBalance(new BigDecimal("2.00"));
+            // Subtotal < cash balance
+            checkout.cancelCheckout();
     
-            try {
-                checkout.cancelCheckout();
-            } catch (IllegalStateException e)
-            {
-                // This is expected because no customer is set.
-    
-                // Test the rest of the devices.
-                assertTrue("There is no customer intiialized, scanner should not be disabled", scs.mainScanner.isDisabled());
-                assertTrue("There is no customer intiialized, scanner should not be disabled", scs.handheldScanner.isDisabled());
-                assertTrue("There is no customer intiialized, scanning area should not be disabled", scs.scanningArea.isDisabled());
-    
-                return;
-            }
-    
-            fail("Customer is not set and cancelCheckout() should throw an IllegalStateException");
+            
+        }
+        
+        @Test
+        public void cancelCheckoutPaidLessThanSubtotal() throws DisabledException, OverloadException
+        {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            
+            BarcodedProduct twoDollarsTest = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
+         	sup.add(scss);
+            scss.setUser(customer);
+            checkout.setCustomer(customer);
+            customer.addProduct(twoDollarsTest);
+
+            this.scss.addItem();
+            this.scss.checkout();
+            checkout.enablePaymentHardware(PaymentMethod.CASH);
+            scss.selectedPaymentMethod(PaymentMethod.CASH);
+            customer.addCashBalance(new BigDecimal("0.5"));
+            // Subtotal < cash balance
+            checkout.cancelCheckout();
+            assertTrue("Cancel checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Cancel checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Cancel checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
+            
         }
     
         private void clearDispensers()
@@ -673,7 +664,7 @@ public class CheckoutTest
     
          @Test
          public void makeChangeMultipleBanknote1() {
-         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("10.00"), 3.12);
+         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
             Checkout checkout = new Checkout(scss);
             checkout.setCustomer(customer);
@@ -681,7 +672,7 @@ public class CheckoutTest
             sup.add(scss);
             
             customer.addProduct(notes);
-            customer.addCashBalance(new BigDecimal("50.00"));
+            customer.addCashBalance(new BigDecimal("41.00"));
     
              BigDecimal change = new BigDecimal("40.00"); // Could be 20.00 + 20.00, or other combinations
              Coin.DEFAULT_CURRENCY = currency;
@@ -870,9 +861,7 @@ public class CheckoutTest
     
             BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
             BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
-    
-            //assertFalse("Should not be making change", checkout.hasPendingChange());
-    
+        
             BigDecimal sum = BigDecimal.ZERO;
             sum = sum.add(bs);
             System.out.println(sum);

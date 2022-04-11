@@ -1,5 +1,6 @@
 package application;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.products.Product;
 
+import GUI.Scenes;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
 import software.SupervisionSoftware;
@@ -49,6 +51,7 @@ public class AppControl {
 	// NOTE: active users not at an actual station are excluded
 	private User[] users;
 	
+	private Item lastCheckedOutItem;			//for bagging
 	private Map<User, List<Item>> inventories = new HashMap<>();
 
 	// the type of user combination at each station
@@ -90,10 +93,8 @@ public class AppControl {
 	 */
 	public void nextActiveUser() {
 		for (int i = 0; i < users.length; i++) {
-			//System.out.println("Checking station " + i + " for active user");
 			if (users[i] == activeUser) {
 				do {
-					//System.out.println("Checking station " + i + " for next valid user");
 					i++;
 					if (i > users.length - 1) {
 						i = 0;
@@ -110,10 +111,8 @@ public class AppControl {
 	 */
 	public void prevActiveUser() {
 		for (int i = 0; i < users.length; i++) {
-			//System.out.println("Checking station " + i + " for active user");
 			if (users[i] == activeUser) {
 				do {
-					//System.out.println("Checking station " + i + " for next valid user");
 					i--;
 					if (i < 0) {
 						i = users.length - 1;
@@ -135,6 +134,10 @@ public class AppControl {
 
 	public User[] getActiveUsers() {
 		return users;
+	}
+	
+	public SelfCheckoutSoftware getSelfCheckoutSoftware(int stationNumber) {
+		return selfStationSoftwares.get(stationNumber-1);
 	}
 	
 	/**
@@ -170,16 +173,18 @@ public class AppControl {
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station - 1).setUser(activeUser);
+		selfStationSoftwares.get(station - 1).start((Customer)activeUser);
 		
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();
-		int pick = Tangibles.ITEMS.size();
-		int itemsGrabbed = random.nextInt(6) + 4;
+		int selectionSize = Tangibles.ITEMS.size();
+		int itemsGrabbed = random.nextInt(selectionSize/10);
 		
 		List<Item> inventory = new ArrayList<>();
 		for (int i = 0; i < itemsGrabbed; i++) {
-			inventory.add(Tangibles.ITEMS.get(random.nextInt(pick)));
+			Item grabbedItem = Tangibles.ITEMS.get(random.nextInt(selectionSize--)); 
+			inventory.add(grabbedItem);
+			Tangibles.ITEMS.remove(grabbedItem);
 		}
 		
 		inventories.put(activeUser, inventory);
@@ -291,6 +296,16 @@ public class AppControl {
 			return "OKAY";
 		}
 	}
+	
+	/**
+	 * 
+	 * @param currentStation
+	 * @return
+	 */
+	public Phase getStationPhase(int station) {
+		
+		return selfStationSoftwares.get(station-1).getPhase();
+	}
 
 	/**
 	 * 
@@ -325,51 +340,86 @@ public class AppControl {
 		}
 	}
 
-	public void customerTapsCreditCard() {
-		// TODO Auto-generated method stub
+	public void customerTapsCreditCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(1));
+		} catch (IOException e) {
+			Scenes.errorMsg("tap failed");
+		}
 		
 	}
 
-	public void customerTapsDebitCard() {
-		// TODO Auto-generated method stub
+	public void customerTapsDebitCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(2));
+		} catch (IOException e) {
+			Scenes.errorMsg("tap failed");
+		}
 		
 	}
 	
-	public void customerTapsMembershipCard() {
-		// TODO Auto-generated method stub
+	public void customerTapsMembershipCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.MEMBER_CARDS.get(1));
+		} catch (IOException e) {
+			Scenes.errorMsg("tap failed");
+		}
 		
 	}
 
-	public void customerSwipesCreditCard() {
-		// TODO Auto-generated method stub
+	public void customerSwipesCreditCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(1));
+		} catch (IOException e) {
+			Scenes.errorMsg("swipe failed");
+		}
 		
 	}
 
-	public void customerSwipesDebitCard() {
-		// TODO Auto-generated method stub
+	public void customerSwipesDebitCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(2));
+		} catch (IOException e) {
+			Scenes.errorMsg("swipe failed");
+		}
 		
 	}
 
-	public void customerSwipesMembershipCard() {
-		// TODO Auto-generated method stub
+	public void customerSwipesMembershipCard(int index) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
+		} catch (IOException e) {
+			Scenes.errorMsg("swipe failed");
+		}
 		
 	}
 
-	public void customerInsertCreditCard() {
-		// TODO Auto-generated method stub
+	public void customerInsertCreditCard(int index, String pin) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+		} catch (IOException e) {
+			Scenes.errorMsg("insert failed");
+		}
 		
 	}
 
-	public void customerInsertDebitCard() {
-		// TODO Auto-generated method stub
+	public void customerInsertDebitCard(int index, String pin) {
+		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
+		try {
+			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+		} catch (IOException e) {
+			Scenes.errorMsg("insert failed");
+		}
 		
 	}
-
-	public void customerInsertMembershipCard() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
 	public void removeItemFromCustomersCart(int station, int item) {
 		List<Product> cart = selfStationSoftwares.get(station).getCustomer().getCart();
 		cart.remove(item);
@@ -420,8 +470,28 @@ public class AppControl {
 		return supervisorSoftware.isLoggedIn();
 	}
 
+	/**
+	 * Gets the list if items the customer wants to add
+	 * @param station
+	 * @return null if customer has no more items to add
+	 */
 	public Item getCustomersNextItem(int station) {
+		if (inventories.get(users[station]).isEmpty())
+			return null;
 		return inventories.get(users[station]).get(0);
+	}
+	
+	public void removeCustomerNextItem(int station) {
+		lastCheckedOutItem = inventories.get(users[station]).get(0);
+		inventories.get(users[station]).remove(0);
+	}
+	
+	public Item getLastCheckedOutItem() {
+		return lastCheckedOutItem;
+	}
+	
+	public void clearLastCheckedOutItem() {
+		lastCheckedOutItem = null;
 	}
 
 
