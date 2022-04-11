@@ -157,15 +157,12 @@ public class GUI {
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
 			try {
 				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
-				
 			} catch (DisabledException e) {
 				e.printStackTrace();
 			} catch (OverloadException e) {
 				e.printStackTrace();
 			}
-			System.out.println("Test");
 		}
-			
 	}
 	
 	
@@ -193,6 +190,13 @@ public class GUI {
 		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.selectedPaymentMethod(PaymentMethod.CASH);
+			try {
+				scs.getSelfCheckoutStation().coinSlot.accept(new Coin(Main.Configurations.currency, value));
+			} catch (DisabledException e) {
+				e.printStackTrace();
+			} catch (OverloadException e) {
+				e.printStackTrace();
+			}
 			
 		}
 	}

@@ -100,19 +100,19 @@ public class CoinWallet extends JFrame implements MouseListener {
 	public void mousePressed(MouseEvent e) {}
 	public void mouseReleased(MouseEvent e) {
 		if (e.getSource() == nickelLabel) {
-			parent.coinWalletReturnValue(new BigDecimal(0.05));
+			parent.coinWalletReturnValue(new BigDecimal("0.05"));
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		} else if (e.getSource() == lblDime) {
-			parent.coinWalletReturnValue(new BigDecimal(0.10));
+			parent.coinWalletReturnValue(new BigDecimal("0.10"));
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		} else if (e.getSource() == lblQuarter) {
-			parent.coinWalletReturnValue(new BigDecimal(0.25));
+			parent.coinWalletReturnValue(new BigDecimal("0.25"));
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		} else if (e.getSource() == lblLoonie) {
-			parent.coinWalletReturnValue(new BigDecimal(1.00));
+			parent.coinWalletReturnValue(new BigDecimal("1.00"));
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		} else if (e.getSource() == lblToonie) {
-			parent.coinWalletReturnValue(new BigDecimal(2.00));
+			parent.coinWalletReturnValue(new BigDecimal("2.00"));
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		}
 	}

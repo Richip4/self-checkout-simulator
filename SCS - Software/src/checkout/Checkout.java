@@ -117,6 +117,7 @@ public class Checkout {
 		this.scs.coinTray.enable();
 		this.scs.coinValidator.enable();
 		this.scs.coinStorage.enable();
+		this.scs.coinDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCardReader() {
