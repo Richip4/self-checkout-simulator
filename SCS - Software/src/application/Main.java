@@ -10,13 +10,16 @@ import java.util.Vector;
 
 import javax.swing.JDialog;
 
+import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Card;
+import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -240,6 +243,33 @@ public final class Main {
             } catch (OverloadException e) {
                 e.printStackTrace();
             }
+            
+            station.banknoteDispensers.forEach((value, dispenser) -> {
+        		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY; i++) {
+        			Banknote note = new Banknote(currency, value);
+        			try {
+						dispenser.load(note);
+					} catch (OverloadException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+    		});
+            
+        	station.coinDispensers.forEach((value, dispenser) -> {
+        		for(int i = 0; i < SelfCheckoutStation.COIN_DISPENSER_CAPACITY; i++) {
+        			Coin coin = new Coin(currency, value);
+        			try {
+						dispenser.load(coin);
+					} catch (SimulationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (OverloadException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+    		});
 
             // Add this station to tangibles, and add this station to the supervision
             // station
