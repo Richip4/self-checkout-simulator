@@ -92,6 +92,8 @@ public final class Main {
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
         String cardNo3 = "4511220329440683";
         scotia.addCardData(cardNo3, "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
+        Card card3 = new Card("debit", cardNo3, "Tyler Chen", "232", "1111", true, true);
+        Tangibles.PAYMENT_CARDS.add(card3);
 
         Bank.addIssuer(rbc);
         Bank.addIssuer(scotia);

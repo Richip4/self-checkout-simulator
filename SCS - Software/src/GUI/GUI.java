@@ -135,7 +135,6 @@ public class GUI {
 			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			ac.attendantLeavesStation(station);
-			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		}
 	}
 
@@ -565,12 +564,20 @@ public class GUI {
 		return ac.isAttendantLoggedIn();
 	}
 
+	public static String getSubtotal(int station) {
+		String subtotal = ac.getCustomersSubtotal(station);
+		if (subtotal == null) {
+			return "$0.00";
+		}
+		return "$" + subtotal; 
+	}
+	
 	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
 		
 		if (item == null)
-			return "No more items";
+			return "";
 		
 		if (item instanceof PLUCodedItem) {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
