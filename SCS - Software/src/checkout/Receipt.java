@@ -108,6 +108,7 @@ public class Receipt implements ReceiptPrinterObserver {
 		if (this.customer.getMemberID() != null) {
 			String membership = "Member ID: " + this.customer.getMemberID();
 			this.printLine(membership);
+			this.printLine("==============");
 		}
 
 		// for loop iterates through each item in customer's cart
@@ -132,6 +133,7 @@ public class Receipt implements ReceiptPrinterObserver {
 		// st is used to print out the Subtotal header at the bottom of the receipt
 		BigDecimal subtotal = this.customer.getCartSubtotal();
 		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal.toString();
+		this.printLine("==============");
 		this.printLine(st);
 		
 		// cut the receipt so that the customer can easily remove it
