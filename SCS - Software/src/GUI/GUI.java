@@ -506,9 +506,7 @@ public class GUI {
 	}
 
 	public static void userEntersMembership(int num) {
-
-		if(Membership.isMember(Integer.toString(num)))
-		{
+		if(Membership.isMember(Integer.toString(num))){
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.getCustomer().setMemberID(Integer.toString(num));
 		}
