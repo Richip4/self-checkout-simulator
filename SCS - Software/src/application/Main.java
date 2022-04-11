@@ -140,6 +140,11 @@ public final class Main {
         BarcodedProduct kraftDinner = new BarcodedProduct(kraftDinnerCode, "Kraft Dinner", new BigDecimal("2.49"), kraftDinnerWeight);
         Inventory.addProduct(kraftDinner);
 
+        Barcode plasticBagCode = new Barcode(new Numeral[] { Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero });
+        int plasticBagWeight = 1;
+        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.1"), plasticBagWeight);
+        Inventory.addProduct(plasticBag);
+
         // Add 1 of each plu item 
         // they should be unique because of their weight
         Vector<PLUCodedItem> pItems = new Vector<>();
