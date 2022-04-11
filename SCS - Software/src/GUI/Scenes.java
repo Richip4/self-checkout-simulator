@@ -542,7 +542,7 @@ public class Scenes {
 				// display the stations relavent status to the attendant
 				station_status[i] = new JLabel();
 				station_status[i].setFont(new Font("Lucida Grande", Font.BOLD, 16));
-				station_status[i].setText(GUI.stationStatus(i));
+				station_status[i].setText(GUI.stationStatus(i+1));
 				station_status[i].setBounds(30, 10, 200, 80);
 				station_status[i].setHorizontalAlignment(JLabel.CENTER);
 				station.add(station_status[i]);
@@ -640,9 +640,9 @@ public class Scenes {
 		JLabel banner_title = new JLabel();
 		
 		boolean shouldClose = false;
+		JFrame window = this;
 		
 		public JFrame getScene() {
-			JFrame window = this;
 			JPanel scene = preprocessScene(this, 750, 500);
 
 			generateBanner(scene, true, banner_info, banner_title);
@@ -747,6 +747,7 @@ public class Scenes {
 				shouldClose = true;
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == attendant) {
 				if (promptAttendantForPassword()) {
 					stationAttendantOptions();	
