@@ -266,7 +266,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         return this.phase;
     }
 
-    private void setPhase(Phase phase) {
+    public void setPhase(Phase phase) {
         this.phase = phase;
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
     }
