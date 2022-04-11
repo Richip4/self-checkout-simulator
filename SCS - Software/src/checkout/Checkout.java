@@ -199,6 +199,7 @@ public class Checkout {
 			}
 		}
 
+//		this.pendingChanges.
 		this.pendingChanges = newPendingChanges;
 
 		// If size does not change, meaning no change is successfully emmited for

@@ -293,6 +293,8 @@ public class AppControl {
 			return "WEIGHT DISCREPANCY";
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			return "ITEM NOT BAGGED";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
+			return "USE OWN BAGS";
 		} else {
 			return "OKAY";
 		}
@@ -330,13 +332,17 @@ public class AppControl {
 	 * @param station
 	 */
 	public void approveStationDiscrepancy(int station) {
-		if (selfStationSoftwares.get(station-1).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
+		if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
 			try {
 				supervisorSoftware.approveWeightDiscrepancy(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}			
-		} else if (selfStationSoftwares.get(station-1).getPhase() == Phase.NON_BAGGABLE_ITEM) {
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			try {
 				supervisorSoftware.approveItemNotBaggable(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
+			try {
+				supervisorSoftware.approveUseOfOwnBags(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}
 		}
 	}
