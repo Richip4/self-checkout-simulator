@@ -61,16 +61,12 @@ public class CheckoutTest
         int scaleSensitivity = 1;
         SelfCheckoutStation scs = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
         SelfCheckoutSoftware scss = new SelfCheckoutSoftware(scs);
-       // List<SelfCheckoutSoftware> l = new ArrayList<SelfCheckoutSoftware>();
         SupervisionStation supstation = new SupervisionStation();
         SupervisionSoftware sup = new SupervisionSoftware(supstation);
-    
+
         Numeral[] barcodeNumeral = {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four};
         Barcode barcode = new Barcode(barcodeNumeral);
         BigDecimal price = new BigDecimal("1.00");
-        FakeItem item = new FakeItem(1.0);
-
-        
         BarcodedProduct b = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("0.99"), 3.12);
 
         
@@ -197,7 +193,6 @@ public class CheckoutTest
             this.scss.addItem();
             this.scss.checkout();
             checkout.enablePaymentHardware(PaymentMethod.CASH);
- //           selfCheckoutStation.coinSlot.accept(null);
             checkout.cancelCheckout();
     
             assertTrue("Cancel checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
@@ -410,22 +405,27 @@ public class CheckoutTest
             Banknote[] danglingBanknotes = new Banknote[0];
     
             // Take all the banknotes until there is no more
-            try
-            {
-                danglingBanknotes = scs.banknoteOutput.removeDanglingBanknotes();
+            while (true) {
+            	try
+            	{
+            		danglingBanknotes = this.scs.banknoteOutput.removeDanglingBanknotes();
+                
 
-            } catch (NullPointerSimulationException e)
-            {
-                // No more banknotes
-                System.out.println("no more banknote");
-            }
+            	} catch (NullPointerSimulationException e)
+            	{
+            		// No more banknotes
+            		System.out.println("no more banknote");
+            		break;
+            	}
     
-            // Sum of all the banknotes
-            for (Banknote next : danglingBanknotes)
-            {
-                sum = sum.add(new BigDecimal(next.getValue()));
-                System.out.println("add " + sum);
-            }
+            	// Sum of all the banknotes
+            	for (Banknote next : danglingBanknotes)
+            	{
+            		sum = sum.add(new BigDecimal(next.getValue()));
+            		System.out.println("add " + sum);
+            	}
+            	}
+            
     
             return sum;
         }
@@ -435,8 +435,6 @@ public class CheckoutTest
         public void makeChangeSingleCoin1()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
             customer.addProduct(b);
@@ -451,15 +449,12 @@ public class CheckoutTest
             scss.addItem();
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
             System.out.println(customer.getCashBalance());
             System.out.println(customer.getCartSubtotal());
-            checkout.makeChange();
+            scss.makeChange();
     
-
             BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
             
-    
             assertEquals("Coin tray should have coins with sum of $0.01", change.doubleValue(), sum.doubleValue(), 0.01);
         }
     
@@ -470,8 +465,6 @@ public class CheckoutTest
          public void makeChangeSingleCoin2() {
         	 BarcodedProduct twoDollarsTest = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
              scss.setUser(customer);
              sup.add(scss);
              
@@ -486,9 +479,8 @@ public class CheckoutTest
              scss.addItem();
              scss.checkout();
              scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
     
-             checkout.makeChange();
+             scss.makeChange();
     
 
              BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
@@ -500,8 +492,6 @@ public class CheckoutTest
          public void makeChangeMultipleCoins1() {
         	 BarcodedProduct twoCoins = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.65"), 3.12);
              Customer customer = new Customer();
-             Checkout checkout = new Checkout(scss);
-             checkout.setCustomer(customer);
              scss.setUser(customer);
              sup.add(scss);
              
@@ -516,9 +506,8 @@ public class CheckoutTest
              scss.addItem();
              scss.checkout();
              scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
              
-             checkout.makeChange();
+             scss.makeChange();
     
              BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
 
@@ -531,8 +520,6 @@ public class CheckoutTest
         {
         	BarcodedProduct multipleCoin = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.25"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
             
@@ -546,8 +533,7 @@ public class CheckoutTest
             scss.addItem();
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
-            checkout.makeChange();
+            scss.makeChange();
     
             BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
     
@@ -558,8 +544,6 @@ public class CheckoutTest
         public void makeChangeNoChange()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
     
@@ -570,8 +554,7 @@ public class CheckoutTest
             scss.addItem();
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
-            checkout.makeChange();
+            scss.makeChange();
     
             BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
     
@@ -582,8 +565,7 @@ public class CheckoutTest
         public void makeChangeNoCoins()
         {
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
+
             scss.setUser(customer);
             sup.add(scss);
     
@@ -593,9 +575,8 @@ public class CheckoutTest
             scss.addItem();
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
             
-            checkout.makeChange();
+            scss.makeChange();
     
             BigDecimal sum = this.getSumOfCoinsInCoinDispenser();
     
@@ -607,8 +588,6 @@ public class CheckoutTest
         {
         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
             
@@ -624,8 +603,7 @@ public class CheckoutTest
             scss.addItem();
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
-            checkout.makeChange();
+            scss.makeChange();
     
             BigDecimal sum = this.getSumOfBanknotesInBanknoteOutput();
     
@@ -636,8 +614,7 @@ public class CheckoutTest
          public void makeChangeSingleBanknote2() {
          	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("10.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
+
             scss.setUser(customer);
             sup.add(scss);
             
@@ -652,8 +629,8 @@ public class CheckoutTest
              scss.addItem();
              scss.checkout();
              scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
-             checkout.makeChange();
+
+             scss.makeChange();
     
              BigDecimal sum = this.getSumOfBanknotesInBanknoteOutput();
     
@@ -666,10 +643,9 @@ public class CheckoutTest
          public void makeChangeMultipleBanknote1() {
          	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
-            scss.setUser(customer);
-            sup.add(scss);
+            this.scss.startSystem();
+            this.scss.setUser(customer);
+            sup.add(this.scss);
             
             customer.addProduct(notes);
             customer.addCashBalance(new BigDecimal("41.00"));
@@ -680,12 +656,11 @@ public class CheckoutTest
              this.clearDispensers(); // Force using banknote for change, since coins are empty
              this.addBanknotesToBanknotesDispenser();
              
-             scss.addItem();
-             scss.checkout();
-             scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
+             this.scss.addItem();
+             this.scss.checkout();
+             this.scss.selectedPaymentMethod(PaymentMethod.CASH);
     
-             checkout.makeChange();
+             this.scss.makeChange();
     
              BigDecimal sum = this.getSumOfBanknotesInBanknoteOutput();
     
@@ -713,12 +688,11 @@ public class CheckoutTest
             this.clearDispensers(); // Force using banknote for change, since coins are empty
             this.addBanknotesToBanknotesDispenser();
             
-            scss.addItem();
-            scss.checkout();
-            scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
+            this.scss.addItem();
+            this.scss.checkout();
+            this.scss.selectedPaymentMethod(PaymentMethod.CASH);
     
-            checkout.makeChange();
+            this.scss.makeChange();
     
             BigDecimal sum = this.getSumOfBanknotesInBanknoteOutput();
     
@@ -730,8 +704,6 @@ public class CheckoutTest
         {
         	BarcodedProduct coinandnotes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
             
@@ -747,9 +719,8 @@ public class CheckoutTest
             scss.addItem();
             scss.checkout();
             scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
 
-            checkout.makeChange();
+            scss.makeChange();
     
             BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
             BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
@@ -765,8 +736,6 @@ public class CheckoutTest
          public void makeChangeMultipleCoinsAndOneBanknote() {
          	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
             
@@ -783,8 +752,7 @@ public class CheckoutTest
              scss.addItem();
              scss.checkout();
              scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
-             checkout.makeChange();
+             scss.makeChange();
     
              BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
              BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
@@ -802,8 +770,7 @@ public class CheckoutTest
          public void makeChangeOneCoinAndMultipleBanknotes() {
          	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
+
             scss.setUser(customer);
             sup.add(scss);
             
@@ -818,8 +785,7 @@ public class CheckoutTest
              scss.addItem();
              scss.checkout();
              scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
-             checkout.makeChange();
+             scss.makeChange();
     
              BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
              BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
@@ -838,8 +804,7 @@ public class CheckoutTest
         {
         	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
+
             scss.setUser(customer);
             sup.add(scss);
             
@@ -852,12 +817,12 @@ public class CheckoutTest
             this.addBanknotesToBanknotesDispenser();
             this.addCoinsToCoinDispensers();
     
-            scss.addItem();
-            scss.checkout();
-            scss.selectedPaymentMethod(PaymentMethod.CASH);
-            checkout.enablePaymentHardware(PaymentMethod.CASH);
-            checkout.makeChange();
-            assertTrue("Should be making change", checkout.hasPendingChange());
+            this.scss.addItem();
+            this.scss.checkout();
+            this.scss.selectedPaymentMethod(PaymentMethod.CASH);
+
+            this.scss.makeChange();
+
     
             BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
             BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
@@ -875,15 +840,13 @@ public class CheckoutTest
          public void makeChangeMultipleCoinsAndMultipleBanknotesBigAmount() {
          	BarcodedProduct notes = new BarcodedProduct(barcode, "Fake Product", new BigDecimal("1.00"), 3.12);
             Customer customer = new Customer();
-            Checkout checkout = new Checkout(scss);
-            checkout.setCustomer(customer);
             scss.setUser(customer);
             sup.add(scss);
             
             customer.addProduct(notes);
-            customer.addCashBalance(new BigDecimal("5949.94"));
+            customer.addCashBalance(new BigDecimal("1050.48"));
     
-            BigDecimal change = new BigDecimal("5948.94");
+            BigDecimal change = new BigDecimal("1049.48");
              Coin.DEFAULT_CURRENCY = currency;
     
              this.addBanknotesToBanknotesDispenser();
@@ -891,17 +854,16 @@ public class CheckoutTest
              scss.addItem();
              scss.checkout();
              scss.selectedPaymentMethod(PaymentMethod.CASH);
-             checkout.enablePaymentHardware(PaymentMethod.CASH);
-             checkout.makeChange();
+             scss.makeChange();
     
              BigDecimal bs = this.getSumOfBanknotesInBanknoteOutput();
              BigDecimal cs = this.getSumOfCoinsInCoinDispenser();
     
-            BigDecimal sum = BigDecimal.ZERO;
-            sum = sum.add(bs);
+             BigDecimal sum = BigDecimal.ZERO;
+             sum = sum.add(bs);
              sum = sum.add(cs);
     
-            assertEquals("Banknote output should have banknotes with sum of $5948.94", change.doubleValue(),
+            assertEquals("Banknote output should have banknotes with sum of $1049.48", change.doubleValue(),
                      sum.doubleValue(),
                      0.01);
          }
