@@ -223,7 +223,7 @@ public final class Main {
         // and add them to the supervision station to be supervised
         for (int t = 0; t < Configurations.stations; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
-                    coinDenominations, 1000, 2);
+                    coinDenominations, 8000, 2);
 
             // Add ink to the station
             try {

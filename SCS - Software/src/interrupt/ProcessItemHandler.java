@@ -203,7 +203,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 			this.scss.addItem(); // go back to add item phase
 			return;
 		}
-
+		
 		// If currently detecting weight discrepancy and required removal
 		// The weight should be back to currentWeight
 		if (this.scss.getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {

@@ -478,7 +478,6 @@ public class GUI {
 				//get software and set phase
 				SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
 				software.addPLUItem();
-				software.bagItem();
 				
 				//get the customer and set the PLU code
 				Customer customer = software.getCustomer();
