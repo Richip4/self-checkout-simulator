@@ -152,9 +152,14 @@ public class GUI {
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
-		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
-			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-			scs.selectedPaymentMethod(PaymentMethod.CASH);
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
+			scs.selectedPaymentMethod(PaymentMethod.CASH);			
+		}
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
 			try {
 				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
 				
