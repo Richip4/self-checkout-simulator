@@ -150,8 +150,12 @@ public class GUI {
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
+		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.selectedPaymentMethod(PaymentMethod.CASH);
 			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
+		}
+			
 	}
 	
 	
@@ -176,8 +180,11 @@ public class GUI {
 	}
 
 	public static void userInsertsCoin(int currentStation, BigDecimal value) {
-		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-		scs.getCustomer().addCashBalance(value);
+		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.selectedPaymentMethod(PaymentMethod.CASH);
+			scs.getCustomer().addCashBalance(value);
+		}
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
@@ -285,31 +292,48 @@ public class GUI {
 	}
 
 	public static void userTapsCard(int cardType) {
-		if (cardType == AppControl.CREDIT) {
-			ac.customerTapsCreditCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.DEBIT) {
-			ac.customerTapsDebitCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerTapsMembershipCard(scenes.getCurrentStation());
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		if(ac.getStationPhase(scenes.getCurrentStation()).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			if (cardType == AppControl.CREDIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerTapsCreditCard(scenes.getCurrentStation());
+			} if (cardType == AppControl.DEBIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerTapsDebitCard(scenes.getCurrentStation());
+			} if (cardType == AppControl.MEMBERSHIP) {
+				ac.customerTapsMembershipCard(scenes.getCurrentStation());
+			}
 		}
 	}
 
 	public static void userSwipesCard(int cardType) {
-		if (cardType == AppControl.CREDIT) {
-			ac.customerSwipesCreditCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.DEBIT) {
-			ac.customerSwipesDebitCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerSwipesMembershipCard(scenes.getCurrentStation());
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		if(ac.getStationPhase(scenes.getCurrentStation()).equals(Phase.CHOOSING_PAYMENT_METHOD)){
+			if (cardType == AppControl.CREDIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerSwipesCreditCard(scenes.getCurrentStation());
+			} if (cardType == AppControl.DEBIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerSwipesDebitCard(scenes.getCurrentStation());
+			} if (cardType == AppControl.MEMBERSHIP) {
+				ac.customerSwipesMembershipCard(scenes.getCurrentStation());
+			}
 		}
+		
 	}
 
 	public static void userInsertCard(int cardType, String pin) {
-		if (cardType == AppControl.CREDIT) {
-			ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
-		} if (cardType == AppControl.DEBIT) {
-			ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		if(ac.getStationPhase(scenes.getCurrentStation()).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			if (cardType == AppControl.CREDIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
+			} if (cardType == AppControl.DEBIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
+			}
 		}
+		
 	}
 	
 	public static void userSkipsBagging() {
