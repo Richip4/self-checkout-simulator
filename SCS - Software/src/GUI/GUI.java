@@ -201,6 +201,13 @@ public class GUI {
 			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
 			try {
 				scs.getSelfCheckoutStation().coinSlot.accept(new Coin(Main.Configurations.currency, value));
+				
+				if (scs.getCustomer().hasSufficientCashBalance()) {
+					
+					scs.makeChange();
+					
+					System.out.println("Enough money!");
+				}			
 			} catch (DisabledException e) {
 				e.printStackTrace();
 			} catch (OverloadException e) {
@@ -208,6 +215,9 @@ public class GUI {
 			}
 			
 		}
+	
+		
+		
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
