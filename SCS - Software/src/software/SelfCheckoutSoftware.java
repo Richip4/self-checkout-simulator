@@ -295,12 +295,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
             throw new IllegalStateException("Cannot start a new customer when the system is not idle");
         }
 
+        this.cardHandler.enableHardware();
         this.setCustomer(customer);
         this.addItem(); // Directly jump to addItem phase
     }
 
     public void addItem() {
         this.disableHardware();
+        this.cardHandler.enableHardware();
         this.processItemHandler.enableHardware();
 
         this.setPhase(Phase.SCANNING_ITEM);
@@ -309,6 +311,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public void addPLUItem()
     {
         this.disableHardware();
+        this.cardHandler.enableHardware();
         this.processItemHandler.enableHardware();
 
         this.setPhase(Phase.WEIGHING_PLU_ITEM);
@@ -329,6 +332,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         }
 
         this.disableHardware();
+        this.cardHandler.enableHardware();
         this.processItemHandler.enableBaggingArea();
 
         this.setPhase(Phase.BAGGING_ITEM); // Expecting GUI switchs to bagging item view
@@ -347,6 +351,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         // Only enable bagging area
         this.disableHardware();
+        this.cardHandler.enableHardware();
         this.processItemHandler.enableBaggingArea();
 
         this.setPhase(Phase.PLACING_OWN_BAG);
@@ -373,7 +378,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
 
         // No devices enabled
         this.disableHardware();
-
+        this.cardHandler.enableHardware();
         this.setPhase(Phase.CHOOSING_PAYMENT_METHOD);
     }
 

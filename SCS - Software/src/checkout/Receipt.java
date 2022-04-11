@@ -117,10 +117,10 @@ public class Receipt implements ReceiptPrinterObserver {
 		if (this.customer.getMemberID() != null) {
 			String membership = "Member ID: " + this.customer.getMemberID();
 			this.printLine(membership);
-			this.printLine("==============");
 		}
 
 		// for loop iterates through each item in customer's cart
+		this.printLine("==============");
 		for (CartEntry entry : this.customer.getCartEntries()) {
 			Product product = entry.getProduct();
 			double weight = entry.getWeight();
@@ -146,12 +146,12 @@ public class Receipt implements ReceiptPrinterObserver {
 			this.printLine(line);
 		}
 
+
 		// Once all items (with price) have been printed to the receipt, print the
 		// subtotal header at the bottom
 		// st is used to print out the Subtotal header at the bottom of the receipt
-		MathContext m = new MathContext(2);
-		BigDecimal subtotal = this.customer.getCartSubtotal().round(m); // Rounded to 2 decimal places
-		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal.toString();
+		double subtotal = Math.round(this.customer.getCartSubtotal().doubleValue() * 100.00) / 100.00; // Rounded to 2 decimal places
+		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal;
 		this.printLine("==============");
 		this.printLine(st);
 		

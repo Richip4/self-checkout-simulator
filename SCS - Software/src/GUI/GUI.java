@@ -335,12 +335,14 @@ public class GUI {
 			if (cardType == AppControl.CREDIT) {
 				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
 				ac.customerTapsCreditCard(scenes.getCurrentStation());
-			} if (cardType == AppControl.DEBIT) {
+			} 
+			else if (cardType == AppControl.DEBIT) {
 				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
 				ac.customerTapsDebitCard(scenes.getCurrentStation());
-			} if (cardType == AppControl.MEMBERSHIP) {
-				ac.customerTapsMembershipCard(scenes.getCurrentStation());
-			}
+			} 
+		}
+		else if (cardType == AppControl.MEMBERSHIP) {
+			ac.customerTapsMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
