@@ -195,6 +195,15 @@ public class SupervisionSoftware extends Software<SupervisionObserver> {
 			throw new AuthorizationRequiredException("Attendant needs to log in");
 		}
 	}
+	
+
+	public void approveUseOfOwnBags(SelfCheckoutSoftware scss) throws AuthorizationRequiredException {
+		if (this.logged_in) {
+			scss.addItem();
+		} else {
+			throw new AuthorizationRequiredException("Atendant needs to log in");
+		}
+	}
 
 	/**
 	 * Start up the SupervisionSoftware, only by setting the store

@@ -108,6 +108,8 @@ public class Checkout {
 		this.scs.banknoteInput.enable();
 		this.scs.banknoteOutput.enable();
 		this.scs.banknoteValidator.enable();
+		this.scs.banknoteStorage.enable();
+		this.scs.banknoteDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCoinInput() {
@@ -115,6 +117,8 @@ public class Checkout {
 		this.scs.coinSlot.enable();
 		this.scs.coinTray.enable();
 		this.scs.coinValidator.enable();
+		this.scs.coinStorage.enable();
+		this.scs.coinDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCardReader() {
@@ -155,8 +159,6 @@ public class Checkout {
 			// Calculate how much change to return to customer
 			BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
 			this.pendingChanges = new ArrayList<Cash>(this.calculatePendingChanges(change));
-
-	
 		}
 
 		// If no pending changes, return
@@ -178,6 +180,7 @@ public class Checkout {
 				try {
 					this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
 					newPendingChanges.remove(cash);
+					this.scss.setBanknoteDangling(true);
 				} catch (EmptyException | DisabledException | OverloadException e) {
 					continue;
 				}
@@ -185,6 +188,7 @@ public class Checkout {
 				try {
 					this.scs.coinDispensers.get(cash.value).emit();
 					newPendingChanges.remove(cash);
+					this.scss.setCoinInTray(true);
 				} catch (OverloadException | EmptyException | DisabledException e) {
 					continue;
 				}
@@ -196,7 +200,6 @@ public class Checkout {
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
 		if (size <= newPendingChanges.size()) {
-			System.out.println("no dispensing");
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()
 					.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
@@ -291,6 +294,7 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
+
 		Cash(Cash copy){
 			this.type = copy.type;
 			this.value = copy.value;

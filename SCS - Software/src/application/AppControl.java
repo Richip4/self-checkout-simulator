@@ -1,11 +1,15 @@
 package application;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -178,7 +182,7 @@ public class AppControl {
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();
 		int selectionSize = Tangibles.ITEMS.size();
-		int itemsGrabbed = random.nextInt(selectionSize/10);
+		int itemsGrabbed = Math.min(random.nextInt(selectionSize), 4); // customer takes at most 4 items
 		
 		List<Item> inventory = new ArrayList<>();
 		for (int i = 0; i < itemsGrabbed; i++) {
@@ -197,7 +201,7 @@ public class AppControl {
 	 */
 	public void attendantUsesStation(int station) {
 		addStationUserType(station, ATTENDANT);
-//		users[station] = activeUser;
+		users[station] = activeUser;
 		selfStationSoftwares.get(station - 1).setUser(activeUser);
 	}
 
@@ -292,6 +296,8 @@ public class AppControl {
 			return "WEIGHT DISCREPANCY";
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			return "ITEM NOT BAGGED";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
+			return "USE OWN BAGS";
 		} else {
 			return "OKAY";
 		}
@@ -304,7 +310,7 @@ public class AppControl {
 	 */
 	public Phase getStationPhase(int station) {
 		
-		return selfStationSoftwares.get(station-1).getPhase();
+		return selfStationSoftwares.get(station).getPhase();
 	}
 
 	/**
@@ -337,92 +343,112 @@ public class AppControl {
 			try {
 				supervisorSoftware.approveItemNotBaggable(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
+			try {
+				supervisorSoftware.approveUseOfOwnBags(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
 		}
 	}
 
-	public void customerTapsCreditCard(int index) {
+	public boolean customerTapsCreditCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(1));
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("tap failed");
+			errorMsg("tap failed");
+			return false;
 		}
 		
 	}
 
-	public void customerTapsDebitCard(int index) {
+	public boolean customerTapsDebitCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.PAYMENT_CARDS.get(2));
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("tap failed");
+			errorMsg("tap failed");
+			return false;
 		}
 		
 	}
 	
-	public void customerTapsMembershipCard(int index) {
+	public boolean customerTapsMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.tap(Main.Tangibles.MEMBER_CARDS.get(1));
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("tap failed");
+			errorMsg("tap failed");
+			return false;
 		}
 		
 	}
 
-	public void customerSwipesCreditCard(int index) {
+	public boolean customerSwipesCreditCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(1));
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("swipe failed");
+			errorMsg("swipe failed");
+			return false;
 		}
 		
 	}
 
-	public void customerSwipesDebitCard(int index) {
+	public boolean customerSwipesDebitCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.PAYMENT_CARDS.get(2));
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("swipe failed");
+			errorMsg("swipe failed");
+			return false;
 		}
 		
 	}
 
-	public void customerSwipesMembershipCard(int index) {
+	public boolean customerSwipesMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("swipe failed");
+			errorMsg("swipe failed");
+			return false;
 		}
 		
 	}
 
-	public void customerInsertCreditCard(int index, String pin) {
+	public boolean customerInsertCreditCard(int index, String pin) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("insert failed");
+			errorMsg("insert failed");
+			return false;
 		}
 		
 	}
 
-	public void customerInsertDebitCard(int index, String pin) {
+	public boolean customerInsertDebitCard(int index, String pin) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
 			scs.getSelfCheckoutStation().cardReader.insert(Main.Tangibles.PAYMENT_CARDS.get(1), pin);
+			return true;
 		} catch (IOException e) {
-			Scenes.errorMsg("insert failed");
+			errorMsg("insert failed");
+			return false;
 		}
 		
 	}
 	
 	public void removeItemFromCustomersCart(int station, int item) {
-		List<Product> cart = selfStationSoftwares.get(station).getCustomer().getCart();
-		cart.remove(item);
+		selfStationSoftwares.get(station).getCustomer().removeProduct(item);
+		
 	}
 
 	/**
@@ -438,7 +464,6 @@ public class AppControl {
 			users[0] = activeUser;
 			return true;
 		} catch (IncorrectCredentialException e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -456,9 +481,32 @@ public class AppControl {
 		}
 		return false;
 	}
+	
+	public String getCustomerPaidAmount(int station) {
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		if (c != null) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			String paid = String.valueOf(df.format(c.getCashBalance())); 
+			System.out.println("Paid " + paid);
+			return paid;
+		}
+		return null;
+	}
+
+	public String getCustomersSubtotal(int station) {
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		if (c != null) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			String subtotal = String.valueOf(df.format(c.getCartSubtotal())); 
+			System.out.println(subtotal);
+			return subtotal;
+		}
+		
+		return null;
+	}
 
 	public List<Product> getCustomerCart(int station) {
-		Customer c = selfStationSoftwares.get(station).getCustomer();
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
 		if (c != null) {
 			return c.getCart();
 		}
@@ -476,7 +524,9 @@ public class AppControl {
 	 * @return null if customer has no more items to add
 	 */
 	public Item getCustomersNextItem(int station) {
-		if (inventories.get(users[station]).isEmpty())
+		List<Item> customersInventory = inventories.get(users[station]); 
+		if (customersInventory == null ||
+			customersInventory.isEmpty())
 			return null;
 		return inventories.get(users[station]).get(0);
 	}
@@ -494,5 +544,52 @@ public class AppControl {
 		lastCheckedOutItem = null;
 	}
 
+	public static SupervisionStation getSupervisor() {
+		return supervisor;
+	}
 
+	public SupervisionSoftware getSupervisorSoftware() {
+		return supervisorSoftware;
+	}
+
+	public List<SelfCheckoutStation> getSelfStations() {
+		return selfStations;
+	}
+
+	public List<SelfCheckoutSoftware> getSelfStationSoftwares() {
+		return selfStationSoftwares;
+	}
+
+	public int[] getStationsUserType() {
+		return stationsUserType;
+	}
+
+	public Map<User, List<Item>> getInventories() {
+		return inventories;
+	}
+	
+	
+	 public static void errorMsg(String msg)
+	    {
+	        JOptionPane errorMessagePopupParent = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
+	        final JDialog errorMessagePopup = errorMessagePopupParent.createDialog("Attention!");
+	        errorMessagePopup.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	        new Thread(() -> {
+	            try
+	            {
+	                Thread.sleep(3000);
+	            } catch (InterruptedException ignored)
+	            {
+	            }
+	            errorMessagePopup.setVisible(false);
+	        }).start();
+	        errorMessagePopup.setVisible(true);
+	    }
+
+	public void skipBagging(int station) {
+		if (stationsUserType[station] == ATTENDANT ||
+			stationsUserType[station] == BOTH) {
+			selfStationSoftwares.get(station-1).notBaggingItem();
+		}
+	}
 }
