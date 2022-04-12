@@ -54,6 +54,7 @@ public class AppControl {
 	
 	private Item lastCheckedOutItem;			//for bagging
 	private Map<User, List<Item>> inventories = new HashMap<>();
+	private Map<Integer, List<Item>> baggingArea = new HashMap<>();			//stationNumber -> List<Item>
 
 	// the type of user combination at each station
 	private int[] stationsUserType;

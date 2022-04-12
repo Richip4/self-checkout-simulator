@@ -146,8 +146,9 @@ public class GUI {
 		SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 		
 		Item item = ac.getLastCheckedOutItem();
-		if (item != null)
+		if (item != null) {
 			hardware.baggingArea.add(item);
+		}
 		ac.clearLastCheckedOutItem();
 	}
 

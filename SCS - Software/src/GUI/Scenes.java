@@ -310,6 +310,7 @@ public class Scenes {
                 public void windowGainedFocus(WindowEvent e) {
                     banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
                     updateDisplay();
+                    
                 }
             });
 			
@@ -487,7 +488,10 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bagScale) {
 				GUI.userBagsItem(currentStation);
-				updateDisplay();
+				//updateDisplay();
+				if (GUI.getPhase(currentStation) == Phase.PAYMENT_COMPLETE) {
+					GUI.removePaidItemsFromBagging();
+				}
 			} else if (e.getSource() == bnInSlot) {
 				if (GUI.getPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
 					GUI.getPhase(currentStation) == Phase.PROCESSING_PAYMENT)
@@ -504,10 +508,10 @@ public class Scenes {
 				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == scanner) {
 				GUI.userScansItem(currentStation, true);
-				updateDisplay();
+				//updateDisplay();
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation, false);
-				updateDisplay();
+				//updateDisplay();
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
@@ -515,6 +519,7 @@ public class Scenes {
 			} else if (e.getSource() == touchscreen) {
 				GUI.userAccessTouchscreen(currentStation);
 			}
+			updateDisplay();
 		}
 		
 		private void updateDisplay() {
@@ -522,7 +527,20 @@ public class Scenes {
 				nextItem.setForeground(new Color(220, 30, 40));
 				nextItem.setFont(new Font("Arial", Font.BOLD, 18));
 				nextItem.setText("> BAG ITEM <");
-			} else {
+			} 
+			else if (GUI.getPhase(currentStation) == Phase.PAYMENT_COMPLETE) {
+				bagScale.setForeground(new Color(220, 30, 40));
+				bagScale.setFont(new Font("Arial", Font.BOLD, 18));
+				bagScale.setText("> REMOVE ALL ITEMS <");
+				bagScale.repaint();
+			}
+			else if (GUI.getPhase(currentStation) == Phase.IDLE) {
+				bagScale.setForeground(Color.black);
+				bagScale.setFont(new Font("Arial", Font.BOLD, 20));
+				bagScale.setText("Bagging Area");
+				bagScale.repaint();
+			}
+			else {
 				nextItem.setForeground(Color.black);
 				nextItem.setFont(new Font("Arial", Font.BOLD, 16));
 				nextItem.setText(GUI.getNextItemDescription(currentStation));
@@ -535,7 +553,9 @@ public class Scenes {
 			
 			subtotal.setText(GUI.getSubtotal(currentStation));
 			subtotal.repaint();
+
 		}
+		
 	}
 	
 	// #######################################################################
