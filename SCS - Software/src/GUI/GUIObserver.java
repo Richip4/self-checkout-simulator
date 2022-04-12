@@ -105,7 +105,8 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void customerDoesNotWantToBagItem(SelfCheckoutSoftware scs) {
-        Scenes.errorMsg("Customer Does Not Want to Bag Item");
+        // not needed
+    	//Scenes.errorMsg("Customer Does Not Want to Bag Item");
         return null;
     }
 
@@ -184,6 +185,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
     @Override
     public Void membershipCardDetected(String memberID) {
         // not needed
+		System.out.println("Membership id: " + memberID);
         return null;
     }
 
@@ -207,7 +209,8 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void placeInBaggingAreaBlocked() {
-        Scenes.errorMsg("Place In Bagging Area Blocked");
+        // not needed
+    	//Scenes.errorMsg("Place In Bagging Area Blocked");
         return null;
     }
 
@@ -249,7 +252,8 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void touchScreenBlocked() {
-        Scenes.errorMsg("Touch Screen Blocked");
+        // not needed
+    	//Scenes.errorMsg("Touch Screen Blocked");
         return null;
     }
 

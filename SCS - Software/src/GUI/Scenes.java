@@ -295,6 +295,8 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		JLabel paid;
+		JLabel subtotal;
 		JLabel nextItem;
 		
 		public JFrame getScene() {
@@ -315,20 +317,44 @@ public class Scenes {
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
 			content.setLayout(null); 
 			
+			// update amount paind
+			paid = new JLabel();
+			paid.setBounds(200, 170, 150, 40);
+			paid.setFont(new Font("Arial", Font.BOLD, 16));
+			paid.setHorizontalAlignment(JLabel.CENTER);
+			paid.setText(GUI.getAmountPaid(currentStation));
+			paid.setBorder(BorderFactory.createLineBorder(Color.red));
+			paid.setFocusable(false);
+			paid.setOpaque(true);
+			content.add(paid);
+			
+			// update subtotal
+			subtotal = new JLabel();
+			subtotal.setBounds(200, 10, 150, 40);
+			subtotal.setFont(new Font("Arial", Font.BOLD, 16));
+			subtotal.setHorizontalAlignment(JLabel.CENTER);
+			subtotal.setText(GUI.getSubtotal(currentStation));
+			subtotal.setBorder(BorderFactory.createLineBorder(Color.blue));
+			subtotal.setFocusable(false);
+			subtotal.setOpaque(true);
+			content.add(subtotal);
+			
 			// customers next item to process
 			nextItem = new JLabel();
-			nextItem.setBounds(200, 70, 150, 130);
+			nextItem.setBounds(200, 55, 150, 110);
 			nextItem.setFont(new Font("Arial", Font.BOLD, 16));
-			nextItem.setHorizontalAlignment(JLabel.CENTER);
+			nextItem.setHorizontalAlignment(SwingConstants.CENTER);
+			nextItem.setHorizontalTextPosition(SwingConstants.CENTER);
 			nextItem.setText(GUI.getNextItemDescription(currentStation));
 			nextItem.setBorder(BorderFactory.createLineBorder(Color.gray));
 			nextItem.setFocusable(false);
 			nextItem.setOpaque(true);
-			if (!nextItem.getText().equals("")) content.add(nextItem);
+			content.add(nextItem);
 			
 			// bagging scale
 			bagScale = new JButton();
 			bagScale.setBounds(70, 350, 300, 140);
+			bagScale.setFont(new Font("Arial", Font.BOLD, 20));
 			bagScale.setText("Bagging Area");
 			bagScale.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 			bagScale.addActionListener(this);
@@ -338,6 +364,7 @@ public class Scenes {
 			// banknote input slot
 			bnInSlot = new JButton();
 			bnInSlot.setBounds(400, 370, 110, 30);
+			bnInSlot.setFont(new Font("Arial", Font.BOLD, 14));
 			bnInSlot.setText("Banknote In");
 			bnInSlot.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			bnInSlot.addActionListener(this);
@@ -347,6 +374,7 @@ public class Scenes {
 			// banknote output slot
 			bnOutSlot = new JButton();
 			bnOutSlot.setBounds(540, 370, 110, 30);
+			bnOutSlot.setFont(new Font("Arial", Font.BOLD, 14));
 			bnOutSlot.setText("Banknote Out");
 			bnOutSlot.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			bnOutSlot.addActionListener(this);
@@ -356,6 +384,7 @@ public class Scenes {
 			// maintenance hatch
 			maintenance = new JButton();
 			maintenance.setBounds(400, 420, 250, 100);
+			maintenance.setFont(new Font("Arial", Font.BOLD, 18));
 			maintenance.setText("Maintenance Hatch");
 			maintenance.setBorder(BorderFactory.createLineBorder(Color.black, 1, false));
 			maintenance.addActionListener(this);
@@ -365,7 +394,8 @@ public class Scenes {
 			// coin input slot
 			coinInSlot = new JButton();
 			coinInSlot.setBounds(720, 370, 50, 70);
-			coinInSlot.setText("Coin In");
+			coinInSlot.setFont(new Font("Arial", Font.BOLD, 14));
+			coinInSlot.setText("<html>Coin<br>In</html>");
 			coinInSlot.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			coinInSlot.addActionListener(this);
 			coinInSlot.setFocusable(false);
@@ -374,6 +404,7 @@ public class Scenes {
 			// coin tray
 			coinTray = new JButton();
 			coinTray.setBounds(695, 470, 100, 50);
+			coinTray.setFont(new Font("Arial", Font.BOLD, 14));
 			coinTray.setText("Coin Tray");
 			coinTray.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			coinTray.addActionListener(this);
@@ -384,6 +415,7 @@ public class Scenes {
 			JLabel weighScale = new JLabel();
 			weighScale = new JLabel();
 			weighScale.setBounds(435, 250, 215, 90);
+			weighScale.setFont(new Font("Arial", Font.BOLD, 16));
 			weighScale.setText("Item Weigh Scale");
 			weighScale.setHorizontalAlignment(SwingConstants.CENTER);
 			weighScale.setBorder(BorderFactory.createLineBorder(Color.black, 3, true));
@@ -394,6 +426,7 @@ public class Scenes {
 			// stationary barcode scanner
 			scanner = new JButton();
 			scanner.setBounds(670, 250, 150, 90);
+			scanner.setFont(new Font("Arial", Font.BOLD, 16));
 			scanner.setText("Barcode Scanner");
 			scanner.setBorder(BorderFactory.createLineBorder(Color.black, 3, true));
 			scanner.addActionListener(this);
@@ -403,6 +436,7 @@ public class Scenes {
 			// handheld barcode scanner
 			handScanner = new JButton();
 			handScanner.setBounds(750, 100, 60, 90);
+			handScanner.setFont(new Font("Arial", Font.BOLD, 12));
 			handScanner.setText("<html>Handheld<br>Scanner</html>");
 			handScanner.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			handScanner.addActionListener(this);
@@ -412,6 +446,7 @@ public class Scenes {
 			// card reader
 			cardReader = new JButton();
 			cardReader.setBounds(670, 50, 60, 90);
+			cardReader.setFont(new Font("Arial", Font.BOLD, 12));
 			cardReader.setText("<html>Card<br>Reader</html>");
 			cardReader.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			cardReader.addActionListener(this);
@@ -421,6 +456,7 @@ public class Scenes {
 			// receipt printer
 			printer = new JButton();
 			printer.setBounds(670, 170, 60, 40);
+			printer.setFont(new Font("Arial", Font.BOLD, 12));
 			printer.setText("Receipt");
 			printer.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			printer.addActionListener(this);
@@ -430,6 +466,7 @@ public class Scenes {
 			// touchscreen
 			touchscreen = new JButton();
 			touchscreen.setBounds(450, 50, 200, 140);
+			touchscreen.setFont(new Font("Arial", Font.BOLD, 18));
 			touchscreen.setText("Touchscreen");
 			touchscreen.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			touchscreen.addActionListener(this);
@@ -452,13 +489,17 @@ public class Scenes {
 				GUI.userBagsItem(currentStation);
 				updateDisplay();
 			} else if (e.getSource() == bnInSlot) {
-				getBanknoteFromUser();
+				if (GUI.getPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+					GUI.getPhase(currentStation) == Phase.PROCESSING_PAYMENT)
+					getBanknoteFromUser();
 			} else if (e.getSource() == bnOutSlot) {
 				GUI.userRemovesBanknote(currentStation);
 			} else if (e.getSource() == maintenance) {
 				GUI.userServicesStation(currentStation);
 			} else if (e.getSource() == coinInSlot) {
-				getCoinFromUser();
+				if (GUI.getPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+					GUI.getPhase(currentStation) == Phase.PROCESSING_PAYMENT) 
+					getCoinFromUser();
 			} else if (e.getSource() == coinTray) {
 				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == scanner) {
@@ -466,7 +507,6 @@ public class Scenes {
 				updateDisplay();
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation, false);
-				String nItem = GUI.getNextItemDescription(currentStation);
 				updateDisplay();
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
@@ -479,13 +519,22 @@ public class Scenes {
 		
 		private void updateDisplay() {
 			if (GUI.getPhase(currentStation) == Phase.BAGGING_ITEM) {
-				nextItem.setText("Bag Item");
-                nextItem.repaint();
+				nextItem.setForeground(new Color(220, 30, 40));
+				nextItem.setFont(new Font("Arial", Font.BOLD, 18));
+				nextItem.setText("> BAG ITEM <");
 			} else {
+				nextItem.setForeground(Color.black);
+				nextItem.setFont(new Font("Arial", Font.BOLD, 16));
 				nextItem.setText(GUI.getNextItemDescription(currentStation));
-                nextItem.repaint();
 			}
 			
+			nextItem.repaint();
+			
+			paid.setText(GUI.getAmountPaid(currentStation));
+			paid.repaint();
+			
+			subtotal.setText(GUI.getSubtotal(currentStation));
+			subtotal.repaint();
 		}
 	}
 	
@@ -596,7 +645,7 @@ public class Scenes {
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				} else if (e.getSource() == station_approve[i]) {
-					GUI.attendantApproveStation(i);
+					GUI.attendantApprovesStation(i);
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				}
@@ -606,6 +655,8 @@ public class Scenes {
 	
 	private static boolean expectingPLUCode = false;
 	private static boolean expectingMembershipNum = false;
+	private static boolean expectingCreditPIN = false;
+	private static boolean expectingDebitPIN = false;
 	
 	// #######################################################################
 	// Self-Checkout Station Touch Screen Scene
@@ -623,10 +674,21 @@ public class Scenes {
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
+		boolean shouldClose = false;
+		JFrame window = this;
+		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 750, 500);
 
 			generateBanner(scene, true, banner_info, banner_title);
+			
+			this.addWindowFocusListener(new WindowAdapter() {
+                public void windowGainedFocus(WindowEvent e) {
+                    if (shouldClose) {
+                    	window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+                    }
+                }
+            });
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -713,20 +775,27 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == search) {
 				promptSelectItems();
+				shouldClose = true;
 			} else if (e.getSource() == plu_code) {
 				expectingPLUCode = true;
 				getNumberFromUser("Enter the PLU code");
+				shouldClose = true;
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == attendant) {
 				if (promptAttendantForPassword()) {
 					stationAttendantOptions();	
 				}
 			} else if (e.getSource() == ownBags) {
 				GUI.userUsesOwnBags(currentStation);
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
+			} else if (e.getSource() == membership) {
+				GUI.userSkipsBagging();
+				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			} 
 		}	
 	}
@@ -743,6 +812,8 @@ public class Scenes {
 		
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
+		
+		int cardType;
 		
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
@@ -803,7 +874,12 @@ public class Scenes {
 				GUI.userSwipesCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			} else if (e.getSource() == insert) { 
-				GUI.userInsertCard(promptCustomerForCard(), ""); // TODO
+				if (cardType == AppControl.CREDIT) {
+					expectingCreditPIN = true;
+				} else if (cardType == AppControl.DEBIT) {
+					expectingDebitPIN = true;
+				}
+				getNumberFromUser("Enter your PIN");
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			}
 		}
@@ -826,9 +902,7 @@ public class Scenes {
 		JButton addInk;
 		JButton refillCoinDispensers;
 		JButton bnEmptyStorage;
-		JButton bnFillStorage;
 		JButton coinEmptyStorage;
-		JButton coinFillStorage;
 		
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
@@ -900,16 +974,10 @@ public class Scenes {
 			bnStorage.setOpaque(true);
 			
 			bnEmptyStorage = new JButton();
-			bnEmptyStorage.setBounds(10, 10, 230, 45);
+			bnEmptyStorage.setBounds(10, 25, 230, 75);
 			bnEmptyStorage.setText("EMPTY BANKNOTE STORAGE");
 			bnEmptyStorage.addActionListener(this);
 			bnStorage.add(bnEmptyStorage);
-	
-			bnFillStorage = new JButton();
-			bnFillStorage.setBounds(10, 70, 230, 45);
-			bnFillStorage.setText("FILL BANKNOTE STORAGE");
-			bnFillStorage.addActionListener(this);
-			bnStorage.add(bnFillStorage);
 			
 			content.add(bnStorage);
 			
@@ -921,16 +989,10 @@ public class Scenes {
 			coinStorage.setOpaque(true);
 			
 			coinEmptyStorage = new JButton();
-			coinEmptyStorage.setBounds(10, 10, 230, 45);
+			coinEmptyStorage.setBounds(10, 25, 230, 75);
 			coinEmptyStorage.setText("EMPTY COIN STORAGE");
 			coinEmptyStorage.addActionListener(this);
 			coinStorage.add(coinEmptyStorage);
-	
-			coinFillStorage = new JButton();
-			coinFillStorage.setBounds(10, 70, 230, 45);
-			coinFillStorage.setText("FILL COIN STORAGE");
-			coinFillStorage.addActionListener(this);
-			coinStorage.add(coinFillStorage);
 			
 			content.add(coinStorage);
 			
@@ -972,7 +1034,8 @@ public class Scenes {
 	 */
 	private Color checkStationAttention(int station) {
 		return (GUI.stationStatus(station) != "BLOCKED" && GUI.stationStatus(station) != "WEIGHT DISCREPANCY" &&
-				GUI.stationStatus(station) != "ITEM NOT BAGGED") ? green_light : red_light;
+				GUI.stationStatus(station) != "ITEM NOT BAGGED" && GUI.stationStatus(station) != "USE OWN BAGS") 
+				? green_light : red_light;
 	}
 
 	/**
@@ -1081,6 +1144,23 @@ public class Scenes {
 		String[] cardTypes = {"CREDIT", "DEBIT", "MEMBERSHIP", "GIFT CARD" };
 		return JOptionPane.showOptionDialog(null, "Which card will you use?", 
 				"Card?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cardTypes, 0); 
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int promptNumOfBags() {
+		String answer = JOptionPane.showInputDialog("How many bags used?");
+		int ans;
+		try {
+			ans = Integer.valueOf(answer);
+		} catch (NumberFormatException e) {
+			errorMsg("Not a number");
+			ans = promptNumOfBags();
+		}
+	
+		return ans;
 	}
 	
 	/**
@@ -1393,19 +1473,19 @@ public class Scenes {
 			}
 		});
 		
-		JPanel panel = preprocessScene(window, 200, 100);
+		JPanel panel = preprocessScene(window, 250, 150);
 		panel.setBackground(new Color(210, 207, 210));
 		panel.setLayout(null); 		
 	
 		JComboBox<String> dropMenu = new JComboBox<>(items);
-		dropMenu.setBounds(40, 60, 120, 30);
-		dropMenu.setFont(new Font("Arial", Font.PLAIN, 14));
+		dropMenu.setBounds(55, 80, 140, 40);
+		dropMenu.setFont(new Font("Arial", Font.PLAIN, 16));
 		panel.add(dropMenu);
 		
 		JButton select = new JButton();
-		select.setBounds(50, 20, 100, 30);
+		select.setBounds(55, 20, 140, 40);
 		select.setHorizontalAlignment(JButton.CENTER);
-		select.setFont(new Font("Arial", Font.PLAIN, 16));
+		select.setFont(new Font("Arial", Font.BOLD, 16));
 		select.setText("SELECT");
 		select.setFocusable(false);
 		select.addActionListener(new ActionListener() {
@@ -1430,21 +1510,6 @@ public class Scenes {
 	public static void errorMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
-	
-//	public static boolean promptBagItem() {
-//		String[] options = {"Yes", "No" };
-//		int answer = JOptionPane.showOptionDialog(null, "Would you like to bag this item?", 
-//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-//		
-//		while (answer == -1) {
-//			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
-//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
-//		}
-//		
-//		//returns true if yes is selected
-//		return answer == 0;
-//	
-//	}
 
 	/**
 	 * When a Keypad object is created for number input it
@@ -1458,10 +1523,14 @@ public class Scenes {
 		} else if (expectingMembershipNum) {
 			GUI.userEntersMembership(number);
 			expectingMembershipNum = false;
+		} else if (expectingCreditPIN) {
+			GUI.userInsertCard(AppControl.CREDIT, String.valueOf(number));
+			expectingCreditPIN = false;
+		} else if (expectingDebitPIN) {
+			GUI.userInsertCard(AppControl.DEBIT, String.valueOf(number));
+			expectingDebitPIN = false;
 		}
 	}
-	
-	
 	
 	public void coinWalletReturnValue(BigDecimal value) {
 		GUI.userInsertsCoin(currentStation, value);

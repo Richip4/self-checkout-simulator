@@ -10,13 +10,16 @@ import java.util.Vector;
 
 import javax.swing.JDialog;
 
+import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Card;
+import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.SimulationException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.ReceiptPrinter;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
@@ -92,6 +95,8 @@ public final class Main {
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
         String cardNo3 = "4511220329440683";
         scotia.addCardData(cardNo3, "Tyler Chen", expiry3, "232", new BigDecimal("6046.89"));
+        Card card3 = new Card("debit", cardNo3, "Tyler Chen", "232", "1111", true, true);
+        Tangibles.PAYMENT_CARDS.add(card3);
 
         Bank.addIssuer(rbc);
         Bank.addIssuer(scotia);
@@ -188,14 +193,16 @@ public final class Main {
         // no need for uniqueness as weight is not recorded per item
         Vector<BarcodedItem> bItems = new Vector<>();
         
-    	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
-    	Inventory.setQuantity(coffee, 4); 
-    	
-    	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
-    	Inventory.setQuantity(fruitLoops, 8); 
-    	
-    	bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
-    	Inventory.setQuantity(kraftDinner, 10); 
+        int quantityOfEachBarcodedItem = 6;
+        for (int i = 0; i < quantityOfEachBarcodedItem; i++) {
+        	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
+        	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
+        	bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
+        }
+        
+    	Inventory.setQuantity(coffee, quantityOfEachBarcodedItem); 
+    	Inventory.setQuantity(fruitLoops, quantityOfEachBarcodedItem); 
+    	Inventory.setQuantity(kraftDinner, quantityOfEachBarcodedItem); 
     	
     	bItems.forEach(bi -> Tangibles.ITEMS.add(bi));
     	
@@ -207,7 +214,7 @@ public final class Main {
         int[] banknoteDenominations = { 5, 10, 20, 50, 100 };
         BigDecimal[] coinDenominations = {
                 new BigDecimal("0.05"),
-                new BigDecimal("0.1"),
+                new BigDecimal("0.10"),
                 new BigDecimal("0.25"),
                 new BigDecimal("1.00"),
                 new BigDecimal("2.00")
@@ -226,7 +233,7 @@ public final class Main {
         // and add them to the supervision station to be supervised
         for (int t = 0; t < Configurations.stations; t++) {
             SelfCheckoutStation station = new SelfCheckoutStation(currency, banknoteDenominations,
-                    coinDenominations, 1000, 2);
+                    coinDenominations, 80000, 2);
 
             // Add ink to the station
             try {
@@ -241,6 +248,33 @@ public final class Main {
             } catch (OverloadException e) {
                 e.printStackTrace();
             }
+            
+            station.banknoteDispensers.forEach((value, dispenser) -> {
+        		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY; i++) {
+        			Banknote note = new Banknote(currency, value);
+        			try {
+						dispenser.load(note);
+					} catch (OverloadException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+    		});
+            
+        	station.coinDispensers.forEach((value, dispenser) -> {
+        		for(int i = 0; i < SelfCheckoutStation.COIN_DISPENSER_CAPACITY; i++) {
+        			Coin coin = new Coin(currency, value);
+        			try {
+						dispenser.load(coin);
+					} catch (SimulationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (OverloadException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+    		});
 
             // Add this station to tangibles, and add this station to the supervision
             // station

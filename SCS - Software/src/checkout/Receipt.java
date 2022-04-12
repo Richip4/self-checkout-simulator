@@ -1,6 +1,9 @@
 package checkout;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.sql.Date;
+
 import org.lsmr.selfcheckout.devices.*;
 import org.lsmr.selfcheckout.devices.observers.AbstractDeviceObserver;
 import org.lsmr.selfcheckout.devices.observers.ReceiptPrinterObserver;
@@ -10,6 +13,7 @@ import org.lsmr.selfcheckout.products.Product;
 
 import software.SelfCheckoutSoftware;
 import user.Customer;
+import user.Customer.CartEntry;
 import application.Main.Configurations;
 
 /**
@@ -77,27 +81,38 @@ public class Receipt implements ReceiptPrinterObserver {
 	 * @throws OverloadException
 	 * @throws EmptyException
 	 */
-	private void printLine(String line) throws EmptyException, OverloadException {
-		for (int t = 0; t < line.length(); t++) {
-			// When reaches the maximum character of a line, start a new line
-			if (t % (ReceiptPrinter.CHARACTERS_PER_LINE - 1) == 0 && t != 0) {
-				this.scs.printer.print('\n');
-			}
+	private void printLine(String line) {
+		try{
+			for (int t = 0; t < line.length(); t++) {
+				// When reaches the maximum character of a line, start a new line
+				if (t % (ReceiptPrinter.CHARACTERS_PER_LINE - 1) == 0 && t != 0) {
+					this.scs.printer.print('\n');
+				}
 
-			if (Character.isWhitespace(line.charAt(t))) {
-				this.scs.printer.print(' ');
-			} else {
-				this.scs.printer.print(line.charAt(t));
+				if (Character.isWhitespace(line.charAt(t))) {
+					this.scs.printer.print(' ');
+				} else {
+					this.scs.printer.print(line.charAt(t));
+				}
 			}
+			this.scs.printer.print('\n');
+			
+			// update the amount of paper and ink that has been used
+			this.paperUsed++;
+			this.inkUsed += line.length();
+		} catch (OverloadException e) {
+			System.out.println("OverloadException: " + e.getMessage());
+		} catch (EmptyException e) {
+			System.out.println("EmptyException: " + e.getMessage());
 		}
-		this.scs.printer.print('\n');
-		
-		// update the amount of paper and ink that has been used
-		this.paperUsed++;
-		this.inkUsed += line.length();
 	}
 
-	public void printReceipt() throws EmptyException, OverloadException {
+	public void printReceipt() {
+		this.printLine("===== Receipt =====");
+
+		String date = new Date(System.currentTimeMillis()).toString();
+		this.printLine("Date: " + date);
+
 		// Print Membership
 		if (this.customer.getMemberID() != null) {
 			String membership = "Member ID: " + this.customer.getMemberID();
@@ -105,7 +120,11 @@ public class Receipt implements ReceiptPrinterObserver {
 		}
 
 		// for loop iterates through each item in customer's cart
-		for (Product product : this.customer.getCart()) {
+		this.printLine("==============");
+		for (CartEntry entry : this.customer.getCartEntries()) {
+			Product product = entry.getProduct();
+			double weight = entry.getWeight();
+
 			String itemDescription = "";
 			String currentPrice = product.getPrice().toString();
 
@@ -117,19 +136,27 @@ public class Receipt implements ReceiptPrinterObserver {
 				itemDescription = pluCodedProduct.getDescription();
 			}
 
-			String line = itemDescription + " " + Configurations.currency.getSymbol() + currentPrice;
+			String line = itemDescription + " ";
+			if (!product.isPerUnit()) {
+				line += Configurations.currency.getSymbol() + currentPrice + "/kg" + " (" + weight + " g)";
+			} else {
+				line += Configurations.currency.getSymbol() + currentPrice;
+			}
+
 			this.printLine(line);
 		}
 
-		// once all items (with price) have been printed to the receipt, print the
+
+		// Once all items (with price) have been printed to the receipt, print the
 		// subtotal header at the bottom
 		// st is used to print out the Subtotal header at the bottom of the receipt
-		BigDecimal subtotal = this.customer.getCartSubtotal();
-		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal.toString();
+		double subtotal = Math.round(this.customer.getCartSubtotal().doubleValue() * 100.00) / 100.00; // Rounded to 2 decimal places
+		String st = "Subtotal: " + Configurations.currency.getSymbol() + subtotal;
+		this.printLine("==============");
 		this.printLine(st);
 		
 		// cut the receipt so that the customer can easily remove it
-		scs.printer.cutPaper();
+		this.scs.printer.cutPaper();
 		
 		// invoke the local checkLowPrinterCapacity() method to notify the attendant if the paper and/or ink in the receipt printer is low
 		checkLowPrinterCapacity();

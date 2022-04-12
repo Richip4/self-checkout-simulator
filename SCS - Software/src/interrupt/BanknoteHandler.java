@@ -65,6 +65,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scs.banknoteOutput.attach(this);
 		this.scs.banknoteValidator.attach(this);
 		this.scs.banknoteDispensers.forEach((k, v) -> v.attach(this));
+		this.scs.banknoteStorage.attach(this);
 	}
 
 	/**
@@ -86,6 +87,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scs.banknoteOutput.detach(this);
 		this.scs.banknoteValidator.detach(this);
 		this.scs.banknoteDispensers.forEach((k, v) -> v.detach(this));
+		this.scs.banknoteStorage.detach(this);
 	}
 
 	/**
@@ -96,6 +98,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scs.banknoteOutput.enable();
 		this.scs.banknoteStorage.enable();
 		this.scs.banknoteValidator.enable();
+		this.scs.banknoteDispensers.forEach((k, v) -> v.enable());
 	}
 
 	/**
@@ -106,6 +109,7 @@ public class BanknoteHandler extends Handler implements BanknoteDispenserObserve
 		this.scs.banknoteOutput.disable();
 		this.scs.banknoteStorage.disable();
 		this.scs.banknoteValidator.disable();
+		this.scs.banknoteDispensers.forEach((k, v) -> v.disable());
 	}
 
 	public boolean isBanknoteDetected() {

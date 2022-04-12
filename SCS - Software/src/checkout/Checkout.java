@@ -108,6 +108,8 @@ public class Checkout {
 		this.scs.banknoteInput.enable();
 		this.scs.banknoteOutput.enable();
 		this.scs.banknoteValidator.enable();
+		this.scs.banknoteStorage.enable();
+		this.scs.banknoteDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCoinInput() {
@@ -115,6 +117,8 @@ public class Checkout {
 		this.scs.coinSlot.enable();
 		this.scs.coinTray.enable();
 		this.scs.coinValidator.enable();
+		this.scs.coinStorage.enable();
+		this.scs.coinDispensers.forEach((k, v) -> v.enable());
 	}
 
 	private void enableCardReader() {
@@ -176,6 +180,7 @@ public class Checkout {
 				try {
 					this.scs.banknoteDispensers.get(cash.value.intValue()).emit();
 					newPendingChanges.remove(cash);
+					this.scss.setBanknoteDangling(true);
 				} catch (EmptyException | DisabledException | OverloadException e) {
 					continue;
 				}
@@ -183,6 +188,7 @@ public class Checkout {
 				try {
 					this.scs.coinDispensers.get(cash.value).emit();
 					newPendingChanges.remove(cash);
+					this.scss.setCoinInTray(true);
 				} catch (OverloadException | EmptyException | DisabledException e) {
 					continue;
 				}

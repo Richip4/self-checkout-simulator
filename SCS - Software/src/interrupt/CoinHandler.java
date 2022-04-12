@@ -79,6 +79,7 @@ public class CoinHandler extends Handler
 		this.scs.coinSlot.detach(this);
 		this.scs.coinValidator.detach(this);
 		this.scs.coinStorage.detach(this);
+		this.scs.coinDispensers.forEach((k, v) -> v.detach(this));
 	}
 
 	/**
@@ -89,6 +90,7 @@ public class CoinHandler extends Handler
 		this.scs.coinTray.enable();
 		this.scs.coinStorage.enable();
 		this.scs.coinValidator.enable();
+		this.scs.coinDispensers.forEach((k, v) -> v.enable());
 	}
 
 	/**
@@ -99,6 +101,7 @@ public class CoinHandler extends Handler
 		this.scs.coinTray.disable();
 		this.scs.coinStorage.disable();
 		this.scs.coinValidator.disable();
+		this.scs.coinDispensers.forEach((k, v) -> v.disable());
 	}
 
 	@Override
@@ -163,11 +166,8 @@ public class CoinHandler extends Handler
 
 		this.scss.notifyObservers(observer -> observer.coinStorageFull());
 	}
-
-	// if coin dispenser is full & coin is valid;
-	// this method adds value of coin to the this.customers accumulated currency
-	@Override
-	public void coinAdded(CoinStorageUnit unit) {
+	
+	private void coinAddedLogic() {
 		if (this.customer != null && coinDetected == true) {
 			this.customer.addCashBalance(coinValue);
 
@@ -177,6 +177,14 @@ public class CoinHandler extends Handler
 
 		this.coinDetected = false;
 		this.coinValue = BigDecimal.ZERO;
+		
+	}
+
+	// if coin dispenser is full & coin is valid;
+	// this method adds value of coin to the this.customers accumulated currency
+	@Override
+	public void coinAdded(CoinStorageUnit unit) {
+		coinAddedLogic();
 	}
 
 	@Override
@@ -204,6 +212,7 @@ public class CoinHandler extends Handler
 	 */
 	@Override
 	public void coinAdded(CoinDispenser dispenser, Coin coin) {
+		coinAddedLogic();
 	}
 
 	@Override
