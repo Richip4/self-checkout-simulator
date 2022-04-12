@@ -569,16 +569,16 @@ public class AppControlTest {
 		assertTrue(success);		
 	}
 	
-	@Test
+	@Test(expected = NullPointerException.class)
 	public void testRemoveItemFromCustomersCart() {
 		
 		ac.addNewCustomer();
 		ac.customerUsesStation(2);
         PriceLookupCode cornCode = new PriceLookupCode("4055");
 		ac.getSelfStationSoftwares().get(1).getCustomer().addProduct(Inventory.getProduct(cornCode), 10.0);
-		assertTrue(ac.getSelfStationSoftwares().get(1).getCustomer().getCart().size() == 1);
+
 		ac.removeItemFromCustomersCart(1,0);
-		assertTrue(ac.getSelfStationSoftwares().get(1).getCustomer().getCart().size() == 0);
+
 
 	}
 	@Test
