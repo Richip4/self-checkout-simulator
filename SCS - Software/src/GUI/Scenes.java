@@ -2,6 +2,7 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -141,7 +142,7 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, xResolution, yResolution);			
 
 			// include a banner for navigation
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			// This overview scene should be the only scene to 
 			// terminate the actual program.  Set a window
@@ -302,7 +303,8 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 600);
 
-			generateBanner(scene, false, banner_info, banner_title);
+			generateBanner(scene, false, banner_info, banner_title, "END");
+			
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
 			
@@ -310,6 +312,7 @@ public class Scenes {
                 public void windowGainedFocus(WindowEvent e) {
                     banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
                     updateDisplay();
+                    
                 }
             });
 			
@@ -487,7 +490,10 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bagScale) {
 				GUI.userBagsItem(currentStation);
-				updateDisplay();
+				//updateDisplay();
+				if (GUI.getPhase(currentStation) == Phase.PAYMENT_COMPLETE) {
+					GUI.removePaidItemsFromBagging();
+				}
 			} else if (e.getSource() == bnInSlot) {
 				if (GUI.getPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
 					GUI.getPhase(currentStation) == Phase.PROCESSING_PAYMENT)
@@ -504,10 +510,10 @@ public class Scenes {
 				GUI.userRemovesCoins(currentStation);
 			} else if (e.getSource() == scanner) {
 				GUI.userScansItem(currentStation, true);
-				updateDisplay();
+				//updateDisplay();
 			} else if (e.getSource() == handScanner) {
 				GUI.userScansItem(currentStation, false);
-				updateDisplay();
+				//updateDisplay();
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
@@ -515,6 +521,7 @@ public class Scenes {
 			} else if (e.getSource() == touchscreen) {
 				GUI.userAccessTouchscreen(currentStation);
 			}
+			updateDisplay();
 		}
 		
 		private void updateDisplay() {
@@ -522,7 +529,20 @@ public class Scenes {
 				nextItem.setForeground(new Color(220, 30, 40));
 				nextItem.setFont(new Font("Arial", Font.BOLD, 18));
 				nextItem.setText("> BAG ITEM <");
-			} else {
+			} 
+			else if (GUI.getPhase(currentStation) == Phase.PAYMENT_COMPLETE) {
+				bagScale.setForeground(new Color(220, 30, 40));
+				bagScale.setFont(new Font("Arial", Font.BOLD, 18));
+				bagScale.setText("> REMOVE ALL ITEMS <");
+				bagScale.repaint();
+			}
+			else if (GUI.getPhase(currentStation) == Phase.IDLE) {
+				bagScale.setForeground(Color.black);
+				bagScale.setFont(new Font("Arial", Font.BOLD, 20));
+				bagScale.setText("Bagging Area");
+				bagScale.repaint();
+			}
+			else {
 				nextItem.setForeground(Color.black);
 				nextItem.setFont(new Font("Arial", Font.BOLD, 16));
 				nextItem.setText(GUI.getNextItemDescription(currentStation));
@@ -535,7 +555,9 @@ public class Scenes {
 			
 			subtotal.setText(GUI.getSubtotal(currentStation));
 			subtotal.repaint();
+
 		}
+		
 	}
 	
 	// #######################################################################
@@ -551,14 +573,29 @@ public class Scenes {
 		JLabel[] station_light = new JLabel[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 		JButton[] station_block  = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 		JButton[] station_approve = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JButton[] station_startup = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
-		
-		public JFrame getScene() {
-			JPanel scene = preprocessScene(this, 800, 650);
 
-			generateBanner(scene, false, banner_info, banner_title);
+		public JFrame getScene() {
+			JPanel scene = preprocessScene(this, 900, 650);
+
+			JPanel banner = generateBanner(scene, false, banner_info, banner_title, "X");
+			JPanel end = (JPanel) banner.getComponent(banner.getComponentCount() - 1);
+			
+			JButton logout = new JButton();
+			logout.addActionListener(e -> {
+				Store.getSupervisionSoftware().logout();
+				this.dispose();
+		        Scenes.errorMsg("Successfully logged out from the supervision station.");
+			});
+			logout.setPreferredSize(new Dimension(150, 50));
+			logout.setFont(new Font("Arial", Font.BOLD, 20));
+			logout.setFocusable(false);
+			logout.setText("LOGOUT");
+			end.add(logout, 1);
+		
 
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -571,7 +608,7 @@ public class Scenes {
 			
 				JPanel station = new JPanel();
 				station.setLayout(null);
-				station.setBounds(0, i * 100, 800, 100);
+				station.setBounds(0, i * 100, 900, 100);
 				station.setBackground((i % 2 == 0) ? tint_one : tint_two);
 				
 				// display the stations relavent status to the attendant
@@ -620,6 +657,14 @@ public class Scenes {
 				station_approve[i].setFocusable(false);
 				station.add(station_approve[i]);
 				
+				station_startup[i] = new JButton();
+				station_startup[i].setBounds(785, 25, 80, 50);
+				station_startup[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
+				station_startup[i].setText("START");
+				station_startup[i].addActionListener(this);
+				station_startup[i].setFocusable(false);
+				station.add(station_startup[i]);
+				
 				content.add(station);
 			}
 			
@@ -648,6 +693,9 @@ public class Scenes {
 					GUI.attendantApprovesStation(i);
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
+				} else if (e.getSource() == station_startup[i]) {
+					GUI.startupStation(i);
+					//station_status[i].setText(GUI.stationStatus(i)); 
 				}
 			}
 		}
@@ -680,7 +728,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 750, 500);
 
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			this.addWindowFocusListener(new WindowAdapter() {
                 public void windowGainedFocus(WindowEvent e) {
@@ -793,7 +841,7 @@ public class Scenes {
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
-			} else if (e.getSource() == membership) {
+			} else if (e.getSource() == skip) {
 				GUI.userSkipsBagging();
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			} 
@@ -818,7 +866,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
 
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -910,7 +958,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 600, 400);
 
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -1101,7 +1149,7 @@ public class Scenes {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					GUI.shutdownStation();
+					GUI.shutdownStation(currentStation);
 				} catch (AuthorizationRequiredException e1) {
 					Scenes.errorMsg("incorrect login info");
 				}
@@ -1243,7 +1291,7 @@ public class Scenes {
 	 * @param forHardware - whether the banner is meant for a hardware window
 	 * @return the banner created for any further customizations
 	 */
-	private JPanel generateBanner(JPanel p, boolean forHardware, JLabel banner_info, JLabel banner_title) {
+	private JPanel generateBanner(JPanel p, boolean forHardware, JLabel banner_info, JLabel banner_title, String closeButton) {
 
 		JPanel banner = new JPanel();
 		banner.setPreferredSize(new Dimension(100, 50));
@@ -1338,9 +1386,9 @@ public class Scenes {
 			}
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		});
-		exit.setPreferredSize(new Dimension(50, 50));
-		exit.setFont(new Font("Arial", Font.BOLD, 20));
-		exit.setText("X");
+		exit.setPreferredSize(new Dimension(80, 50));
+		exit.setFont(new Font("Arial", Font.BOLD, 16));
+		exit.setText(closeButton);
 		exit.setFocusable(false);
 		end.add(exit);
 		

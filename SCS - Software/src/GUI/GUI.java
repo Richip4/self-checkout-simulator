@@ -146,8 +146,9 @@ public class GUI {
 		SelfCheckoutStation hardware = software.getSelfCheckoutStation();
 
 		Item item = ac.getLastCheckedOutItem();
-		if (item != null)
+		if (item != null) {
 			hardware.baggingArea.add(item);
+		}
 		ac.clearLastCheckedOutItem();
 	}
 
@@ -205,8 +206,7 @@ public class GUI {
 				}
 				if (scs.getCustomer().hasSufficientCashBalance()) {
 					scs.makeChange();
-				}
-
+        }
 			} catch (DisabledException e) {
 				e.printStackTrace();
 			} catch (OverloadException e) {
@@ -279,7 +279,8 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM || ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM 
+				|| ac.getStationPhase(currentStation) == Phase.BAGGING_ITEM) {
 			scenes.getScene(Scenes.SCS_TOUCH);
 		} else if (ac.getStationPhase(currentStation) == Phase.BLOCKING) {
 			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
@@ -324,6 +325,14 @@ public class GUI {
 	public static void attendantApprovesStation(int station) {
 
 		ac.approveStationDiscrepancy(station);
+	}
+	
+	public static void startupStation(int station) {
+		try {
+			Store.getSupervisionSoftware().startUpStation(ac.getSelfCheckoutSoftware(station));
+		} catch (AuthorizationRequiredException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void userTapsCard(int cardType) {
@@ -375,9 +384,13 @@ public class GUI {
 	}
 
 	public static void userSkipsBagging() {
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scss.notBaggingItem();
 		ac.skipBagging(scenes.getCurrentStation());
 	}
 
+	
+	
 	public static void refillBanknoteDispensers() {
 		int currentStation = scenes.getCurrentStation();
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
@@ -500,7 +513,6 @@ public class GUI {
 		int currentStation = scenes.getCurrentStation();
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
-
 		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			scs.coinStorage.unload();
 		}
@@ -589,11 +601,8 @@ public class GUI {
 		ac.removeItemFromCustomersCart(station, index);
 	}
 
-	public static void shutdownStation() throws AuthorizationRequiredException {
-		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
-			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-			scs.stopSystem();
-		}
+	public static void shutdownStation(int stationNumber) throws AuthorizationRequiredException {
+		Store.getSupervisionSoftware().shutDownStation(ac.getSelfCheckoutSoftware(stationNumber));
 	}
 
 	public static boolean attendantLogin(String name, String password) {

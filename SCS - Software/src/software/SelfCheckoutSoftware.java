@@ -53,14 +53,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private boolean isWeightDiscrepancy;
     private boolean isError;
 
-    private boolean coinInTray = false;
-    private boolean banknoteDangling = false;
-
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
     private Attendant attendant;
-
+    
+    private boolean coinInTray = false;
+    private boolean banknoteDangling = false;
+    
     private BanknoteHandler banknoteHandler;
     private CardHandler cardHandler;
     private CoinHandler coinHandler;
@@ -244,7 +244,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
 
-    protected void unblockSystem() {
+    public void unblockSystem() {
         // If unblocking:
         // 1. enable all hardware devices
         // 2. set isBlocked to false
