@@ -413,7 +413,7 @@ public class AppControl {
 	public boolean customerSwipesMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
-			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(0));
 			return true;
 		} catch (IOException e) {
 			errorMsg("swipe failed");
