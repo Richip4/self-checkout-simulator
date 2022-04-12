@@ -70,7 +70,7 @@ public final class Main {
         GUI.init(new AppControl());
     }
 
-    private static void initializeCardAndIssuers() {
+    public static void initializeCardAndIssuers() {
         Bank.clearIssuers();
         Bank.clearCardIssuers();
 
@@ -105,7 +105,7 @@ public final class Main {
         Bank.addCardIssuer(cardNo3, scotia);
     }
 
-    private static void initializeProductDatabase() {
+    public static void initializeProductDatabase() {
         Inventory.clear();
 
         // PLU coded items
@@ -207,9 +207,10 @@ public final class Main {
     	bItems.forEach(bi -> Tangibles.ITEMS.add(bi));
     	
     }
+
     
     // We assume we are working in Canadian denominations
-    private static void initializeStore() {
+    public static void initializeStore() {
         Currency currency = Configurations.currency;
         int[] banknoteDenominations = { 5, 10, 20, 50, 100 };
         BigDecimal[] coinDenominations = {
@@ -307,7 +308,7 @@ public final class Main {
     	return barcode;
     }
 
-    private static void initializeMembership() {
+    public static void initializeMembership() {
         Membership.clear();
 
         String card1No = "12345";
@@ -324,7 +325,7 @@ public final class Main {
         Membership.createMembership(card2No, card2Holder);
     }
 
-    private static void initializeCredentialsSytem() {
+    public static void initializeCredentialsSytem() {
         String username1 = "Sharjeel";
         String password1 = "1234";
         CredentialsSystem.addAccount(username1, password1);
