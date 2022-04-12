@@ -574,11 +574,23 @@ public class Scenes {
 
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
-		
+
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 800, 650);
 
-			generateBanner(scene, false, banner_info, banner_title);
+			JPanel banner = generateBanner(scene, false, banner_info, banner_title);
+			JPanel end = (JPanel) banner.getComponent(banner.getComponentCount() - 1);
+			
+			JButton logout = new JButton();
+			logout.addActionListener(e -> {
+				
+			});
+			logout.setPreferredSize(new Dimension(150, 50));
+			logout.setFont(new Font("Arial", Font.BOLD, 20));
+			logout.setFocusable(false);
+			logout.setText("LOGOUT");
+			end.add(logout, 1);
+		
 
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
