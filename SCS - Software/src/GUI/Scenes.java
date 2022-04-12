@@ -695,7 +695,8 @@ public class Scenes {
 					station_light[i].setBackground(checkStationAttention(i));
 				} else if (e.getSource() == station_startup[i]) {
 					GUI.startupStation(i+1);
-					//station_status[i].setText(GUI.stationStatus(i)); 
+					station_status[i].setText(GUI.stationStatus(i)); 
+					station_light[i].setBackground(checkStationAttention(i));
 				}
 			}
 		}
@@ -1082,7 +1083,8 @@ public class Scenes {
 	 */
 	private Color checkStationAttention(int station) {
 		return (GUI.stationStatus(station) != "BLOCKED" && GUI.stationStatus(station) != "WEIGHT DISCREPANCY" &&
-				GUI.stationStatus(station) != "ITEM NOT BAGGED" && GUI.stationStatus(station) != "USE OWN BAGS") 
+				GUI.stationStatus(station) != "ITEM NOT BAGGED" && GUI.stationStatus(station) != "USE OWN BAGS"
+				&& GUI.stationStatus(station) != "STATION OFFLINE") 
 				? green_light : red_light;
 	}
 

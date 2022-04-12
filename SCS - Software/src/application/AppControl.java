@@ -303,7 +303,9 @@ public class AppControl {
 			return "ITEM NOT BAGGED";
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
 			return "USE OWN BAGS";
-		} else {
+		} else if (selfStationSoftwares.get(station).isShutdown()) {
+			return "STATION OFFLINE";
+		}else {
 			return "OKAY";
 		}
 	}
