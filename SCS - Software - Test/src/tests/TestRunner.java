@@ -7,13 +7,11 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         // All tests under tests.application
-        tests.application.AppControlTest.class, tests.application.MainTest.class,
+        tests.application.AppControlTest.class,
         // All tests under tests.bank
         tests.bank.BankTest.class,
         // All tests under tests.checkout
         tests.checkout.CheckoutTest.class, tests.checkout.ReceiptTest.class, tests.checkout.ScreenTest.class,
-        // All tests under tests.gui
-        tests.gui.GUITest.class, tests.gui.ScenesTest.class,
         // All tests under tests.interrupt
         tests.interrupt.BanknoteHandlerTest.class, tests.interrupt.CardHandlerTest.class, tests.interrupt.CoinHandlerTest.class, tests.interrupt.ProcessItemHandlerTest.class,
         // All tests under tests.software
