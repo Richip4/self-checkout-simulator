@@ -368,4 +368,20 @@ public class SupervisionSoftwareTest
     {
         supervisionSoftware.resolveError(selfCheckoutSoftware1);
     }
+
+    @Test
+    public void approveUseOfOwnBagsTest() throws IncorrectCredentialException, AuthorizationRequiredException
+    {
+        supervisionSoftware.login(username, password);
+
+        supervisionSoftware.approveUseOfOwnBags(selfCheckoutSoftware1);
+
+        assertEquals(SelfCheckoutSoftware.Phase.SCANNING_ITEM, selfCheckoutSoftware1.getPhase());
+    }
+
+    @Test(expected = AuthorizationRequiredException.class)
+    public void approveUseOfOwnBagsUnsuccessfullyTest() throws AuthorizationRequiredException
+    {
+        supervisionSoftware.approveUseOfOwnBags(selfCheckoutSoftware1);
+    }
 }

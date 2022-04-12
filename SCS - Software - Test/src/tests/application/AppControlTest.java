@@ -613,7 +613,7 @@ public class AppControlTest {
 	public void testgetustomerCart() {
 		ac.addNewCustomer();
 		ac.customerUsesStation(1);
-		assertTrue(ac.getCustomerCart(0) instanceof List<Product>);
+		assertTrue(ac.getCustomerCart(1) instanceof List<Product>);
 	}
 	@Test
 	public void testAttendantIsLoggedIn() {

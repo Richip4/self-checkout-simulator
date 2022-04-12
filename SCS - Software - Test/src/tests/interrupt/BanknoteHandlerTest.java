@@ -1,332 +1,217 @@
 package tests.interrupt;
 
-import checkout.Checkout;
+
 import interrupt.BanknoteHandler;
+import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Banknote;
-import org.lsmr.selfcheckout.NullPointerSimulationException;
-import org.lsmr.selfcheckout.SimulationException;
-import org.lsmr.selfcheckout.devices.*;
+import org.lsmr.selfcheckout.devices.DisabledException;
+import org.lsmr.selfcheckout.devices.OverloadException;
+import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
+import store.Store;
 import user.Customer;
 
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.Map.Entry;
 
 import static org.junit.Assert.*;
 
-/**
- * The JUnit test class for the BanknoteHandler class in SCS - Software.
- *
- * @author Ricky Bhatti
- */
 public class BanknoteHandlerTest
 {
-    Currency currency = Currency.getInstance("USD");
-    int[] banknoteDenominations = {1, 5, 10, 25, 100};
-    BigDecimal[] coinDenominations = {new BigDecimal("0.01"), new BigDecimal("0.05"), new BigDecimal("0.1"), new BigDecimal("0.25"), new BigDecimal("1.00")};
-    int scaleMaximumWeight = 10;
-    int scaleSensitivity = 1;
-    SelfCheckoutStation selfCheckoutStation = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
-    SelfCheckoutSoftware selfCheckoutSoftware = new SelfCheckoutSoftware(selfCheckoutStation);
-    BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
-    BanknoteStorageUnit banknoteStorageUnit = new BanknoteStorageUnit(10);
-    BanknoteSlot banknoteSlot = new BanknoteSlot(false);
-    BanknoteDispenser banknoteDispenser = new BanknoteDispenser(10);
-    Banknote banknote = new Banknote(currency, 10);
+    // Static variables that will be used during testing
+    final Currency currency = Currency.getInstance("CAD");
+    final int[] banknoteDenominations = {5, 10, 20, 50};
+    final BigDecimal[] coinDenominations = {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1.00"), new BigDecimal("2.00")};
+    final int scaleMaximumWeight = 100;
+    final int scaleSensitivity = 10;
 
-    private void addBanknotesToBanknotesDispenser()
+    SelfCheckoutStation selfCheckoutStation;
+    SelfCheckoutSoftware selfCheckoutSoftware;
+    SupervisionStation supervisionStation;
+    SupervisionSoftware supervisionSoftware;
+
+    BanknoteHandler banknoteHandler;
+    Customer customer;
+
+    Banknote banknote1;
+    Banknote banknote2;
+
+    @Before
+    public void setup()
     {
-        // For each dispenser, add 100 banknotes
-        for (Entry <Integer, BanknoteDispenser> cds : selfCheckoutStation.banknoteDispensers.entrySet())
-        {
-            int denom = cds.getKey();
-            BanknoteDispenser cd = cds.getValue();
-
-            try
-            {
-                // Clear the dispenser first, so dispenser is never overloaded by repeatedly
-                // adding 100 coins.
-                cd.unload();
-            } catch (Exception e)
-            {
-                fail("Coin dispenser unload failed");
-            }
-
-            // Add 100 pieces
-            for (int t = 0; t < 100; t++)
-            {
-                try
-                {
-                    cd.load(new Banknote(currency, denom));
-                } catch (OverloadException e)
-                {
-                    fail("Coin Dispenser is full");
-                } catch (SimulationException e)
-                {
-                    e.printStackTrace();
-                    fail("Not operated at this point");
-                }
-            }
-
-            assertEquals("Banknote dispenser for $" + denom + " should have 100 pieces", 100, cd.size());
-        }
-
-        // Remove any left banknotes dangling at the output
-        while (true)
-        {
-            try
-            {
-                selfCheckoutStation.banknoteOutput.removeDanglingBanknotes();
-            } catch (NullPointerSimulationException e)
-            {
-                break;
-            }
-        }
-    }
-
-    @Test
-    public void BanknoteHandlerTest()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        assertNotNull(banknoteHandler);
-    }
-
-    @Test
-    public void setCustomerTest()
-    {
-        Customer customer = new Customer();
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
+        selfCheckoutStation = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
+        selfCheckoutSoftware = new SelfCheckoutSoftware(selfCheckoutStation);
+        supervisionStation = new SupervisionStation();
+        supervisionSoftware = new SupervisionSoftware(supervisionStation);
+        supervisionSoftware.add(selfCheckoutSoftware);
+        banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
+        customer = new Customer();
         banknoteHandler.setCustomer(customer);
-        assertTrue("The customer returned from banknoteHandler is not the customer that got set", banknoteHandler.getCustomer() == customer);
+        banknote1 = new Banknote(currency, banknoteDenominations[0]);
+        banknote2 = new Banknote(currency, banknoteDenominations[1]);
+        Store.setSupervisionSoftware(supervisionSoftware);
+        Store.addSelfCheckoutSoftware(selfCheckoutSoftware);
     }
 
     @Test
-    public void enabledTest()
+    public void attachAndDetachTest()
     {
-        Customer customer = new Customer();
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        banknoteHandler.enabled(selfCheckoutStation.banknoteInput);
-        banknoteHandler.enabled(selfCheckoutStation.banknoteOutput);
-        banknoteHandler.enabled(selfCheckoutStation.banknoteValidator);
+        selfCheckoutStation.banknoteInput.detach(banknoteHandler);
+        selfCheckoutStation.banknoteDispensers.forEach((k, v) -> v.detach(banknoteHandler));
+        selfCheckoutStation.banknoteOutput.detach(banknoteHandler);
+        selfCheckoutStation.banknoteValidator.detach(banknoteHandler);
 
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        assertTrue(true);
+        assertFalse(selfCheckoutStation.banknoteInput.detach(banknoteHandler));
+        selfCheckoutStation.banknoteDispensers.forEach((k, v) -> assertFalse(v.detach(banknoteHandler)));
+        assertFalse(selfCheckoutStation.banknoteOutput.detach(banknoteHandler));
+        assertFalse(selfCheckoutStation.banknoteValidator.detach(banknoteHandler));
+
+        banknoteHandler.attachAll();
+
+        assertTrue(selfCheckoutStation.banknoteInput.detach(banknoteHandler));
+        selfCheckoutStation.banknoteDispensers.forEach((k, v) -> assertTrue(v.detach(banknoteHandler)));
+        assertTrue(selfCheckoutStation.banknoteOutput.detach(banknoteHandler));
+        assertTrue(selfCheckoutStation.banknoteValidator.detach(banknoteHandler));
+
+        banknoteHandler.attachAll();
+        banknoteHandler.detatchAll();
+
+        assertFalse(selfCheckoutStation.banknoteInput.detach(banknoteHandler));
+        selfCheckoutStation.banknoteDispensers.forEach((k, v) -> assertFalse(v.detach(banknoteHandler)));
+        assertFalse(selfCheckoutStation.banknoteOutput.detach(banknoteHandler));
+        assertFalse(selfCheckoutStation.banknoteValidator.detach(banknoteHandler));
     }
 
     @Test
-    public void disabledTest()
+    public void enableAndDisableHardwareTest()
     {
-        Customer customer = new Customer();
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        banknoteHandler.disabled(selfCheckoutStation.banknoteInput);
-        banknoteHandler.disabled(selfCheckoutStation.banknoteOutput);
-        banknoteHandler.disabled(selfCheckoutStation.banknoteValidator);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        assertTrue(true);
-    }
-
-    @Test
-    public void validBanknoteDetectedTest()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        int value = 10;
-        banknoteHandler.validBanknoteDetected(banknoteValidator, currency, value);
-        BigDecimal returnValue = banknoteHandler.getBanknoteValue();
-
-        assertTrue("Banknote not detected", banknoteHandler.isBanknoteDetected());
-        assertTrue("Expected banknote of value " + value + ", actual value " + returnValue, returnValue.compareTo(BigDecimal.valueOf(value)) == 0);
-    }
-
-    @Test
-    public void invalidBanknoteDetectedTest_validCustomer()
-    {
-        Customer customer = new Customer();
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        banknoteHandler.invalidBanknoteDetected(banknoteValidator);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        assertTrue(true);
-    }
-
-    @Test
-    public void invalidBanknoteDetectedTest_nullCustomer()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.invalidBanknoteDetected(banknoteValidator);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        assertTrue(true);
-    }
-
-    @Test
-    public void banknotesFullTest()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.banknotesFull(banknoteStorageUnit);
-        assertTrue(selfCheckoutStation.banknoteInput.isDisabled());
-    }
-
-    @Test
-    public void banknoteAddedTest_validCustomer()
-    {
-        Customer customer = new Customer();
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        banknoteHandler.validBanknoteDetected(banknoteValidator, currency, 10);
-        banknoteHandler.banknoteAdded(banknoteStorageUnit);
-        BigDecimal returnValue = banknoteHandler.getBanknoteValue();
-
-        assertFalse("Banknote still detected after processing", banknoteHandler.isBanknoteDetected());
-        assertTrue("Expected banknote of value " + BigDecimal.ZERO + ", actual value " + returnValue, returnValue.compareTo(BigDecimal.ZERO) == 0);
-    }
-
-    @Test
-    public void banknoteAddedTest_nullCustomer()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.validBanknoteDetected(banknoteValidator, currency, 10);
-        banknoteHandler.banknoteAdded(banknoteStorageUnit);
-        BigDecimal returnValue = banknoteHandler.getBanknoteValue();
-
-        assertFalse("Banknote still detected after processing", banknoteHandler.isBanknoteDetected());
-        assertTrue("Expected banknote of value " + BigDecimal.ZERO + ", actual value " + returnValue, returnValue.compareTo(BigDecimal.ZERO) == 0);
-    }
-
-    @Test
-    public void banknoteAddedTest2()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(null);
-        banknoteHandler.banknoteAdded(banknoteStorageUnit);
-        BigDecimal returnValue = banknoteHandler.getBanknoteValue();
-
-        assertFalse("Banknote still detected after processing", banknoteHandler.isBanknoteDetected());
-        assertTrue("Expected banknote of value " + BigDecimal.ZERO + ", actual value " + returnValue, returnValue.compareTo(BigDecimal.ZERO) == 0);
-    }
-
-    @Test
-    public void banknotesUnloadedTest()
-    {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.banknotesUnloaded(banknoteStorageUnit);
         assertFalse(selfCheckoutStation.banknoteInput.isDisabled());
+        assertFalse(selfCheckoutStation.banknoteOutput.isDisabled());
+        assertFalse(selfCheckoutStation.banknoteStorage.isDisabled());
+        assertFalse(selfCheckoutStation.banknoteValidator.isDisabled());
+
+        banknoteHandler.disableHardware();
+
+        assertTrue(selfCheckoutStation.banknoteInput.isDisabled());
+        assertTrue(selfCheckoutStation.banknoteOutput.isDisabled());
+        assertTrue(selfCheckoutStation.banknoteStorage.isDisabled());
+        assertTrue(selfCheckoutStation.banknoteValidator.isDisabled());
+
+        banknoteHandler.enableHardware();
+
+        assertFalse(selfCheckoutStation.banknoteInput.isDisabled());
+        assertFalse(selfCheckoutStation.banknoteOutput.isDisabled());
+        assertFalse(selfCheckoutStation.banknoteStorage.isDisabled());
+        assertFalse(selfCheckoutStation.banknoteValidator.isDisabled());
     }
 
     @Test
-    public void banknoteEjectedTest_validCustomer()
+    public void getCustomerTest()
     {
-        Customer customer = new Customer();
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        banknoteHandler.banknotesEjected(banknoteSlot);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        assertTrue(true);
+        assertEquals(customer, banknoteHandler.getCustomer());
     }
 
     @Test
-    public void banknoteEjectedTest_nullCustomer()
+    public void insertAndGetBanknoteTest() throws OverloadException, DisabledException
     {
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.banknotesEjected(banknoteSlot);
+        assertFalse(banknoteHandler.isBanknoteDetected());
+        assertEquals(BigDecimal.ZERO, customer.getCashBalance());
 
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        assertTrue(true);
+        selfCheckoutStation.banknoteInput.accept(banknote1);
+
+        assertFalse(banknoteHandler.isBanknoteDetected());
+        assertEquals(0, customer.getCashBalance().compareTo(new BigDecimal(banknote1.getValue())));
     }
 
     @Test
-    public void banknoteRemovedTest_validCustomer()
+    public void banknoteAddedFailTest() throws OverloadException, DisabledException
     {
-        Customer customer = new Customer();
-        Checkout checkout = new Checkout(selfCheckoutSoftware);
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        addBanknotesToBanknotesDispenser();
-        checkout.makeChange();
-        banknoteHandler.banknoteRemoved(banknoteSlot);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        //		no local state is changed when checkout is null or otherwise; nothing to test
-        assertTrue(true);
+        banknoteHandler.banknoteAdded(selfCheckoutStation.banknoteStorage);
     }
 
     @Test
-    public void banknoteRemovedTest_nullCustomer()
+    public void banknoteAddedFailTest2() throws OverloadException, DisabledException
     {
-        Customer customer = new Customer();
-        Checkout checkout = new Checkout(selfCheckoutSoftware);
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        addBanknotesToBanknotesDispenser();
-        checkout.makeChange();
-        banknoteHandler.banknoteRemoved(banknoteSlot);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        //		no local state is changed when checkout is null or otherwise; nothing to test
-        assertTrue(true);
+        banknoteHandler.banknoteAdded(selfCheckoutStation.banknoteStorage);
     }
 
     @Test
-    public void banknoteRemovedTest2_validCheckout()
+    public void banknoteFullAndEmptyTest()
     {
-        Customer customer = new Customer();
-        Checkout checkout = new Checkout(selfCheckoutSoftware);
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        addBanknotesToBanknotesDispenser();
-        checkout.makeChange();
-        banknoteHandler.banknoteRemoved(banknoteSlot);
+        assertFalse(selfCheckoutStation.banknoteInput.isDisabled());
 
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        //		no local state is changed when checkout is null or otherwise; nothing to test
-        assertTrue(true);
+        banknoteHandler.banknotesFull(selfCheckoutStation.banknoteStorage);
+
+        assertTrue(selfCheckoutStation.banknoteInput.isDisabled());
+
+        banknoteHandler.banknotesEmpty(selfCheckoutStation.banknoteDispensers.get(0));
     }
 
     @Test
-    public void banknoteRemovedTest2_nullCheckout()
+    public void invalidBanknoteTest() throws OverloadException, DisabledException
     {
-        Customer customer = new Customer();
-        Checkout checkout = new Checkout(selfCheckoutSoftware);
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        addBanknotesToBanknotesDispenser();
-        checkout.makeChange();
-        banknoteHandler.banknoteRemoved(banknoteSlot);
+        assertFalse(banknoteHandler.isBanknoteDetected());
 
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        //		no local state is changed when checkout is null or otherwise; nothing to test
-        assertTrue(true);
+        selfCheckoutStation.banknoteInput.accept(new Banknote(currency, coinDenominations[4].intValue()));
+
+        assertFalse(banknoteHandler.isBanknoteDetected());
+        assertEquals(BigDecimal.ZERO, banknoteHandler.getBanknoteValue());
     }
 
     @Test
-    public void banknoteRemovedTest2_noBanknotesDispensed()
+    public void banknoteRemovedFailTest()
     {
-        Customer customer = new Customer();
-        Checkout checkout = new Checkout(selfCheckoutSoftware);
-        BanknoteHandler banknoteHandler = new BanknoteHandler(selfCheckoutSoftware);
-        banknoteHandler.setCustomer(customer);
-        addBanknotesToBanknotesDispenser();
-        checkout.makeChange();
-        banknoteHandler.banknoteRemoved(banknoteSlot);
-
-        // TODO the implementation calls a stubbed method for future GUI implementation
-        // 		implement test when stubbed method has a body
-        //		no local state is changed when checkout is null or otherwise; nothing to test
-        assertTrue(true);
+        selfCheckoutSoftware.hasPendingChanges();
+        banknoteHandler.banknoteRemoved(selfCheckoutStation.banknoteOutput);
     }
+
+    @Test
+    public void banknoteRemovedFailTest2()
+    {
+        banknoteHandler.banknoteRemoved(selfCheckoutStation.banknoteInput);
+    }
+
+    //    @Test
+    //    public void insertAndUnloadBanknoteTest() throws OverloadException, DisabledException
+    //    {
+    //        selfCheckoutStation.coinSlot.disable();
+    //
+    //        selfCheckoutStation.coinStorage.accept(banknote1);
+    //        selfCheckoutStation.coinStorage.accept(banknote2);
+    //
+    //        assertTrue(selfCheckoutStation.coinSlot.isDisabled());
+    //
+    //        selfCheckoutStation.coinStorage.unload();
+    //
+    //        assertFalse(selfCheckoutStation.coinSlot.isDisabled());
+    //    }
+    //
+    //    @Test
+    //    public void coinStorageFullTest()
+    //    {
+    //        assertFalse(selfCheckoutStation.coinSlot.isDisabled());
+    //
+    //        banknoteHandler.coinsFull(selfCheckoutStation.coinStorage);
+    //
+    //        assertTrue(selfCheckoutStation.coinSlot.isDisabled());
+    //    }
+    //
+    //    @Test
+    //    public void coinAddedTest() throws OverloadException, DisabledException
+    //    {
+    //        selfCheckoutStation.coinSlot.accept(banknote1);
+    //
+    //        banknoteHandler.coinAdded(selfCheckoutStation.coinStorage);
+    //
+    //        assertEquals(banknote1.getValue(), customer.getCashBalance());
+    //    }
+    //
+    //    @Test
+    //    public void coinsEmpty()
+    //    {
+    //        banknoteHandler.coinsEmpty(selfCheckoutStation.coinDispensers.get(0));
+    //    }
 }

@@ -4,13 +4,17 @@ import interrupt.ProcessItemHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
+import org.lsmr.selfcheckout.devices.SupervisionStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import software.SelfCheckoutSoftware;
+import software.SupervisionSoftware;
 import store.Inventory;
+import store.Store;
 import user.Customer;
 
 import java.math.BigDecimal;
@@ -19,12 +23,6 @@ import java.util.Currency;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * The JUnit test class for the ProcessItemHandler class in SCS - Software.
- *
- * @author Ricky Bhatti
- * @author Tyler Chen
- */
 public class ProcessItemHandlerTest
 {
     // Static variables that will be used during testing
@@ -38,6 +36,8 @@ public class ProcessItemHandlerTest
 
     SelfCheckoutStation selfCheckoutStation;
     SelfCheckoutSoftware selfCheckoutSoftware;
+    SupervisionStation supervisionStation;
+    SupervisionSoftware supervisionSoftware;
 
     ProcessItemHandler processItemHandler;
     Customer customer;
@@ -50,9 +50,14 @@ public class ProcessItemHandlerTest
         Inventory.addProduct(product2);
         selfCheckoutStation = new SelfCheckoutStation(currency, banknoteDenominations, coinDenominations, scaleMaximumWeight, scaleSensitivity);
         selfCheckoutSoftware = new SelfCheckoutSoftware(selfCheckoutStation);
+        supervisionStation = new SupervisionStation();
+        supervisionSoftware = new SupervisionSoftware(supervisionStation);
+        supervisionSoftware.add(selfCheckoutSoftware);
         processItemHandler = new ProcessItemHandler(selfCheckoutSoftware);
         customer = new Customer();
         processItemHandler.setCustomer(customer);
+        Store.setSupervisionSoftware(supervisionSoftware);
+        Store.addSelfCheckoutSoftware(selfCheckoutSoftware);
     }
 
     @Test
@@ -107,117 +112,150 @@ public class ProcessItemHandlerTest
         assertFalse(selfCheckoutStation.baggingArea.isDisabled());
     }
 
-    //    @Test
-    //    public void customerWantsToUseOwnBags()
-    //    {
-    //        customer.setOwnBagsUsed(true);
-    //
-    //        double weightOfBags = 3.1;
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, weightOfBags);
-    //        assertTrue("Weight of bags should be updated.", processItemHandler.getWeightBeforeBagging() == weightOfBags);
-    //    }
-    //
-    //
-    //    @Test
-    //    public void barcodeScannedInInvTest()
-    //    {
-    //        assertTrue(customer.getCart().isEmpty());
-    //
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //
-    //        List <Product> items = customer.getCart();
-    //        assertTrue("Item scanned does not match barcode inputted", product1.equals(items.get(0)));
-    //    }
-    //
-    //    @Test
-    //    public void barcodeScannedInNotInvTest()
-    //    {
-    //        assertTrue(customer.getCart().isEmpty());
-    //
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //
-    //        List <Product> items = customer.getCart();
-    //        assertTrue("Item scanned does not match barcode inputted", items.isEmpty());
-    //    }
-    //
-    //
-    //    @Test
-    //    public void weightChangedTest()
-    //    {
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //        assertTrue("Customer should be notified to move item to bagging area.", customer.getWaitingToBag());
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 1.0);
-    //        assertFalse("Customer should be no longer be notified to place item in bagging area.", customer.getWaitingToBag());
-    //    }
-    //
-    //
-    //    @Test
-    //    public void weightChangedTooHeavy()
-    //    {
-    //        assertFalse("Customer should be notified that", customer.getWaitingToBag());
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), 3.0));
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 3.0); // Causes the item to be set as "unexpectedItem"
-    //        assertTrue("Unexpected Item flag should be true", processItemHandler.getUnexpectedItem());
-    //    }
-    //
-    //    @Test
-    //    public void weightChangedTooLight()
-    //    {
-    //        assertFalse("Customer should be notified that", customer.getWaitingToBag());
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), 3.0));
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 0.1); // Causes the item to be set as "unexpectedItem"
-    //        assertTrue("Unexpected Item flag should be true", processItemHandler.getUnexpectedItem());
-    //    }
-    //
-    //
-    //    //    @Test
-    //    //    public void weightChangedOverload()
-    //    //    {
-    //    //        Inventory.addProduct(barcode3, product3, item3);
-    //    //
-    //    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, barcode);
-    //    //        selfCheckoutStation.baggingArea.add(item);
-    //    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, item.getWeight());
-    //    //
-    //    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, barcode3);
-    //    //        selfCheckoutStation.baggingArea.add(item3);
-    //    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, item.getWeight() + item3.getWeight());
-    //    //        selfCheckoutStation.baggingArea.remove(item3);
-    //    //
-    //    //        //Comparing the weight of the non-overloaded item to the weight after removing the overloaded item.
-    //    //        assertEquals("Weight should be the close to what the weight was.", item.getWeight(), processItemHandler.getWeightBeforeBagging(), 0.1);
-    //    //    }
-    //
-    //
-    //    @Test
-    //    public void weightChangedUnexpectedItem()
-    //    {
-    //
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
-    //
-    //        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 4.0);        //3g addition
-    //
-    //        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
-    //
-    //        assertFalse("Weight should be the close to what the weight was.", processItemHandler.getUnexpectedItem());
-    //    }
-    //
-    //
-    //    @Test
-    //    public void overloadTest()
-    //    {
-    //        processItemHandler.overload(selfCheckoutStation.baggingArea);
-    //        assertTrue(selfCheckoutStation.mainScanner.isDisabled());
-    //    }
-    //
-    //    @Test
-    //    public void outOfOverloadTest()
-    //    {
-    //        processItemHandler.outOfOverload(selfCheckoutStation.baggingArea);
-    //        assertFalse(selfCheckoutStation.mainScanner.isDisabled());
-    //    }
+    @Test
+    public void enableBaggingAreaTest()
+    {
+        selfCheckoutStation.baggingArea.disable();
+
+        assertTrue(selfCheckoutStation.baggingArea.isDisabled());
+
+        processItemHandler.enableBaggingArea();
+
+        assertFalse(selfCheckoutStation.baggingArea.isDisabled());
+    }
+
+    @Test
+    public void barcodeScannedTest()
+    {
+        selfCheckoutSoftware.addItem();
+        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    }
+
+    @Test
+    public void barcodeScannedFailTest()
+    {
+        processItemHandler.setCustomer(null);
+        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, product1.getBarcode());
+    }
+
+    @Test
+    public void barcodeScannedFailTest2()
+    {
+        processItemHandler.barcodeScanned(selfCheckoutStation.mainScanner, new Barcode(new Numeral[] {Numeral.one}));
+    }
+
+    @Test
+    public void weightChangedTest()
+    {
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, scaleMaximumWeight * 2);
+    }
+
+    @Test
+    public void weightChangedTest2()
+    {
+        selfCheckoutSoftware.addPLUItem();
+
+        processItemHandler.weightChanged(selfCheckoutStation.scanningArea, scaleMaximumWeight * 2);
+
+        selfCheckoutSoftware.idle();
+
+        processItemHandler.weightChanged(selfCheckoutStation.scanningArea, scaleMaximumWeight * 2);
+    }
+
+    @Test
+    public void weightChangedTest3()
+    {
+        selfCheckoutStation.scanningArea.add(new BarcodedItem(product1.getBarcode(), scaleMaximumWeight * 2));
+
+        processItemHandler.weightChanged(selfCheckoutStation.scanningArea, scaleMaximumWeight * 2);
+    }
+
+    @Test
+    public void weightChangedTest4()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.addItem();
+        selfCheckoutSoftware.checkout();
+        selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
+        selfCheckoutSoftware.paymentCompleted();
+
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 0);
+    }
+
+    @Test
+    public void weightChangedTest5()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.addItem();
+        selfCheckoutSoftware.checkout();
+        selfCheckoutSoftware.selectedPaymentMethod(SelfCheckoutSoftware.PaymentMethod.CASH);
+        selfCheckoutSoftware.paymentCompleted();
+
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
+    }
+
+    @Test
+    public void weightChangedTest6()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.addOwnBag();
+
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 2);
+    }
+
+    @Test
+    public void weightChangedTest7()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.weightDiscrepancy();
+
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 0);
+    }
+
+    @Test
+    public void weightChangedTest8()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.bagItem();
+
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, product1.getExpectedWeight());
+    }
+
+    @Test
+    public void weightChangedTest9()
+    {
+        selfCheckoutSoftware.start(customer);
+        selfCheckoutSoftware.bagItem();
+
+        processItemHandler.weightChanged(selfCheckoutStation.baggingArea, 0);
+    }
+
+    @Test
+    public void overloadTest()
+    {
+        processItemHandler.overload(selfCheckoutStation.baggingArea);
+        assertTrue(selfCheckoutStation.mainScanner.isDisabled());
+    }
+
+    @Test
+    public void outOfOverloadTest()
+    {
+        processItemHandler.outOfOverload(selfCheckoutStation.baggingArea);
+        assertFalse(selfCheckoutStation.mainScanner.isDisabled());
+    }
+
+    @Test
+    public void overrideWeightTest()
+    {
+        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), product1.getExpectedWeight()));
+        processItemHandler.overrideWeight();
+    }
+
+    @Test
+    public void overrideWeightFailTest()
+    {
+        selfCheckoutStation.baggingArea.add(new BarcodedItem(product1.getBarcode(), scaleMaximumWeight * 2));
+        processItemHandler.overrideWeight();
+    }
 }
