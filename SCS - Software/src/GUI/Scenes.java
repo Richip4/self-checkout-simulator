@@ -2,6 +2,7 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -303,6 +304,7 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, 900, 600);
 
 			generateBanner(scene, false, banner_info, banner_title);
+			
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
 			
@@ -1382,9 +1384,9 @@ public class Scenes {
 			}
 			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 		});
-		exit.setPreferredSize(new Dimension(50, 50));
-		exit.setFont(new Font("Arial", Font.BOLD, 20));
-		exit.setText("X");
+		exit.setPreferredSize(new Dimension(80, 50));
+		exit.setFont(new Font("Arial", Font.BOLD, 16));
+		exit.setText("END");
 		exit.setFocusable(false);
 		end.add(exit);
 		
