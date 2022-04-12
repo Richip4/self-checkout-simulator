@@ -277,7 +277,7 @@ public final class Main {
     		});
         	
         	if(t == 5) {
-        		for(int i = 0; i < SelfCheckoutStation.COIN_STORAGE_CAPACITY; i++) {
+        		for(int i = 0; i < SelfCheckoutStation.COIN_STORAGE_CAPACITY-1; i++) {
         			Coin coin = new Coin(currency,new BigDecimal(1.00));
         			try {
 						station.coinStorage.load(coin);
@@ -288,7 +288,7 @@ public final class Main {
 					}
         		}
         		
-        		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_STORAGE_CAPACITY; i++) {
+        		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_STORAGE_CAPACITY-1; i++) {
         			Banknote note = new Banknote(currency,10);
         			try {
 						station.banknoteStorage.load(note);
