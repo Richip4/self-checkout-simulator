@@ -584,7 +584,9 @@ public class Scenes {
 			
 			JButton logout = new JButton();
 			logout.addActionListener(e -> {
-				
+				Store.getSupervisionSoftware().logout();
+				this.dispose();
+		        Scenes.errorMsg("Successfully logged out from the supervision station.");
 			});
 			logout.setPreferredSize(new Dimension(150, 50));
 			logout.setFont(new Font("Arial", Font.BOLD, 20));
