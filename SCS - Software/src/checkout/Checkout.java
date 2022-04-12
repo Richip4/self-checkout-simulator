@@ -191,7 +191,6 @@ public class Checkout {
 
 		this.pendingChanges = new ArrayList<Cash>(newPendingChanges);
 
-
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
 		if (size <= newPendingChanges.size()) {
@@ -289,7 +288,7 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
-		
+
 		Cash(Cash copy){
 			this.type = copy.type;
 			this.value = copy.value;
@@ -300,4 +299,5 @@ public class Checkout {
 			return this.value.compareTo(other.value);
 		}
 	}
+	
 }

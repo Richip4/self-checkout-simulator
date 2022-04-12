@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.lsmr.selfcheckout.Card;
 import org.lsmr.selfcheckout.external.CardIssuer;
 
 /**

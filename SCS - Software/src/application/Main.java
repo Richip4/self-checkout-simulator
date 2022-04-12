@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Vector;
 
+import javax.swing.JDialog;
 
 import org.lsmr.selfcheckout.Barcode;
 import org.lsmr.selfcheckout.BarcodedItem;
@@ -21,6 +25,8 @@ import org.lsmr.selfcheckout.external.CardIssuer;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 
+import GUI.BanknoteWallet;
+import GUI.CoinWallet;
 import GUI.GUI;
 import bank.Bank;
 import store.Membership;
@@ -72,11 +78,15 @@ public final class Main {
         expiry1.set(Calendar.YEAR, expiry1.get(Calendar.YEAR) + 1);
         String cardNo1 = "4510123456789000";
         rbc.addCardData(cardNo1, "Yunfan Yang", expiry1, "054", new BigDecimal("11903.56"));
+        Card card1 = new Card("credit", cardNo1, "Yunfan Yang", "054", "8522", true, true);
+        Tangibles.PAYMENT_CARDS.add(card1);
 
         Calendar expiry2 = Calendar.getInstance();
         expiry2.set(Calendar.YEAR, expiry2.get(Calendar.YEAR) + 1);
         String cardNo2 = "4510987654321000";
         scotia.addCardData(cardNo2, "Joshua Plosz", expiry2, "563", new BigDecimal("19532.20"));
+        Card card2 = new Card("debit", cardNo2, "Joshua Plosz", "563", "9423", true, true);
+        Tangibles.PAYMENT_CARDS.add(card2);
 
         Calendar expiry3 = Calendar.getInstance();
         expiry3.set(Calendar.YEAR, expiry3.get(Calendar.YEAR) + 2);
@@ -94,68 +104,113 @@ public final class Main {
         Inventory.clear();
 
         // PLU coded items
-        PriceLookupCode plu1 = new PriceLookupCode("4055");
-        PLUCodedProduct p1 = new PLUCodedProduct(plu1, "Corn", new BigDecimal("2.00"));
-        Inventory.addProduct(p1);
+        PriceLookupCode cornCode = new PriceLookupCode("4055");
+        PLUCodedProduct corn = new PLUCodedProduct(cornCode, "Corn", new BigDecimal("2.00"));
+        Inventory.addProduct(corn);
         
-        PriceLookupCode plu2 = new PriceLookupCode("4165");
-        PLUCodedProduct p2 = new PLUCodedProduct(plu2, "Tomato", new BigDecimal("1.99"));
-        Inventory.addProduct(p2);
+        PriceLookupCode tomatoCode = new PriceLookupCode("4165");
+        PLUCodedProduct tomato = new PLUCodedProduct(tomatoCode, "Tomato", new BigDecimal("1.99"));
+        Inventory.addProduct(tomato);
         
-        PriceLookupCode plu3 = new PriceLookupCode("1055");
-        PLUCodedProduct p3 = new PLUCodedProduct(plu3, "Beet", new BigDecimal("2.49"));
-        Inventory.addProduct(p3);
+        PriceLookupCode beetCode = new PriceLookupCode("1055");
+        PLUCodedProduct beet = new PLUCodedProduct(beetCode, "Beet", new BigDecimal("2.49"));
+        Inventory.addProduct(beet);
         
-        PriceLookupCode plu4 = new PriceLookupCode("4066");
-        PLUCodedProduct p4 = new PLUCodedProduct(plu4, "Green Apple", new BigDecimal("1.68"));
-        Inventory.addProduct(p4);
+        PriceLookupCode gAppleCode = new PriceLookupCode("4066");
+        PLUCodedProduct gApple = new PLUCodedProduct(gAppleCode, "Green Apple", new BigDecimal("1.68"));
+        Inventory.addProduct(gApple);
         
-        PriceLookupCode plu5 = new PriceLookupCode("3945");
-        PLUCodedProduct p5 = new PLUCodedProduct(plu5, "Avocado", new BigDecimal("2.99"));
-        Inventory.addProduct(p5);
+        PriceLookupCode avocadoCode = new PriceLookupCode("3945");
+        PLUCodedProduct avocado = new PLUCodedProduct(avocadoCode, "Avocado", new BigDecimal("2.99"));
+        Inventory.addProduct(avocado);
 
         // Barcoded items
-        Numeral[] nums = new Numeral[4];
-        nums[0] = Numeral.two;
-        nums[1] = Numeral.five;
-        nums[2] = Numeral.six;
-        nums[3] = Numeral.one;
-        Barcode bar = new Barcode(nums);
-        BarcodedProduct p6 = new BarcodedProduct(bar, "Coffee", new BigDecimal("6.20"), 15.0);
-        Inventory.addProduct(p6);
+        Barcode coffeeCode = randomBarcode();
+        int coffeeWeight = 940;
+        BarcodedProduct coffee = new BarcodedProduct(coffeeCode, "Coffee", new BigDecimal("13.80"), coffeeWeight);
+        Inventory.addProduct(coffee);
+        
+        Barcode fruitLoopsCode = randomBarcode();
+        int fruitLoopsWeight = 400;
+        BarcodedProduct fruitLoops = new BarcodedProduct(fruitLoopsCode, "Fruit Loops", new BigDecimal("5.95"), fruitLoopsWeight);
+        Inventory.addProduct(fruitLoops);
+        
+        Barcode kraftDinnerCode = randomBarcode();
+        int kraftDinnerWeight = 120;
+        BarcodedProduct kraftDinner = new BarcodedProduct(kraftDinnerCode, "Kraft Dinner", new BigDecimal("2.49"), kraftDinnerWeight);
+        Inventory.addProduct(kraftDinner);
 
-        // Add 10 items for each product
-        for (int t = 0; t < 5; t++) {
-            PLUCodedItem pi1 = new PLUCodedItem(plu1, 4);
-            PLUCodedItem pi2 = new PLUCodedItem(plu2, 2.5);
-            PLUCodedItem pi3 = new PLUCodedItem(plu3, 3.2);
-            PLUCodedItem pi4 = new PLUCodedItem(plu4, 2.8);
-            PLUCodedItem pi5 = new PLUCodedItem(plu5, 3);
-            BarcodedItem bi1 = new BarcodedItem(bar, 15.0);
-            Tangibles.ITEMS.add(pi1);
-            Tangibles.ITEMS.add(pi2);
-            Tangibles.ITEMS.add(pi3);
-            Tangibles.ITEMS.add(pi4);
-            Tangibles.ITEMS.add(pi5);
-            Tangibles.ITEMS.add(bi1);
-            Inventory.setQuantity(p1, 1);
-            Inventory.setQuantity(p2, 1);
-            Inventory.setQuantity(p3, 1);
-            Inventory.setQuantity(p4, 1);
-            Inventory.setQuantity(p5, 1);
-            Inventory.setQuantity(p6, 1);
-        }
+        Barcode plasticBagCode = new Barcode(new Numeral[] { Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero });
+        int plasticBagWeight = 1;
+        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.1"), plasticBagWeight);
+        Inventory.addProduct(plasticBag);
+
+        // Add 1 of each plu item 
+        // they should be unique because of their weight
+        Vector<PLUCodedItem> pItems = new Vector<>();
+        pItems.add(new PLUCodedItem(cornCode, 194));
+        pItems.add(new PLUCodedItem(cornCode, 186));
+        pItems.add(new PLUCodedItem(cornCode, 222));
+        pItems.add(new PLUCodedItem(cornCode, 220));
+        pItems.add(new PLUCodedItem(cornCode, 210));
+        Inventory.setQuantity(corn, 5);
+        
+        pItems.add(new PLUCodedItem(tomatoCode, 105));
+        pItems.add(new PLUCodedItem(tomatoCode, 139));
+        pItems.add(new PLUCodedItem(tomatoCode, 112));
+        pItems.add(new PLUCodedItem(tomatoCode, 124));
+        Inventory.setQuantity(tomato, 4);
+
+        pItems.add(new PLUCodedItem(beetCode, 140));
+        pItems.add(new PLUCodedItem(beetCode, 144));
+        pItems.add(new PLUCodedItem(beetCode, 136));
+        Inventory.setQuantity(beet, 3);
+        
+        pItems.add(new PLUCodedItem(gAppleCode, 240));
+        pItems.add(new PLUCodedItem(gAppleCode, 230));
+        pItems.add(new PLUCodedItem(gAppleCode, 233));
+        pItems.add(new PLUCodedItem(gAppleCode, 242));
+        pItems.add(new PLUCodedItem(gAppleCode, 240));
+        pItems.add(new PLUCodedItem(gAppleCode, 251));
+        Inventory.setQuantity(gApple, 6);
+        
+        // I don't envy data entry workers DX
+        
+        pItems.add(new PLUCodedItem(avocadoCode, 290));
+        pItems.add(new PLUCodedItem(avocadoCode, 301));
+        pItems.add(new PLUCodedItem(avocadoCode, 299));
+        pItems.add(new PLUCodedItem(avocadoCode, 300));
+        Inventory.setQuantity(avocado, 4);
+        
+        pItems.forEach(it -> Tangibles.ITEMS.add(it));
+        
+        // add several barcoded items
+        // no need for uniqueness as weight is not recorded per item
+        Vector<BarcodedItem> bItems = new Vector<>();
+        
+    	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
+    	Inventory.setQuantity(coffee, 4); 
+    	
+    	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
+    	Inventory.setQuantity(fruitLoops, 8); 
+    	
+    	bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
+    	Inventory.setQuantity(kraftDinner, 10); 
+    	
+    	bItems.forEach(bi -> Tangibles.ITEMS.add(bi));
+    	
     }
-
+    
+    // We assume we are working in Canadian denominations
     private static void initializeStore() {
         Currency currency = Configurations.currency;
-        int[] banknoteDenominations = { 1, 5, 10, 20, 100 };
+        int[] banknoteDenominations = { 5, 10, 20, 50, 100 };
         BigDecimal[] coinDenominations = {
-                new BigDecimal("0.01"),
                 new BigDecimal("0.05"),
                 new BigDecimal("0.1"),
                 new BigDecimal("0.25"),
-                new BigDecimal("1.00")
+                new BigDecimal("1.00"),
+                new BigDecimal("2.00")
         };
 
         // Initialize supervision station
@@ -197,6 +252,25 @@ public final class Main {
             SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
             Store.addSelfCheckoutSoftware(software);
         }
+    }
+    
+    /**
+     * Generates a random barcode that does not exist yet.
+     * @return 
+     */
+    private static Barcode randomBarcode() {
+    	Random rand = new Random();
+    	Barcode barcode;
+        Numeral[] nums = new Numeral[4];
+        
+        do {
+	        nums[0] = Numeral.valueOf((byte)rand.nextInt(10));
+	        nums[1] = Numeral.valueOf((byte)rand.nextInt(10));
+	        nums[2] = Numeral.valueOf((byte)rand.nextInt(10));
+	        nums[3] = Numeral.valueOf((byte)rand.nextInt(10));
+	        barcode = new Barcode(nums);
+        } while (Inventory.getBarcodedProducts().containsKey(barcode));
+    	return barcode;
     }
 
     private static void initializeMembership() {

@@ -1,11 +1,14 @@
 package user;
 
+import org.lsmr.selfcheckout.Barcode;
+import org.lsmr.selfcheckout.Numeral;
 import org.lsmr.selfcheckout.PriceLookupCode;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
 import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import store.Inventory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -100,7 +103,7 @@ public class Customer extends User {
 	public BigDecimal getCartSubtotal() {
 		BigDecimal subtotal = BigDecimal.ZERO;
 
-		for (CartEntry entry : this.cart) {
+		for (CartEntry entry : this.getCartEntries()) {
 			if (entry.getProduct().isPerUnit()) { // If per-unit (barcoded)
 				subtotal = subtotal.add(entry.getProduct().getPrice());
 			} else { // Else per-kilogram (PLU coded)
@@ -123,7 +126,7 @@ public class Customer extends User {
 	public List<Product> getCart() {
 		List<Product> list = new ArrayList<Product>();
 
-		for (CartEntry entry : this.cart) {
+		for (CartEntry entry : this.getCartEntries()) {
 			list.add(entry.getProduct());
 		}
 
@@ -136,7 +139,15 @@ public class Customer extends User {
 	 * @return List<Product>
 	 */
 	public List<CartEntry> getCartEntries() {
-		return Collections.unmodifiableList(this.cart);
+		List<CartEntry> cart = new ArrayList<CartEntry>(this.cart);
+		
+		// Add plastic bags
+		Product plasticBag = Inventory.getProduct(new Barcode(new Numeral[] { Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero }));
+		for (int t = 0; t < this.numOfPlasticBags; t++) {
+			cart.add(new CartEntry(plasticBag, 1.0));
+		}
+
+		return Collections.unmodifiableList(cart);
 	}
 
 	public void setMemberID(String memberID) {

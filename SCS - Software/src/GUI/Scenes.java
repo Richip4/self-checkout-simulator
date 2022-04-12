@@ -2,19 +2,18 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -43,8 +42,10 @@ import org.lsmr.selfcheckout.products.Product;
 import application.AppControl;
 import application.Main.Tangibles;
 import software.SelfCheckoutSoftware;
+import software.SelfCheckoutSoftware.Phase;
 import store.Inventory;
 import store.Store;
+import store.credentials.AuthorizationRequiredException;
 
 public class Scenes {
 	
@@ -66,6 +67,7 @@ public class Scenes {
 	// reference to the current station we are interacting with
 	// 0 = attendant station; 1-6 = self checkout 1-6; -1 = not at a station
 	private int currentStation;
+	public int newUserPrompt = -1;
 	
 	private Color defaultBackground = new Color(220, 227, 230);
 
@@ -74,12 +76,10 @@ public class Scenes {
 	}
 	
 	public int getCurrentStation() {
-		System.out.println("Get Station: " + currentStation);
 		return currentStation;
 	}
 
 	public void setCurrentStation(int currentStation) {
-		System.out.println("Set Station: " + currentStation);
 		this.currentStation = currentStation;
 	}
 	
@@ -134,6 +134,7 @@ public class Scenes {
 		
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
+
 		
 		public JFrame getScene() {
 			// init the scene and retrieve the JPanel canvas in which to build on
@@ -146,11 +147,24 @@ public class Scenes {
 			// terminate the actual program.  Set a window
 			// listener here to exit when scene is exitted.
 			this.addWindowListener(new WindowAdapter() {
-				public void windowActivated(WindowEvent e) {
-					
-				}
 				public void windowClosing(WindowEvent e) {
 					System.exit(0);
+				}
+			});
+			
+			
+			this.addWindowFocusListener(new WindowAdapter() {
+				public void windowGainedFocus(WindowEvent e) {
+					if (newUserPrompt == -1) {
+						// prompt the user to reply with what type of user they are
+						do {
+							int userType = promptForUserType();
+							if (userType == -1) { System.exit(0); }
+							newUserPrompt = (userType == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;
+	
+						}
+						while (!GUI.newUser(newUserPrompt));
+					}
 				}
 			});
 			
@@ -224,13 +238,6 @@ public class Scenes {
 			// to display frame, make visible after adding all components
 			this.setVisible(true);
 
-			// prompt the user to reply with what type of user they are
-			int newUserType;
-			do {
-				newUserType = (promptForUserType() == 0) ? AppControl.CUSTOMER : AppControl.ATTENDANT;					
-			}
-			while (!GUI.newUser(newUserType));
-
 			return this;
 		}
 
@@ -279,7 +286,6 @@ public class Scenes {
 		JButton maintenance;
 		JButton coinInSlot;
 		JButton coinTray;
-		JButton weighScale;
 		JButton scanner;
 		JButton handScanner;
 		JButton cardReader;
@@ -297,6 +303,13 @@ public class Scenes {
 			generateBanner(scene, false, banner_info, banner_title);
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
+			
+			this.addWindowFocusListener(new WindowAdapter() {
+                public void windowGainedFocus(WindowEvent e) {
+                    banner_info.setText(GUI.getUserInstruction(SCS_OVERVIEW));
+                    updateDisplay();
+                }
+            });
 			
 			JPanel content = new JPanel();
 			content.setBackground(new Color(220 - (i * 5), 227 - (i * 7), 230 - (i * 4)));
@@ -368,12 +381,14 @@ public class Scenes {
 			content.add(coinTray);
 			
 			// item weigh scale
-			weighScale = new JButton();
+			JLabel weighScale = new JLabel();
+			weighScale = new JLabel();
 			weighScale.setBounds(435, 250, 215, 90);
 			weighScale.setText("Item Weigh Scale");
+			weighScale.setHorizontalAlignment(SwingConstants.CENTER);
 			weighScale.setBorder(BorderFactory.createLineBorder(Color.black, 3, true));
-			weighScale.addActionListener(this);
 			weighScale.setFocusable(false);
+			weighScale.setOpaque(true);
 			content.add(weighScale);
 			
 			// stationary barcode scanner
@@ -435,22 +450,24 @@ public class Scenes {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == bagScale) {
 				GUI.userBagsItem(currentStation);
+				updateDisplay();
 			} else if (e.getSource() == bnInSlot) {
-				GUI.userInsertsBanknote(currentStation);
+				getBanknoteFromUser();
 			} else if (e.getSource() == bnOutSlot) {
 				GUI.userRemovesBanknote(currentStation);
 			} else if (e.getSource() == maintenance) {
 				GUI.userServicesStation(currentStation);
 			} else if (e.getSource() == coinInSlot) {
-				GUI.userInsertsCoin(currentStation);
+				getCoinFromUser();
 			} else if (e.getSource() == coinTray) {
 				GUI.userRemovesCoins(currentStation);
-			} else if (e.getSource() == weighScale) {
-				GUI.userPlacesItemOnWeighScale(currentStation);
 			} else if (e.getSource() == scanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, true);
+				updateDisplay();
 			} else if (e.getSource() == handScanner) {
-				GUI.userScansItem(currentStation);
+				GUI.userScansItem(currentStation, false);
+				String nItem = GUI.getNextItemDescription(currentStation);
+				updateDisplay();
 			} else if (e.getSource() == cardReader) {
 				GUI.userAccessCardReader(currentStation);
 			} else if (e.getSource() == printer) {
@@ -458,6 +475,17 @@ public class Scenes {
 			} else if (e.getSource() == touchscreen) {
 				GUI.userAccessTouchscreen(currentStation);
 			}
+		}
+		
+		private void updateDisplay() {
+			if (GUI.getPhase(currentStation) == Phase.BAGGING_ITEM) {
+				nextItem.setText("Bag Item");
+                nextItem.repaint();
+			} else {
+				nextItem.setText(GUI.getNextItemDescription(currentStation));
+                nextItem.repaint();
+			}
+			
 		}
 	}
 	
@@ -691,15 +719,11 @@ public class Scenes {
 			} else if (e.getSource() == checkout) {
 				GUI.proceedToCheckout();
 			} else if (e.getSource() == attendant) {
-				if (GUI.stationAttendantAccess()) {
-					// prompt attendant for password
-					// they must already be logged in to the attendant station
-					if (promptAttendantForPassword()) {
-						stationAttendantOptions();
-					}
+				if (promptAttendantForPassword()) {
+					stationAttendantOptions();	
 				}
 			} else if (e.getSource() == ownBags) {
-				GUI.userUsesOwnBags();
+				GUI.userUsesOwnBags(currentStation);
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
@@ -778,8 +802,8 @@ public class Scenes {
 			} else if (e.getSource() == swipe) {
 				GUI.userSwipesCard(promptCustomerForCard());
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-			} else if (e.getSource() == insert) {
-				GUI.userInsertCard(promptCustomerForCard());
+			} else if (e.getSource() == insert) { 
+				GUI.userInsertCard(promptCustomerForCard(), ""); // TODO
 				this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			}
 		}
@@ -925,18 +949,14 @@ public class Scenes {
 			} else if (e.getSource() == refillCoinDispensers) {
 				GUI.refillCoinDispenser();
 			} else if (e.getSource() == addPaper) {
-				GUI.addPaper();
+				GUI.addPaper(currentStation, 100);
 			} else if (e.getSource() == addInk) {
-				GUI.addInk();
+				GUI.addInk(currentStation, 100);
 			} else if (e.getSource() == bnEmptyStorage) {
 				GUI.emptyBanknoteStorage();
-			} else if (e.getSource() == bnFillStorage) {
-				GUI.fillBankStorage();
 			} else if (e.getSource() == coinEmptyStorage) {
 				GUI.emptyCoinStorage();
-			} else if (e.getSource() == coinFillStorage) {
-				GUI.fillCoinStorage();
-			}
+			} 
 		}
 	}
 			
@@ -952,9 +972,9 @@ public class Scenes {
 	 */
 	private Color checkStationAttention(int station) {
 		return (GUI.stationStatus(station) != "BLOCKED" && GUI.stationStatus(station) != "WEIGHT DISCREPANCY" &&
-				GUI.stationStatus(station) != "MISSING ITEM") ? green_light : red_light;
+				GUI.stationStatus(station) != "ITEM NOT BAGGED") ? green_light : red_light;
 	}
-	
+
 	/**
 	 * Sends a keypad prompt to the user to input a number.
 	 * A message is passed along to the keypad.
@@ -962,6 +982,20 @@ public class Scenes {
 	 */
 	public void getNumberFromUser(String msg) {
 		new Keypad(msg, this);
+	}
+	
+	/**
+	 * 
+	 */
+	public void getCoinFromUser() {
+		new CoinWallet(this);
+	}
+
+	/**
+	 * 
+	 */
+	public void getBanknoteFromUser() {
+		new BanknoteWallet(this);
 	}
 
 	/**
@@ -1003,7 +1037,11 @@ public class Scenes {
 		shutdown.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GUI.shutdownStation();
+				try {
+					GUI.shutdownStation();
+				} catch (AuthorizationRequiredException e1) {
+					Scenes.errorMsg("incorrect login info");
+				}
 				authorizedWindow.dispatchEvent(new WindowEvent(authorizedWindow, WindowEvent.WINDOW_CLOSING));
 			}
 		});
@@ -1030,12 +1068,7 @@ public class Scenes {
 	private static int promptForUserType() {
 		String[] userTypes = {"Customer", "Attendant" };
 		int answer = JOptionPane.showOptionDialog(null, "Are you a Customer or Attendant?", 
-				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0);
-		
-		while (answer == -1) {
-			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
-					"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, 0);
-		}
+				"User?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, userTypes, -1);
 		
 		return answer;
 	}
@@ -1083,7 +1116,7 @@ public class Scenes {
 	 * goes back to the attendant station.
 	 * @return true if password matches logged in attendant
 	 */
-	private boolean promptAttendantForPassword() {
+	private static boolean promptAttendantForPassword() {
 		Box box = Box.createVerticalBox();
 
 		JLabel passwordPrompt = new JLabel("  Password");
@@ -1397,6 +1430,21 @@ public class Scenes {
 	public static void errorMsg(String msg) {
 		JOptionPane.showMessageDialog(null, msg, null, JOptionPane.WARNING_MESSAGE);
 	}
+	
+//	public static boolean promptBagItem() {
+//		String[] options = {"Yes", "No" };
+//		int answer = JOptionPane.showOptionDialog(null, "Would you like to bag this item?", 
+//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+//		
+//		while (answer == -1) {
+//			answer = JOptionPane.showOptionDialog(null, "Please select one of the options", 
+//				"Bag item?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, 0);
+//		}
+//		
+//		//returns true if yes is selected
+//		return answer == 0;
+//	
+//	}
 
 	/**
 	 * When a Keypad object is created for number input it
@@ -1405,11 +1453,21 @@ public class Scenes {
 	 */
 	public void keypadReturnValue(int number) {
 		if (expectingPLUCode) {
-			GUI.userEntersPLUCode(number);
+			GUI.userEntersPLUCode(number, currentStation);
 			expectingPLUCode = false;
 		} else if (expectingMembershipNum) {
 			GUI.userEntersMembership(number);
 			expectingMembershipNum = false;
 		}
+	}
+	
+	
+	
+	public void coinWalletReturnValue(BigDecimal value) {
+		GUI.userInsertsCoin(currentStation, value);
+	}
+	
+	public void banknoteWalletReturnValue(int value) {
+		GUI.userInsertsBanknote(currentStation, value);
 	}
 }
