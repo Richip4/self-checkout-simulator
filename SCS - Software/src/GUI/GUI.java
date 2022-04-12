@@ -451,7 +451,7 @@ public class GUI {
 				} else {
 					// refill the printer to max capacity
 					scs.printer.addPaper(scss.getPaperUsed());
-					scss.updatePaperUsed();
+					scss.resetPaperUsed();
 				}
 			} catch (OverloadException e) {
 				// overload exception should never be thrown
@@ -468,7 +468,7 @@ public class GUI {
 					Scenes.errorMsg("The ink cartridge is already full");
 				} else {
 					scs.printer.addInk(scss.getInkUsed());
-					scss.updateInkUsed();
+					scss.resetInkUsed();
 				}
 			} catch (OverloadException e) {
 				// overload exception should never be thrown

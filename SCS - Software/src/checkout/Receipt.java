@@ -175,19 +175,11 @@ public class Receipt implements ReceiptPrinterObserver {
 		}
 	}
 	
-	public int getPaperUsed() {
-		return this.paperUsed;
-	}
-	
-	public void updatePaperUsed() {
+	public void resetPaperUsed() {
 		this.paperUsed = 0;
 	}
 	
-	public int getInkUsed() {
-		return this.inkUsed;
-	}
-	
-	public void updateInkUsed() {
+	public void resetInkUsed() {
 		this.inkUsed = 0;
 	}
 	

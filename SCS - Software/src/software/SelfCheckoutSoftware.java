@@ -135,16 +135,16 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     	return this.receipt.getPaperUsed();
     }
     
-    public void updatePaperUsed() {
-        this.receipt.updatePaperUsed();
+    public void resetPaperUsed() {
+        this.receipt.resetPaperUsed();
     }
     
     public int getInkUsed() {
     	return this.receipt.getInkUsed();
     }
     
-    public void updateInkUsed() {
-        this.receipt.updateInkUsed();
+    public void resetInkUsed() {
+        this.receipt.resetInkUsed();
     }
 
     /**
