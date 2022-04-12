@@ -158,12 +158,9 @@ public class Checkout {
 		if (this.pendingChanges.isEmpty()) {
 			// Calculate how much change to return to customer
 			BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
-			this.pendingChanges = this.calculatePendingChanges(change);
+			this.pendingChanges = new ArrayList<Cash>(this.calculatePendingChanges(change));
 
-			// print pendingChangesd
-			for (Cash c : this.pendingChanges) {
-				System.out.println("loop: " + c.value + " " + c.type);
-			}
+	
 		}
 
 		// If no pending changes, return
@@ -200,12 +197,11 @@ public class Checkout {
 			}
 		}
 
-//		this.pendingChanges.
-		this.pendingChanges = newPendingChanges;
+		this.pendingChanges = new ArrayList<Cash>(newPendingChanges);
 
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
-		if (size <= this.pendingChanges.size()) {
+		if (size <= newPendingChanges.size()) {
 			System.out.println("no dispensing");
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()
@@ -214,7 +210,7 @@ public class Checkout {
 		}
 
 		// If the last one is dispensed, to next phase
-		if (pendingChanges.isEmpty()) {
+		if (this.pendingChanges.isEmpty()) {
 			this.scss.paymentCompleted();
 			return;
 		}
@@ -269,7 +265,7 @@ public class Checkout {
 
 			if (change.compareTo(cash.value) >= 0) {
 				// Add this to the pending change list
-				pendingChanges.add(cash);
+				pendingChanges.add(new Cash(cash));
 				change = change.subtract(cash.value);
 			} else {
 				// current denomination is bigger than 'change' amount. Remove it from
@@ -301,10 +297,15 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
+		Cash(Cash copy){
+			this.type = copy.type;
+			this.value = copy.value;
+		}
 
 		@Override
 		public int compareTo(Cash other) {
 			return this.value.compareTo(other.value);
 		}
 	}
+	
 }

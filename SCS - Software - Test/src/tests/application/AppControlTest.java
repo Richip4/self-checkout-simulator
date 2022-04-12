@@ -1,4 +1,14 @@
 package tests.application;
 
-public class AppControlTest
-{}
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import application.AppControl;
+import application.Main;
+import user.Attendant;
+import user.Customer;
+
+public class AppControlTest {
+
+}
