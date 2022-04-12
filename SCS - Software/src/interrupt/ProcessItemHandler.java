@@ -200,10 +200,10 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 		// their own bag to the bagging area
 		if (this.scss.getPhase() == Phase.PLACING_OWN_BAG) {
 			this.currentWeight = weightInGrams; // Record the new weight (with the bag)
-			this.scss.addItem(); // go back to add item phase
+			// this.scss.addItem(); // go back to add item phase !!!! not until attendant says so!
 			return;
 		}
-
+		
 		// If currently detecting weight discrepancy and required removal
 		// The weight should be back to currentWeight
 		if (this.scss.getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
@@ -267,6 +267,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 	@Override
 	public void overload(ElectronicScale scale) {
+		System.out.println("Scale overloaded");
 		this.scaleOverloaded = true;
 		this.scss.blockSystem();
 		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.scaleOverloadedDetected(this.scss));
@@ -274,6 +275,7 @@ public class ProcessItemHandler extends Handler implements BarcodeScannerObserve
 
 	@Override
 	public void outOfOverload(ElectronicScale scale) {
+		System.out.println("Scale out of overloaded");
 		this.scaleOverloaded = false;
 		this.scss.blockSystem();
 		this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.scaleOverloadedResolved(this.scss));

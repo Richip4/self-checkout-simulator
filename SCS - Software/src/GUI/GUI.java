@@ -9,6 +9,7 @@ import org.lsmr.selfcheckout.Coin;
 import org.lsmr.selfcheckout.Item;
 import org.lsmr.selfcheckout.PLUCodedItem;
 import org.lsmr.selfcheckout.PriceLookupCode;
+import org.lsmr.selfcheckout.devices.DisabledException;
 import org.lsmr.selfcheckout.devices.OverloadException;
 import org.lsmr.selfcheckout.devices.SelfCheckoutStation;
 import org.lsmr.selfcheckout.products.BarcodedProduct;
@@ -16,6 +17,7 @@ import org.lsmr.selfcheckout.products.PLUCodedProduct;
 import org.lsmr.selfcheckout.products.Product;
 
 import application.AppControl;
+import application.Main;
 import software.SelfCheckoutSoftware.PaymentMethod;
 import software.SelfCheckoutSoftware.Phase;
 import software.SelfCheckoutSoftware;
@@ -135,7 +137,6 @@ public class GUI {
 			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		} else if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
 			ac.attendantLeavesStation(station);
-			scenes.newUserPrompt = -1; // dirty way of getting the system to prompt for new user type
 		}
 	}
 
@@ -151,22 +152,41 @@ public class GUI {
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
-			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-			scs.getCustomer().addCashBalance(BigDecimal.valueOf(value));
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
+			scs.selectedPaymentMethod(PaymentMethod.CASH);			
+		}
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
+			try {
+				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
+				if(scs.getCustomer().hasSufficientCashBalance()) {
+					scs.makeChange();
+				}
+			} catch (DisabledException e) {
+				e.printStackTrace();
+			} catch (OverloadException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
 	public static void userRemovesBanknote(int currentStation) {
-		/* MAKE CHANGE METHOD MUST BE FIXED BEFORE THIS CAN BE TESTED
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER 
-				&& scss.getPhase() == Phase.PAYMENT_COMPLETE
+				&& (scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.PROCESSING_PAYMENT)
 				&& !(scs.banknoteOutput.hasSpace()))
 		{
-			scs.banknoteOutput.removeDanglingBanknotes();
-			
-		} */
+			if(scss.getBanknoteDangling()) {
+				scss.setBanknoteDangling(false);
+				scs.banknoteOutput.removeDanglingBanknotes();
+				System.out.println("bill taken"); //TODO
+			}
+		} 
 	}
 
 	public static void userServicesStation(int currentStation) {
@@ -178,39 +198,64 @@ public class GUI {
 
 	public static void userInsertsCoin(int currentStation, BigDecimal value) {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-		scs.getCustomer().addCashBalance(value);
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
+			scs.selectedPaymentMethod(PaymentMethod.CASH);			
+		}
+		
+		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
+			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
+			try {
+				scs.getSelfCheckoutStation().coinSlot.accept(new Coin(Main.Configurations.currency, value));
+				if (scs.getCustomer().hasSufficientCashBalance()) {
+					scs.makeChange();
+				}			
+			} catch (DisabledException e) {
+				e.printStackTrace();
+			} catch (OverloadException e) {
+				e.printStackTrace();
+			}
+			
+		}
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
-		// TODO Auto-generated method stub
-		/*
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
-			scs.coinTray.collectCoins();
-		} */
+			if(scss.getCoinInTray()){
+				scs.coinTray.collectCoins();
+				scss.setCoinInTray(false);
+				System.out.println("Coins taken");
+			}
+		}
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
-		//we assume that it scans the first item in our list of auto generated items
-		Item item = ac.getCustomersNextItem(currentStation);
-		try {
-			BarcodedItem product = (BarcodedItem) item;
-			
-			SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
-			SelfCheckoutStation hardware = software.getSelfCheckoutStation();
-			
-			software.addItem();
-			
-			if (usedMainScanner) {
-				hardware.mainScanner.scan(item);
-			}else {
-				hardware.handheldScanner.scan(item);
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+			Item item = ac.getCustomersNextItem(currentStation);
+			if (item instanceof BarcodedItem) {
+				try {
+					
+					SelfCheckoutSoftware software = ac.getSelfCheckoutSoftware(currentStation);
+					SelfCheckoutStation hardware = software.getSelfCheckoutStation();
+					
+					software.addItem();
+					
+					while(ac.getStationPhase(currentStation) != Phase.BAGGING_ITEM) {
+						if (usedMainScanner) {
+							hardware.mainScanner.scan(item);
+						} else {
+							hardware.handheldScanner.scan(item);
+						}
+					}
+					
+					ac.removeCustomerNextItem(currentStation);
+				} catch (Exception e) {
+					Scenes.errorMsg("You cannot scan this item");
+				}
 			}
-			ac.removeCustomerNextItem(currentStation);
-		}catch (Exception e) {
-			Scenes.errorMsg("You cannot scan this item");
 		}
 	}
 	
@@ -220,8 +265,8 @@ public class GUI {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
 				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
 			try {
-				scs.printer.cutPaper();
-				scs.printer.removeReceipt();
+				String receipt = scs.printer.removeReceipt();
+				System.out.println("\n\n" + receipt + "\n");
 			}catch(Exception e){
 				Scenes.errorMsg("You are trying to remove a non-existent receipt");
 			}	
@@ -237,7 +282,13 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		scenes.getScene(Scenes.SCS_TOUCH);
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+			scenes.getScene(Scenes.SCS_TOUCH);
+		} else if (ac.getStationPhase(currentStation) == Phase.BLOCKING) { 
+			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
+		} else if (ac.getStationPhase(currentStation) == Phase.PLACING_OWN_BAG) {
+			Scenes.errorMsg("Wait for an attendant to approve your bags.");
+		}
 	}
 
 	public static void attendantLogsOut() {
@@ -273,38 +324,60 @@ public class GUI {
 	 * 
 	 * @param station
 	 */
-	public static void attendantApproveStation(int station) {
+	public static void attendantApprovesStation(int station) {
 		
 		ac.approveStationDiscrepancy(station);
 	}
 
 	public static void userTapsCard(int cardType) {
-		if (cardType == AppControl.CREDIT) {
-			ac.customerTapsCreditCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.DEBIT) {
-			ac.customerTapsDebitCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.MEMBERSHIP) {
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		if(ac.getStationPhase(scenes.getCurrentStation()).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			if (cardType == AppControl.CREDIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerTapsCreditCard(scenes.getCurrentStation());
+			} 
+			else if (cardType == AppControl.DEBIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerTapsDebitCard(scenes.getCurrentStation());
+			} 
+		}
+		else if (cardType == AppControl.MEMBERSHIP) {
 			ac.customerTapsMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
 	public static void userSwipesCard(int cardType) {
-		if (cardType == AppControl.CREDIT) {
-			ac.customerSwipesCreditCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.DEBIT) {
-			ac.customerSwipesDebitCard(scenes.getCurrentStation());
-		} if (cardType == AppControl.MEMBERSHIP) {
-			ac.customerSwipesMembershipCard(scenes.getCurrentStation());
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		if(ac.getStationPhase(scenes.getCurrentStation()).equals(Phase.CHOOSING_PAYMENT_METHOD)){
+			if (cardType == AppControl.CREDIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerSwipesCreditCard(scenes.getCurrentStation());
+			} if (cardType == AppControl.DEBIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerSwipesDebitCard(scenes.getCurrentStation());
+			} if (cardType == AppControl.MEMBERSHIP) {
+				ac.customerSwipesMembershipCard(scenes.getCurrentStation());
+			}
 		}
+		
 	}
 
 	public static void userInsertCard(int cardType, String pin) {
-		if (cardType == AppControl.CREDIT) {
-			// pin is needed from a key pad
-			ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
-		} if (cardType == AppControl.DEBIT) {
-			ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
+		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		if(ac.getStationPhase(scenes.getCurrentStation()).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			if (cardType == AppControl.CREDIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerInsertCreditCard(scenes.getCurrentStation(), pin);
+			} if (cardType == AppControl.DEBIT) {
+				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
+				ac.customerInsertDebitCard(scenes.getCurrentStation(), pin);
+			}
 		}
+		
+	}
+	
+	public static void userSkipsBagging() {
+		ac.skipBagging(scenes.getCurrentStation());
 	}
 
 	public static void refillBanknoteDispensers() {
@@ -320,7 +393,7 @@ public class GUI {
 			// For every dispenser (there is one dispenser for each banknote denomination)
 			for(int denom: banknoteDenoms) {
 				int numBillsInDispenser = scs.banknoteDispensers.get(denom).size();
-				int dispenserCapacity = scs.BANKNOTE_DISPENSER_CAPACITY;
+				int dispenserCapacity = SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY;
 				
 				Banknote note = new Banknote(currency,denom);
 				
@@ -421,7 +494,12 @@ public class GUI {
 
 	public static void proceedToCheckout() {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-		scs.checkout();
+		scs.getCustomer().setPlasticBags(scenes.promptNumOfBags());
+		try {
+			scs.checkout();
+		} catch (IllegalStateException e) {
+			
+		}
 	}
 
 	public static void userUsesOwnBags(int currentStation) {
@@ -431,9 +509,7 @@ public class GUI {
 	}
 
 	public static void userEntersMembership(int num) {
-
-		if(Membership.isMember(Integer.toString(num)))
-		{
+		if(Membership.isMember(Integer.toString(num))){
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.getCustomer().setMemberID(Integer.toString(num));
 		}
@@ -444,7 +520,12 @@ public class GUI {
 	 * @param pluCodedProduct
 	 */
 	public static void selectedItem(PLUCodedProduct pluCodedProduct) {
-		// TODO
+		int code = 0;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(0).getValue() * 1000;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(1).getValue() * 100;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(2).getValue() * 10;
+		code += (int)pluCodedProduct.getPLUCode().getNumeralAt(3).getValue();
+		userEntersPLUCode(code, scenes.getCurrentStation());
 	}
 
 	public static void userEntersPLUCode(int code, int currentStation) {
@@ -456,10 +537,10 @@ public class GUI {
 			PLUCodedItem pluItem = (PLUCodedItem)ac.getCustomersNextItem(currentStation);
 			
 			//for simulation purpose only
-			if (!plu.equals(pluItem.getPLUCode())) {
-				Scenes.errorMsg("Simulation error! Please enter the PLU at the top of your cart!");
-				return;
-			}
+//			if (!plu.equals(pluItem.getPLUCode())) {
+//				Scenes.errorMsg("PLU Code does not match.");
+//				return;
+//			}
 			
 			//check if the PLU exists in the Inventory
 			if (Inventory.getProduct(plu).getPLUCode().equals(plu)) {
@@ -551,18 +632,35 @@ public class GUI {
 	public static boolean isAttendantLoggedIn() {
 		return ac.isAttendantLoggedIn();
 	}
+	
+	public static String getAmountPaid(int station) {
+		String paid = ac.getCustomerPaidAmount(station);
+		if (paid == null) {
+			return "Paid $0.00";
+		}
+		return "Paid $" + paid; 
+	}
 
+	public static String getSubtotal(int station) {
+		String subtotal = ac.getCustomersSubtotal(station);
+		if (subtotal == null) {
+			return "Subtotal $0.00";
+		}
+		return "Subtotal $" + subtotal; 
+	}
+	
 	public static String getNextItemDescription(int station) {
 		String desc = "";
 		Item item = ac.getCustomersNextItem(station);
 		
 		if (item == null)
-			return "No more items";
+			return "";
+		
 		if (item instanceof PLUCodedItem) {
 			PLUCodedItem pluItem = (PLUCodedItem) item;
 			PLUCodedProduct p = Inventory.getProduct(pluItem.getPLUCode()); 
 			desc = "<html>PLU Coded Item<br>";
-			desc += p.getDescription() +"  $"+ p.getPrice();
+			desc += p.getDescription() +"  $"+ p.getPrice() + "/kg";
 			desc += "<br>Code: " + p.getPLUCode() + "</html>";
 		} else if (item instanceof BarcodedItem) {
 			BarcodedItem barItem = (BarcodedItem) item;
@@ -579,47 +677,26 @@ public class GUI {
 	 */
 	public static String getUserInstruction(int scene) {
 		String instruction = null;
-		switch (scene) {
-		// Self-Checkout Station Overview Scene
-		case(Scenes.SCS_OVERVIEW):
 			
-			if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.CHOOSING_PAYMENT_METHOD) {
-				instruction = "Insert Banknote/Coin or pay with Card";
-			} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.PAYMENT_COMPLETE) {
-				instruction = "Take Change and Receipt";
-			} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.BAGGING_ITEM) {
-				instruction = "Put item in bagging area or request to Skip Bagging";
-			} else {
-				Item item = ac.getCustomersNextItem(scenes.getCurrentStation());
-				if (item instanceof PLUCodedItem) {
-					instruction = "Look up Product or enter PLU code on Touchscreen";
-				} else if (item instanceof BarcodedItem) {
-					instruction = "Scan Barcoded Item";
-				}
+		if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.CHOOSING_PAYMENT_METHOD) {
+			instruction = "Insert Banknote/Coin or pay with Card";
+		} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.PAYMENT_COMPLETE) {
+			instruction = "Take Change and Receipt";
+		} else if (ac.getStationPhase(scenes.getCurrentStation()) == Phase.BAGGING_ITEM) {
+			instruction = "Put item in bagging area or request to Skip Bagging";
+		} else {
+			Item item = ac.getCustomersNextItem(scenes.getCurrentStation());
+			if (item instanceof PLUCodedItem) {
+				instruction = "Look up Product or enter PLU code on Touchscreen";
+			} else if (item instanceof BarcodedItem) {
+				instruction = "Scan Barcoded Item";
 			}
-		
-		// Attendant station scene
-		case(Scenes.AS_TOUCH):
-			break;
-		
-		// Self-Checkout Station Touchscreen Scene
-		case(Scenes.SCS_TOUCH):
-			break;
-		
-		// Self-Checkout Station Card Reader Scene
-		case(Scenes.SCS_CARDREADER):
-			break;
-		
-		// Self-Checkout Station Maintenance Scene
-		case(Scenes.SCS_MAINTENANCE):
-			break;
-		
 		}
 		return instruction;
 	}
 	
 	public static Phase getPhase(int stationNumber) {
-		System.out.println(ac.getSelfCheckoutSoftware(stationNumber).getPhase());
+		System.out.println(ac.getSelfCheckoutSoftware(stationNumber).getPhase()); // TODO remove after testing
 		return ac.getSelfCheckoutSoftware(stationNumber).getPhase();
 	}
 }

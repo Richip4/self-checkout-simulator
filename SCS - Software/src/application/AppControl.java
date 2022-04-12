@@ -1,6 +1,7 @@
 package application;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -181,7 +182,7 @@ public class AppControl {
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();
 		int selectionSize = Tangibles.ITEMS.size();
-		int itemsGrabbed = random.nextInt(selectionSize/10);
+		int itemsGrabbed = Math.min(random.nextInt(selectionSize), 4); // customer takes at most 4 items
 		
 		List<Item> inventory = new ArrayList<>();
 		for (int i = 0; i < itemsGrabbed; i++) {
@@ -295,6 +296,8 @@ public class AppControl {
 			return "WEIGHT DISCREPANCY";
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			return "ITEM NOT BAGGED";
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
+			return "USE OWN BAGS";
 		} else {
 			return "OKAY";
 		}
@@ -339,6 +342,10 @@ public class AppControl {
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			try {
 				supervisorSoftware.approveItemNotBaggable(selfStationSoftwares.get(station));
+			} catch (AuthorizationRequiredException e) {}
+		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
+			try {
+				supervisorSoftware.approveUseOfOwnBags(selfStationSoftwares.get(station));
 			} catch (AuthorizationRequiredException e) {}
 		}
 	}
@@ -474,9 +481,32 @@ public class AppControl {
 		}
 		return false;
 	}
+	
+	public String getCustomerPaidAmount(int station) {
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		if (c != null) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			String paid = String.valueOf(df.format(c.getCashBalance())); 
+			System.out.println("Paid " + paid);
+			return paid;
+		}
+		return null;
+	}
+
+	public String getCustomersSubtotal(int station) {
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		if (c != null) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			String subtotal = String.valueOf(df.format(c.getCartSubtotal())); 
+			System.out.println(subtotal);
+			return subtotal;
+		}
+		
+		return null;
+	}
 
 	public List<Product> getCustomerCart(int station) {
-		Customer c = selfStationSoftwares.get(station).getCustomer();
+		Customer c = selfStationSoftwares.get(station-1).getCustomer();
 		if (c != null) {
 			return c.getCart();
 		}
@@ -494,7 +524,9 @@ public class AppControl {
 	 * @return null if customer has no more items to add
 	 */
 	public Item getCustomersNextItem(int station) {
-		if (inventories.get(users[station]).isEmpty())
+		List<Item> customersInventory = inventories.get(users[station]); 
+		if (customersInventory == null ||
+			customersInventory.isEmpty())
 			return null;
 		return inventories.get(users[station]).get(0);
 	}
@@ -554,5 +586,10 @@ public class AppControl {
 	        errorMessagePopup.setVisible(true);
 	    }
 
-
+	public void skipBagging(int station) {
+		if (stationsUserType[station] == ATTENDANT ||
+			stationsUserType[station] == BOTH) {
+			selfStationSoftwares.get(station-1).notBaggingItem();
+		}
+	}
 }
