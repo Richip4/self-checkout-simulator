@@ -855,7 +855,6 @@ public class Scenes {
 			scene.add(content);
 			
 			this.setVisible(true);
-			cardType = promptCustomerForCard();
 			
 			return this;
 		}
@@ -1145,6 +1144,23 @@ public class Scenes {
 		String[] cardTypes = {"CREDIT", "DEBIT", "MEMBERSHIP", "GIFT CARD" };
 		return JOptionPane.showOptionDialog(null, "Which card will you use?", 
 				"Card?", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, cardTypes, 0); 
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int promptNumOfBags() {
+		String answer = JOptionPane.showInputDialog("How many bags used?");
+		int ans;
+		try {
+			ans = Integer.valueOf(answer);
+		} catch (NumberFormatException e) {
+			errorMsg("Not a number");
+			ans = promptNumOfBags();
+		}
+	
+		return ans;
 	}
 	
 	/**

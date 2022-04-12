@@ -129,8 +129,7 @@ public class CardHandler extends Handler implements CardReaderObserver {
 				return;
 			}
 
-			this.customer.getMemberID();
-
+			this.customer.setMemberID(memberID);
 			this.scss.notifyObservers(observer -> observer.membershipCardDetected(memberID));
 		} else if (type.equals("debit") || type.equals("credit")) {
 			String cardNumber = data.getNumber();

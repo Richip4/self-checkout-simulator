@@ -185,6 +185,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
     @Override
     public Void membershipCardDetected(String memberID) {
         // not needed
+		System.out.println("Membership id: " + memberID);
         return null;
     }
 

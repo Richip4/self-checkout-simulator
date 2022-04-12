@@ -201,7 +201,7 @@ public class Checkout {
 
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
-		if (size <= newPendingChanges.size()) {
+		if (size <= this.pendingChanges.size()) {
 			System.out.println("no dispensing");
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()

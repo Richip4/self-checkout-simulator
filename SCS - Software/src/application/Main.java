@@ -249,8 +249,7 @@ public final class Main {
                 e.printStackTrace();
             }
             
-          
-        	station.banknoteDispensers.forEach((value, dispenser) -> {
+            station.banknoteDispensers.forEach((value, dispenser) -> {
         		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY; i++) {
         			Banknote note = new Banknote(currency, value);
         			try {
@@ -276,7 +275,6 @@ public final class Main {
 					}
         		}
     		});
-          
 
             // Add this station to tangibles, and add this station to the supervision
             // station

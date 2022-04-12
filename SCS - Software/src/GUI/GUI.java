@@ -181,8 +181,6 @@ public class GUI {
 				scs.banknoteOutput.removeDanglingBanknotes();
 				System.out.println("bill taken"); //TODO
 			}
-			
-			
 		} 
 	}
 
@@ -204,12 +202,8 @@ public class GUI {
 			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
 			try {
 				scs.getSelfCheckoutStation().coinSlot.accept(new Coin(Main.Configurations.currency, value));
-				
 				if (scs.getCustomer().hasSufficientCashBalance()) {
-					
 					scs.makeChange();
-					
-					System.out.println("Enough money!"); //TODO
 				}			
 				if(scs.getCustomer().hasSufficientCashBalance()) {
 					scs.makeChange();
@@ -222,9 +216,6 @@ public class GUI {
 			}
 			
 		}
-	
-		
-		
 	}
 	
 	public static void userRemovesCoins(int currentStation) {
@@ -232,13 +223,11 @@ public class GUI {
 		SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER &&
 				scss.getPhase() == Phase.PAYMENT_COMPLETE) {
-			if(scss.getCoinInTray())
-			{
+			if(scss.getCoinInTray()){
 				scs.coinTray.collectCoins();
 				scss.setCoinInTray(false);
 				System.out.println("Coins taken");
 			}
-	
 		}
 	}
 
@@ -275,8 +264,8 @@ public class GUI {
 		if (ac.getActiveUser().getUserType() == AppControl.CUSTOMER
 				&& scss.getPhase() == Phase.PAYMENT_COMPLETE || scss.getPhase() == Phase.IDLE) {
 			try {
-				scs.printer.cutPaper();
-				scs.printer.removeReceipt();
+				String receipt = scs.printer.removeReceipt();
+				System.out.println("\n\n" + receipt + "\n");
 			}catch(Exception e){
 				Scenes.errorMsg("You are trying to remove a non-existent receipt");
 			}	
@@ -345,12 +334,14 @@ public class GUI {
 			if (cardType == AppControl.CREDIT) {
 				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
 				ac.customerTapsCreditCard(scenes.getCurrentStation());
-			} if (cardType == AppControl.DEBIT) {
+			} 
+			else if (cardType == AppControl.DEBIT) {
 				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
 				ac.customerTapsDebitCard(scenes.getCurrentStation());
-			} if (cardType == AppControl.MEMBERSHIP) {
-				ac.customerTapsMembershipCard(scenes.getCurrentStation());
-			}
+			} 
+		}
+		else if (cardType == AppControl.MEMBERSHIP) {
+			ac.customerTapsMembershipCard(scenes.getCurrentStation());
 		}
 	}
 
@@ -502,6 +493,7 @@ public class GUI {
 
 	public static void proceedToCheckout() {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.getCustomer().setPlasticBags(scenes.promptNumOfBags());
 		try {
 			scs.checkout();
 		} catch (IllegalStateException e) {
@@ -516,9 +508,7 @@ public class GUI {
 	}
 
 	public static void userEntersMembership(int num) {
-
-		if(Membership.isMember(Integer.toString(num)))
-		{
+		if(Membership.isMember(Integer.toString(num))){
 			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
 			scs.getCustomer().setMemberID(Integer.toString(num));
 		}
