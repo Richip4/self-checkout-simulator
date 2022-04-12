@@ -1147,6 +1147,23 @@ public class Scenes {
 	}
 	
 	/**
+	 * 
+	 * @return
+	 */
+	public int promptNumOfBags() {
+		String answer = JOptionPane.showInputDialog("How many bags used?");
+		int ans;
+		try {
+			ans = Integer.valueOf(answer);
+		} catch (NumberFormatException e) {
+			errorMsg("Not a number");
+			ans = promptNumOfBags();
+		}
+	
+		return ans;
+	}
+	
+	/**
 	 * Prompts the attendant for a username and password.
 	 * Used when the attendant approaches the attendant station
 	 * and no one else is logged in.

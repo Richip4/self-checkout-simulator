@@ -494,6 +494,7 @@ public class GUI {
 
 	public static void proceedToCheckout() {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scs.getCustomer().setPlasticBags(scenes.promptNumOfBags());
 		try {
 			scs.checkout();
 		} catch (IllegalStateException e) {
