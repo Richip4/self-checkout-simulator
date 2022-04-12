@@ -855,7 +855,6 @@ public class Scenes {
 			scene.add(content);
 			
 			this.setVisible(true);
-			cardType = promptCustomerForCard();
 			
 			return this;
 		}
