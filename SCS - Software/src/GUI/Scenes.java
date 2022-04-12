@@ -571,12 +571,13 @@ public class Scenes {
 		JLabel[] station_light = new JLabel[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 		JButton[] station_block  = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 		JButton[] station_approve = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
+		JButton[] station_startup = new JButton[Tangibles.SUPERVISION_STATION.supervisedStationCount()];
 
 		JLabel banner_info = new JLabel();
 		JLabel banner_title = new JLabel();
 		
 		public JFrame getScene() {
-			JPanel scene = preprocessScene(this, 800, 650);
+			JPanel scene = preprocessScene(this, 900, 650);
 
 			generateBanner(scene, false, banner_info, banner_title);
 
@@ -591,7 +592,7 @@ public class Scenes {
 			
 				JPanel station = new JPanel();
 				station.setLayout(null);
-				station.setBounds(0, i * 100, 800, 100);
+				station.setBounds(0, i * 100, 900, 100);
 				station.setBackground((i % 2 == 0) ? tint_one : tint_two);
 				
 				// display the stations relavent status to the attendant
@@ -640,6 +641,14 @@ public class Scenes {
 				station_approve[i].setFocusable(false);
 				station.add(station_approve[i]);
 				
+				station_startup[i] = new JButton();
+				station_startup[i].setBounds(785, 25, 80, 50);
+				station_startup[i].setFont(new Font("Lucida Grande", Font.BOLD, 12));
+				station_startup[i].setText("START");
+				station_startup[i].addActionListener(this);
+				station_startup[i].setFocusable(false);
+				station.add(station_startup[i]);
+				
 				content.add(station);
 			}
 			
@@ -668,6 +677,9 @@ public class Scenes {
 					GUI.attendantApprovesStation(i);
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
+				} else if (e.getSource() == station_startup[i]) {
+					GUI.startupStation(i);
+					//station_status[i].setText(GUI.stationStatus(i)); 
 				}
 			}
 		}
@@ -1121,7 +1133,7 @@ public class Scenes {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					GUI.shutdownStation();
+					GUI.shutdownStation(currentStation);
 				} catch (AuthorizationRequiredException e1) {
 					Scenes.errorMsg("incorrect login info");
 				}

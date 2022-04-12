@@ -329,6 +329,14 @@ public class GUI {
 		
 		ac.approveStationDiscrepancy(station);
 	}
+	
+	public static void startupStation(int station) {
+		try {
+			Store.getSupervisionSoftware().startUpStation(ac.getSelfCheckoutSoftware(station));
+		} catch (AuthorizationRequiredException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static void userTapsCard(int cardType) {
 		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
@@ -592,12 +600,10 @@ public class GUI {
 		ac.removeItemFromCustomersCart(station, index);
 	}
 
-	public static void shutdownStation() throws AuthorizationRequiredException {
-		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
-		{
-			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-			scs.stopSystem();
-		}
+	public static void shutdownStation(int stationNumber) throws AuthorizationRequiredException {
+
+		Store.getSupervisionSoftware().shutDownStation(ac.getSelfCheckoutSoftware(stationNumber));
+
 	}
 
 	public static boolean attendantLogin(String name, String password) {
