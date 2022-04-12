@@ -383,8 +383,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
             throw new IllegalStateException("Cannot checkout when the system is not scanning item");
         }
 
-        // No devices enabled
-        this.disableHardware();
+        // keep hardware enabled so they can go back to adding products
+        this.enableHardware();
         this.cardHandler.enableHardware();
         this.setPhase(Phase.CHOOSING_PAYMENT_METHOD);
     }

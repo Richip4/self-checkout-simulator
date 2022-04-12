@@ -230,7 +230,7 @@ public class GUI {
 	}
 
 	public static void userScansItem(int currentStation, boolean usedMainScanner) {
-		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM || ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
 			Item item = ac.getCustomersNextItem(currentStation);
 			if (item instanceof BarcodedItem) {
 				try {
@@ -279,7 +279,7 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM || ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
 			scenes.getScene(Scenes.SCS_TOUCH);
 		} else if (ac.getStationPhase(currentStation) == Phase.BLOCKING) {
 			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
