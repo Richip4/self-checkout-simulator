@@ -36,7 +36,7 @@ public class AppControl {
 	public static final int CUSTOMER = 1;
 	public static final int ATTENDANT = 2;
 	public static final int BOTH = 3;
-	
+
 	// types of cards a customer can use
 	public static final int CREDIT = 0;
 	public static final int DEBIT = 1;
@@ -54,9 +54,10 @@ public class AppControl {
 	// list of people visiting the stations
 	// NOTE: active users not at an actual station are excluded
 	private User[] users;
-	
-	private Item lastCheckedOutItem;			//for bagging
+
+	private Item lastCheckedOutItem; // for bagging
 	private Map<User, List<Item>> inventories = new HashMap<>();
+	private Map<Integer, List<Item>> baggingArea = new HashMap<>(); // stationNumber -> List<Item>
 
 	// the type of user combination at each station
 	private int[] stationsUserType;
@@ -139,33 +140,34 @@ public class AppControl {
 	public User[] getActiveUsers() {
 		return users;
 	}
-	
+
 	public SelfCheckoutSoftware getSelfCheckoutSoftware(int stationNumber) {
-		return selfStationSoftwares.get(stationNumber-1);
+		return selfStationSoftwares.get(stationNumber - 1);
 	}
-	
+
 	/**
-	 * Checks all the stations to see if the active user is 
-	 * currently at that station.  
-	 * @return the index of the station if found and -1 if 
-	 * 			user is not at a station yet.
+	 * Checks all the stations to see if the active user is
+	 * currently at that station.
+	 * 
+	 * @return the index of the station if found and -1 if
+	 *         user is not at a station yet.
 	 */
 	public int getActiveUsersStation() {
-		
+
 		if (activeUser.getUserType() == ATTENDANT) {
 			// check the attendant station first
 			if (users[0] == activeUser) {
 				return 0;
 			}
 		}
-		
+
 		// check the self checkout stations
 		for (int i = 1; i < users.length; i++) {
 			if (users[i] == activeUser) {
 				return i;
 			}
 		}
-		
+
 		return -1;
 	}
 
@@ -177,20 +179,20 @@ public class AppControl {
 	public void customerUsesStation(int station) {
 		addStationUserType(station, CUSTOMER);
 		users[station] = activeUser;
-		selfStationSoftwares.get(station - 1).start((Customer)activeUser);
-		
+		selfStationSoftwares.get(station - 1).start((Customer) activeUser);
+
 		// randomly populate this customers inventory with the stores products
 		Random random = new Random();
 		int selectionSize = Tangibles.ITEMS.size();
 		int itemsGrabbed = Math.min(random.nextInt(selectionSize), 4); // customer takes at most 4 items
-		
+
 		List<Item> inventory = new ArrayList<>();
 		for (int i = 0; i < itemsGrabbed; i++) {
-			Item grabbedItem = Tangibles.ITEMS.get(random.nextInt(selectionSize--)); 
+			Item grabbedItem = Tangibles.ITEMS.get(random.nextInt(selectionSize--));
 			inventory.add(grabbedItem);
 			Tangibles.ITEMS.remove(grabbedItem);
 		}
-		
+
 		inventories.put(activeUser, inventory);
 	}
 
@@ -214,8 +216,12 @@ public class AppControl {
 		removeStationUserType(station, CUSTOMER);
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
+				if (selfStationSoftwares.get(station-1).isShutdown()) {
+					
+				}else {
+					selfStationSoftwares.get(station - 1).removeUser(activeUser);
+				}
 				users[i] = null;
-				selfStationSoftwares.get(station - 1).removeUser(activeUser);
 				return;
 			}
 		}
@@ -232,7 +238,7 @@ public class AppControl {
 		removeStationUserType(station, ATTENDANT);
 		users[station] = null;
 		if (station > 0) {
-			selfStationSoftwares.get(station-1).removeUser(activeUser);
+			selfStationSoftwares.get(station - 1).removeUser(activeUser);
 		}
 	}
 
@@ -298,19 +304,20 @@ public class AppControl {
 			return "ITEM NOT BAGGED";
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
 			return "USE OWN BAGS";
-		} else {
+		} else if (selfStationSoftwares.get(station).isShutdown()) {
+			return "STATION OFFLINE";
+		}else {
 			return "OKAY";
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param currentStation
 	 * @return
 	 */
 	public Phase getStationPhase(int station) {
-		
-		return selfStationSoftwares.get(station).getPhase();
+		return selfStationSoftwares.get(station - 1).getPhase();
 	}
 
 	/**
@@ -321,12 +328,14 @@ public class AppControl {
 		if (selfStationSoftwares.get(station).getPhase() != Phase.BLOCKING) {
 			try {
 				supervisorSoftware.blockStation(selfStationSoftwares.get(station));
-			} catch (AuthorizationRequiredException e) {}
+			} catch (AuthorizationRequiredException e) {
+			}
 
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.BLOCKING) {
 			try {
 				supervisorSoftware.unblockStation(selfStationSoftwares.get(station));
-			} catch (AuthorizationRequiredException e) {}
+			} catch (AuthorizationRequiredException e) {
+			}
 		}
 	}
 
@@ -338,15 +347,18 @@ public class AppControl {
 		if (selfStationSoftwares.get(station).getPhase() == Phase.HAVING_WEIGHT_DISCREPANCY) {
 			try {
 				supervisorSoftware.approveWeightDiscrepancy(selfStationSoftwares.get(station));
-			} catch (AuthorizationRequiredException e) {}			
+			} catch (AuthorizationRequiredException e) {
+			}
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.NON_BAGGABLE_ITEM) {
 			try {
 				supervisorSoftware.approveItemNotBaggable(selfStationSoftwares.get(station));
-			} catch (AuthorizationRequiredException e) {}
+			} catch (AuthorizationRequiredException e) {
+			}
 		} else if (selfStationSoftwares.get(station).getPhase() == Phase.PLACING_OWN_BAG) {
 			try {
 				supervisorSoftware.approveUseOfOwnBags(selfStationSoftwares.get(station));
-			} catch (AuthorizationRequiredException e) {}
+			} catch (AuthorizationRequiredException e) {
+			}
 		}
 	}
 
@@ -359,7 +371,7 @@ public class AppControl {
 			errorMsg("tap failed");
 			return false;
 		}
-		
+
 	}
 
 	public boolean customerTapsDebitCard(int index) {
@@ -371,9 +383,9 @@ public class AppControl {
 			errorMsg("tap failed");
 			return false;
 		}
-		
+
 	}
-	
+
 	public boolean customerTapsMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
@@ -383,7 +395,7 @@ public class AppControl {
 			errorMsg("tap failed");
 			return false;
 		}
-		
+
 	}
 
 	public boolean customerSwipesCreditCard(int index) {
@@ -395,7 +407,7 @@ public class AppControl {
 			errorMsg("swipe failed");
 			return false;
 		}
-		
+
 	}
 
 	public boolean customerSwipesDebitCard(int index) {
@@ -407,19 +419,19 @@ public class AppControl {
 			errorMsg("swipe failed");
 			return false;
 		}
-		
+
 	}
 
 	public boolean customerSwipesMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
-			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(2));
+			scs.getSelfCheckoutStation().cardReader.swipe(Main.Tangibles.MEMBER_CARDS.get(0));
 			return true;
 		} catch (IOException e) {
 			errorMsg("swipe failed");
 			return false;
 		}
-		
+
 	}
 
 	public boolean customerInsertCreditCard(int index, String pin) {
@@ -431,7 +443,7 @@ public class AppControl {
 			errorMsg("insert failed");
 			return false;
 		}
-		
+
 	}
 
 	public boolean customerInsertDebitCard(int index, String pin) {
@@ -443,17 +455,17 @@ public class AppControl {
 			errorMsg("insert failed");
 			return false;
 		}
-		
+
 	}
-	
+
 	public void removeItemFromCustomersCart(int station, int item) {
-		selfStationSoftwares.get(station).getCustomer().removeProduct(item);
-		
+		selfStationSoftwares.get(station - 1).getCustomer().removeProduct(item);
 	}
 
 	/**
 	 * Attempts to log in the user as an attendant.
-	 * @param name input username from user
+	 * 
+	 * @param name     input username from user
 	 * @param password input password from user
 	 * @return true if log in was successful, false otherwise
 	 */
@@ -471,22 +483,23 @@ public class AppControl {
 	/**
 	 * Checks if the password provided matches the attendant
 	 * currently logged in to the attendant station.
+	 * 
 	 * @param password
 	 * @return true if password is valid, false otherwise
 	 */
 	public boolean attendantPassword(String password) {
-		Attendant a = supervisorSoftware.getAttendant(); 
+		Attendant a = supervisorSoftware.getAttendant();
 		if (a != null) {
 			return (CredentialsSystem.checkLogin(a.getUsername(), password)) ? true : false;
 		}
 		return false;
 	}
-	
+
 	public String getCustomerPaidAmount(int station) {
-		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		Customer c = selfStationSoftwares.get(station - 1).getCustomer();
 		if (c != null) {
 			DecimalFormat df = new DecimalFormat("0.00");
-			String paid = String.valueOf(df.format(c.getCashBalance())); 
+			String paid = String.valueOf(df.format(c.getCashBalance()));
 			System.out.println("Paid " + paid);
 			return paid;
 		}
@@ -494,23 +507,23 @@ public class AppControl {
 	}
 
 	public String getCustomersSubtotal(int station) {
-		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		Customer c = selfStationSoftwares.get(station - 1).getCustomer();
 		if (c != null) {
 			DecimalFormat df = new DecimalFormat("0.00");
-			String subtotal = String.valueOf(df.format(c.getCartSubtotal())); 
+			String subtotal = String.valueOf(df.format(c.getCartSubtotal()));
 			System.out.println(subtotal);
 			return subtotal;
 		}
-		
+
 		return null;
 	}
 
 	public List<Product> getCustomerCart(int station) {
-		Customer c = selfStationSoftwares.get(station-1).getCustomer();
+		Customer c = selfStationSoftwares.get(station - 1).getCustomer();
 		if (c != null) {
 			return c.getCart();
 		}
-		
+
 		return null;
 	}
 
@@ -520,26 +533,27 @@ public class AppControl {
 
 	/**
 	 * Gets the list if items the customer wants to add
+	 * 
 	 * @param station
 	 * @return null if customer has no more items to add
 	 */
 	public Item getCustomersNextItem(int station) {
-		List<Item> customersInventory = inventories.get(users[station]); 
+		List<Item> customersInventory = inventories.get(users[station]);
 		if (customersInventory == null ||
-			customersInventory.isEmpty())
+				customersInventory.isEmpty())
 			return null;
 		return inventories.get(users[station]).get(0);
 	}
-	
+
 	public void removeCustomerNextItem(int station) {
 		lastCheckedOutItem = inventories.get(users[station]).get(0);
 		inventories.get(users[station]).remove(0);
 	}
-	
+
 	public Item getLastCheckedOutItem() {
 		return lastCheckedOutItem;
 	}
-	
+
 	public void clearLastCheckedOutItem() {
 		lastCheckedOutItem = null;
 	}
@@ -567,29 +581,25 @@ public class AppControl {
 	public Map<User, List<Item>> getInventories() {
 		return inventories;
 	}
-	
-	
-	 public static void errorMsg(String msg)
-	    {
-	        JOptionPane errorMessagePopupParent = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
-	        final JDialog errorMessagePopup = errorMessagePopupParent.createDialog("Attention!");
-	        errorMessagePopup.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-	        new Thread(() -> {
-	            try
-	            {
-	                Thread.sleep(3000);
-	            } catch (InterruptedException ignored)
-	            {
-	            }
-	            errorMessagePopup.setVisible(false);
-	        }).start();
-	        errorMessagePopup.setVisible(true);
-	    }
+
+	public static void errorMsg(String msg) {
+		JOptionPane errorMessagePopupParent = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
+		final JDialog errorMessagePopup = errorMessagePopupParent.createDialog("Attention!");
+		errorMessagePopup.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		new Thread(() -> {
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException ignored) {
+			}
+			errorMessagePopup.setVisible(false);
+		}).start();
+		errorMessagePopup.setVisible(true);
+	}
 
 	public void skipBagging(int station) {
 		if (stationsUserType[station] == ATTENDANT ||
-			stationsUserType[station] == BOTH) {
-			selfStationSoftwares.get(station-1).notBaggingItem();
+				stationsUserType[station] == BOTH) {
+			selfStationSoftwares.get(station - 1).notBaggingItem();
 		}
 	}
 }
