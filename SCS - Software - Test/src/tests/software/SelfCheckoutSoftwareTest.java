@@ -343,8 +343,8 @@ public class SelfCheckoutSoftwareTest
     public void notBaggingItemTest()
     {
         selfCheckoutSoftware.start(customer);
-        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
-        selfCheckoutStation.mainScanner.scan(new BarcodedItem(product.getBarcode(), product.getExpectedWeight()));
+        selfCheckoutSoftware.addPLUItem();
+        selfCheckoutSoftware.bagItem();
 
         selfCheckoutSoftware.notBaggingItem();
 
@@ -495,5 +495,25 @@ public class SelfCheckoutSoftwareTest
         selfCheckoutSoftware.paymentCompleted();
 
         selfCheckoutSoftware.cancelCheckout();
+    }
+
+    @Test
+    public void setAndGetBanknoteDanglingTest()
+    {
+        assertFalse(selfCheckoutSoftware.getBanknoteDangling());
+
+        selfCheckoutSoftware.setBanknoteDangling(true);
+
+        assertTrue(selfCheckoutSoftware.getBanknoteDangling());
+    }
+
+    @Test
+    public void setAndGetCoinInTrayTest()
+    {
+        assertFalse(selfCheckoutSoftware.getCoinInTray());
+
+        selfCheckoutSoftware.setCoinInTray(true);
+
+        assertTrue(selfCheckoutSoftware.getCoinInTray());
     }
 }
