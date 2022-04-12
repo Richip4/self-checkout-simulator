@@ -104,7 +104,7 @@ public class ReceiptTest
         receipt.printReceipt();
         assertNotNull(selfCheckoutStation.printer.removeReceipt());
         }
-    
+
     @Test
     public void printReceiptNullIDTest() throws EmptyException, OverloadException
     {
