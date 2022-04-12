@@ -342,7 +342,7 @@ public class GUI {
 				ac.customerTapsDebitCard(scenes.getCurrentStation());
 			} 
 		}
-		else if (cardType == AppControl.MEMBERSHIP) {
+		if (cardType == AppControl.MEMBERSHIP) {
 			ac.customerTapsMembershipCard(scenes.getCurrentStation());
 		}
 	}
@@ -356,9 +356,10 @@ public class GUI {
 			} if (cardType == AppControl.DEBIT) {
 				scs.selectedPaymentMethod(PaymentMethod.BANK_CARD);
 				ac.customerSwipesDebitCard(scenes.getCurrentStation());
-			} if (cardType == AppControl.MEMBERSHIP) {
-				ac.customerSwipesMembershipCard(scenes.getCurrentStation());
-			}
+			} 
+		}
+		if (cardType == AppControl.MEMBERSHIP) {
+			ac.customerSwipesMembershipCard(scenes.getCurrentStation());
 		}
 		
 	}
