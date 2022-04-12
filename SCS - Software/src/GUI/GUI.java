@@ -401,7 +401,9 @@ public class GUI {
 						e.printStackTrace();
 					}
 					numBillsInDispenser++;
+					
 				}
+				System.out.println(denom + ": " + numBillsInDispenser);
 			}
 		}
 
@@ -431,6 +433,7 @@ public class GUI {
 					}
 					numCoinsInDispenser++;
 				}
+				System.out.println(denom + ": " + numCoinsInDispenser);
 			}
 		}
 
