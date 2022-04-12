@@ -114,8 +114,10 @@ public class SelfCheckoutSoftwareTest
     @Test
     public void updatePaperAndInkUsedTest()
     {
-        selfCheckoutSoftware.updatePaperUsed(2);
-        selfCheckoutSoftware.updateInkUsed(10);
+        selfCheckoutSoftware.getPaperUsed();
+        selfCheckoutSoftware.getInkUsed();
+        selfCheckoutSoftware.resetPaperUsed();
+        selfCheckoutSoftware.resetInkUsed();
     }
 
     @Test(expected = IllegalStateException.class)
