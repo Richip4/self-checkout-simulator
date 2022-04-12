@@ -282,30 +282,31 @@ public final class Main {
                         }
                     }
                 });
-                if (t == 5) {
-                    for (int i = 0; i < SelfCheckoutStation.COIN_STORAGE_CAPACITY - 1; i++) {
-                        Coin coin = new Coin(currency, new BigDecimal(1.00));
-                        try {
-                            station.coinStorage.load(coin);
-                        } catch (SimulationException e) {
-                            e.printStackTrace();
-                        } catch (OverloadException e) {
-                            e.printStackTrace();
-                        }
+            }
+            if (t == 5) {
+                for (int i = 0; i < SelfCheckoutStation.COIN_STORAGE_CAPACITY - 1; i++) {
+                    Coin coin = new Coin(currency, new BigDecimal(1.00));
+                    try {
+                        station.coinStorage.load(coin);
+                    } catch (SimulationException e) {
+                        e.printStackTrace();
+                    } catch (OverloadException e) {
+                        e.printStackTrace();
                     }
+                }
 
-                    for (int i = 0; i < SelfCheckoutStation.BANKNOTE_STORAGE_CAPACITY - 1; i++) {
-                        Banknote note = new Banknote(currency, 10);
-                        try {
-                            station.banknoteStorage.load(note);
-                        } catch (SimulationException e) {
-                            e.printStackTrace();
-                        } catch (OverloadException e) {
-                            e.printStackTrace();
-                        }
+                for (int i = 0; i < SelfCheckoutStation.BANKNOTE_STORAGE_CAPACITY - 1; i++) {
+                    Banknote note = new Banknote(currency, 10);
+                    try {
+                        station.banknoteStorage.load(note);
+                    } catch (SimulationException e) {
+                        e.printStackTrace();
+                    } catch (OverloadException e) {
+                        e.printStackTrace();
                     }
                 }
             }
+            
             // Add this station to tangibles, and add this station to the supervision
             // station
             Tangibles.SELF_CHECKOUT_STATIONS.add(station);
