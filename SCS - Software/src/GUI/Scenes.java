@@ -142,7 +142,7 @@ public class Scenes {
 			JPanel scene = preprocessScene(this, xResolution, yResolution);			
 
 			// include a banner for navigation
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			// This overview scene should be the only scene to 
 			// terminate the actual program.  Set a window
@@ -303,7 +303,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 600);
 
-			generateBanner(scene, false, banner_info, banner_title);
+			generateBanner(scene, false, banner_info, banner_title, "END");
 			
 			int i = getCurrentStation();
 			banner_title.setText("Station " + i + "  ");
@@ -581,7 +581,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 900, 650);
 
-			JPanel banner = generateBanner(scene, false, banner_info, banner_title);
+			JPanel banner = generateBanner(scene, false, banner_info, banner_title, "X");
 			JPanel end = (JPanel) banner.getComponent(banner.getComponentCount() - 1);
 			
 			JButton logout = new JButton();
@@ -728,7 +728,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 750, 500);
 
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			this.addWindowFocusListener(new WindowAdapter() {
                 public void windowGainedFocus(WindowEvent e) {
@@ -866,7 +866,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 250, 350);
 
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -958,7 +958,7 @@ public class Scenes {
 		public JFrame getScene() {
 			JPanel scene = preprocessScene(this, 600, 400);
 
-			generateBanner(scene, true, banner_info, banner_title);
+			generateBanner(scene, true, banner_info, banner_title, "X");
 			
 			JPanel content = new JPanel();
 			content.setBackground(defaultBackground);
@@ -1291,7 +1291,7 @@ public class Scenes {
 	 * @param forHardware - whether the banner is meant for a hardware window
 	 * @return the banner created for any further customizations
 	 */
-	private JPanel generateBanner(JPanel p, boolean forHardware, JLabel banner_info, JLabel banner_title) {
+	private JPanel generateBanner(JPanel p, boolean forHardware, JLabel banner_info, JLabel banner_title, String closeButton) {
 
 		JPanel banner = new JPanel();
 		banner.setPreferredSize(new Dimension(100, 50));
@@ -1388,7 +1388,7 @@ public class Scenes {
 		});
 		exit.setPreferredSize(new Dimension(80, 50));
 		exit.setFont(new Font("Arial", Font.BOLD, 16));
-		exit.setText("END");
+		exit.setText(closeButton);
 		exit.setFocusable(false);
 		end.add(exit);
 		
