@@ -199,8 +199,8 @@ public class Checkout {
 
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
-
-		if (size <= this.pendingChanges.size()) {
+		if (size <= newPendingChanges.size()) {
+			System.out.println("no dispensing");
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()
 					.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
@@ -295,6 +295,10 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
+		Cash(Cash copy){
+			this.type = copy.type;
+			this.value = copy.value;
+		}
 
 		Cash(Cash copy) {
 			this.type = copy.type;
@@ -306,4 +310,5 @@ public class Checkout {
 			return this.value.compareTo(other.value);
 		}
 	}
+	
 }
