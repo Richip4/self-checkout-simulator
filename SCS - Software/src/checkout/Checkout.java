@@ -159,8 +159,6 @@ public class Checkout {
 			// Calculate how much change to return to customer
 			BigDecimal change = this.customer.getCashBalance().subtract(this.customer.getCartSubtotal());
 			this.pendingChanges = new ArrayList<Cash>(this.calculatePendingChanges(change));
-
-	
 		}
 
 		// If no pending changes, return
@@ -201,8 +199,7 @@ public class Checkout {
 
 		// If size does not change, meaning no change is successfully emmited for
 		// customer, encounters error, notify attendant
-		if (size <= this.pendingChanges.size()) {
-			System.out.println("no dispensing");
+		if (size <= newPendingChanges.size()) {
 			this.scss.errorOccur();
 			this.scss.getSupervisionSoftware()
 					.notifyObservers(observer -> observer.dispenseChangeFailed(this.scss));
@@ -297,6 +294,7 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
+
 		Cash(Cash copy){
 			this.type = copy.type;
 			this.value = copy.value;

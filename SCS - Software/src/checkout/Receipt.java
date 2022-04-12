@@ -87,19 +87,21 @@ public class Receipt implements ReceiptPrinterObserver {
 				// When reaches the maximum character of a line, start a new line
 				if (t % (ReceiptPrinter.CHARACTERS_PER_LINE - 1) == 0 && t != 0) {
 					this.scs.printer.print('\n');
+					// update the amount of paper that has been used each time a new line is printed
+					this.paperUsed++;
 				}
 
 				if (Character.isWhitespace(line.charAt(t))) {
 					this.scs.printer.print(' ');
 				} else {
 					this.scs.printer.print(line.charAt(t));
+					// update the amount of ink used each time a non-whitespace character is printed
+					this.inkUsed++;
 				}
 			}
 			this.scs.printer.print('\n');
-			
-			// update the amount of paper and ink that has been used
+			// update the amount of paper that has been used each time a new line is printed
 			this.paperUsed++;
-			this.inkUsed += line.length();
 		} catch (OverloadException e) {
 			System.out.println("OverloadException: " + e.getMessage());
 		} catch (EmptyException e) {
@@ -159,25 +161,26 @@ public class Receipt implements ReceiptPrinterObserver {
 		this.scs.printer.cutPaper();
 		
 		// invoke the local checkLowPrinterCapacity() method to notify the attendant if the paper and/or ink in the receipt printer is low
-		checkLowPrinterCapacity();
+		this.checkLowPrinterCapacity();
 	}
 	
 	public void checkLowPrinterCapacity() {
 		// check to see if the amount of paper printed exceeds 90% of the maximum capacity for paper
 		if (this.paperUsed >= (int)((ReceiptPrinter.MAXIMUM_PAPER * 9) / 10)) {
 			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnPaper(this.scss));
+		}
 		// check to see if the amount of ink printed exceeds 90% of the maximum capacity for ink
-		} else if (this.inkUsed >= (int)((ReceiptPrinter.MAXIMUM_INK * 9) / 10)) {
+		if (this.inkUsed >= (int)((ReceiptPrinter.MAXIMUM_INK * 9) / 10)) {
 			this.scss.getSupervisionSoftware().notifyObservers(observer -> observer.receiptPrinterLowOnInk(this.scss));
 		}
 	}
 	
-	public void updatePaperUsed(int paperAdded) {
-		this.paperUsed -= paperAdded;
+	public void resetPaperUsed() {
+		this.paperUsed = 0;
 	}
 	
-	public void updateInkUsed(int inkAdded) {
-		this.inkUsed -= inkAdded;
+	public void resetInkUsed() {
+		this.inkUsed = 0;
 	}
 	
 	// Added getters

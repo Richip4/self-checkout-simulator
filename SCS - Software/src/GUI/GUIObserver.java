@@ -45,7 +45,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void receiptPrinterLowOnPaper(SelfCheckoutSoftware scs) {
-        Scenes.errorMsg("Receipt Printer at 10% of max Capacity");
+        Scenes.errorMsg("Receipt printer paper cartridge at 10% of max capacity");
         return null;
     }
 
@@ -63,7 +63,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void receiptPrinterLowOnInk(SelfCheckoutSoftware scs) {
-        Scenes.errorMsg("Receipt Printer at 10% of max Capacity");
+        Scenes.errorMsg("Receipt printer ink cartridge at 10% of max capacity");
         return null;
     }
 
