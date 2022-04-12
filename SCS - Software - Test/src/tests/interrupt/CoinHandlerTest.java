@@ -47,6 +47,11 @@ public class CoinHandlerTest
         supervisionStation = new SupervisionStation();
         supervisionSoftware = new SupervisionSoftware(supervisionStation);
         supervisionSoftware.add(selfCheckoutSoftware);
+        selfCheckoutStation.coinSlot.detachAll();
+        selfCheckoutStation.coinDispensers.forEach((k, v) -> v.detachAll());
+        selfCheckoutStation.coinStorage.detachAll();
+        selfCheckoutStation.coinTray.detachAll();
+        selfCheckoutStation.coinValidator.detachAll();
         coinHandler = new CoinHandler(selfCheckoutSoftware);
         customer = new Customer();
         coinHandler.setCustomer(customer);
@@ -122,11 +127,25 @@ public class CoinHandlerTest
     public void insertAndGetCoinTest() throws OverloadException, DisabledException
     {
         assertFalse(coinHandler.getCoinDetected());
+        assertEquals(BigDecimal.ZERO, customer.getCashBalance());
 
         selfCheckoutStation.coinSlot.accept(coin1);
 
-        assertTrue(coinHandler.getCoinDetected());
-        assertEquals(coin1.getValue(), coinHandler.getCoinValue());
+        assertFalse(coinHandler.getCoinDetected());
+        assertEquals(coin1.getValue(), customer.getCashBalance());
+    }
+
+    @Test
+    public void insertAndGetCoinTest2() throws OverloadException, DisabledException
+    {
+        assertFalse(coinHandler.getCoinDetected());
+        assertEquals(BigDecimal.ZERO, customer.getCashBalance());
+
+        coinHandler.setCustomer(null);
+        selfCheckoutStation.coinSlot.accept(coin1);
+
+        assertFalse(coinHandler.getCoinDetected());
+        assertEquals(BigDecimal.ZERO, customer.getCashBalance());
     }
 
     @Test
