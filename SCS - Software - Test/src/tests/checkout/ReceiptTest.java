@@ -266,7 +266,7 @@ public class ReceiptTest
         receipt.printReceipt();
         selfCheckoutStation.printer.addPaper(3);
         receipt.updatePaperUsed(3);
-        assertTrue(receipt.getPaperUsed() == 0);
+        assertTrue(receipt.getPaperUsed() == 3);
         }
     
     @Test
@@ -285,7 +285,7 @@ public class ReceiptTest
         System.out.println(receipt.getInkUsed());
         selfCheckoutStation.printer.addInk(42);
         receipt.updateInkUsed(42);
-        assertTrue(receipt.getInkUsed() == 0);
+        assertTrue(receipt.getInkUsed() == 60);
         }
     
     @Test
