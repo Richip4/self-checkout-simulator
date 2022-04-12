@@ -52,15 +52,16 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
     private boolean isError;
-    
-    private boolean coinInTray = false;
-    private boolean banknoteDangling = false;
+   
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
     private Customer customer;
     private Attendant attendant;
-
+    
+    private boolean coinInTray = false;
+    private boolean banknoteDangling = false;
+    
     private BanknoteHandler banknoteHandler;
     private CardHandler cardHandler;
     private CoinHandler coinHandler;
@@ -478,20 +479,24 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(Phase.ERROR));
         this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
-
-    public void setCoinInTray(boolean coinInTray){
+    
+    public void setCoinInTray(boolean coinInTray)
+    {
     	this.coinInTray = coinInTray;
     }
-
-    public boolean getCoinInTray(){
+    
+    public boolean getCoinInTray()
+    {
     	return this.coinInTray;
     }
 
-    public void setBanknoteDangling(boolean banknoteDangling){
+    public void setBanknoteDangling(boolean banknoteDangling)
+    {
     	this.banknoteDangling = banknoteDangling;
     }
-
-    public boolean getBanknoteDangling(){
+    
+    public boolean getBanknoteDangling()
+    {
     	return this.banknoteDangling;
     }
     

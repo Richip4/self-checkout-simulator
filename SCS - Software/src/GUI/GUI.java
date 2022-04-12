@@ -153,14 +153,9 @@ public class GUI {
 	}
 
 	public static void userInsertsBanknote(int currentStation, int value) {
-		SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
-		
-		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD) {
-			scs.selectedPaymentMethod(PaymentMethod.CASH);			
-		}
-		
-		if (ac.getStationPhase(currentStation) == Phase.CHOOSING_PAYMENT_METHOD ||
-			ac.getStationPhase(currentStation) == Phase.PROCESSING_PAYMENT) {
+		if(ac.getStationPhase(currentStation).equals(Phase.CHOOSING_PAYMENT_METHOD)) {
+			SelfCheckoutSoftware scs = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+			scs.selectedPaymentMethod(PaymentMethod.CASH);
 			try {
 				scs.getSelfCheckoutStation().banknoteInput.accept(new Banknote(Main.Configurations.currency, value));
 				if(scs.getCustomer().hasSufficientCashBalance()) {
@@ -211,6 +206,10 @@ public class GUI {
 				if (scs.getCustomer().hasSufficientCashBalance()) {
 					scs.makeChange();
 				}			
+				if(scs.getCustomer().hasSufficientCashBalance()) {
+					scs.makeChange();
+				}
+				
 			} catch (DisabledException e) {
 				e.printStackTrace();
 			} catch (OverloadException e) {
@@ -283,7 +282,8 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM 
+				|| ac.getStationPhase(currentStation) == Phase.BAGGING_ITEM) {
 			scenes.getScene(Scenes.SCS_TOUCH);
 		} else if (ac.getStationPhase(currentStation) == Phase.BLOCKING) { 
 			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
@@ -387,9 +387,13 @@ public class GUI {
 	}
 	
 	public static void userSkipsBagging() {
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scss.notBaggingItem();
 		ac.skipBagging(scenes.getCurrentStation());
 	}
 
+	
+	
 	public static void refillBanknoteDispensers() {
 		int currentStation = scenes.getCurrentStation();
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
@@ -512,6 +516,7 @@ public class GUI {
 		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
 		{
 			scs.coinStorage.unload();	
+			
 		}
 		
 	}

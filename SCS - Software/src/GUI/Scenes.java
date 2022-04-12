@@ -841,7 +841,7 @@ public class Scenes {
 			} else if (e.getSource() == membership) {
 				expectingMembershipNum = true;
 				getNumberFromUser("<html>Enter your<br>Membership number</html>");
-			} else if (e.getSource() == membership) {
+			} else if (e.getSource() == skip) {
 				GUI.userSkipsBagging();
 				window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
 			} 
