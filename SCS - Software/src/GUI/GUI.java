@@ -491,6 +491,7 @@ public class GUI {
 		if(ac.getActiveUser().getUserType() == AppControl.ATTENDANT)
 		{
 			scs.coinStorage.unload();	
+			
 		}
 		
 	}
