@@ -145,6 +145,11 @@ public final class Main {
         BarcodedProduct kraftDinner = new BarcodedProduct(kraftDinnerCode, "Kraft Dinner", new BigDecimal("2.49"), kraftDinnerWeight);
         Inventory.addProduct(kraftDinner);
 
+        Barcode plasticBagCode = new Barcode(new Numeral[] { Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero });
+        int plasticBagWeight = 1;
+        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.1"), plasticBagWeight);
+        Inventory.addProduct(plasticBag);
+
         // Add 1 of each plu item 
         // they should be unique because of their weight
         Vector<PLUCodedItem> pItems = new Vector<>();
@@ -232,14 +237,14 @@ public final class Main {
 
             // Add ink to the station
             try {
-                station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
+            	station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
             } catch (OverloadException e) {
                 e.printStackTrace();
             }
 
             // Add paper to the station
             try {
-                station.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
+            	station.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
             } catch (OverloadException e) {
                 e.printStackTrace();
             }
