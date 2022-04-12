@@ -188,9 +188,9 @@ public class ReceiptTest
         Receipt receipt = new Receipt(selfCheckoutSoftware);
         receipt.setCustomer(customer);
         customer.setMemberID("10");
-        receipt.updateInkUsed(-(int)((ReceiptPrinter.MAXIMUM_INK * 9) / 10));
+        receipt.resetInkUsed();
         receipt.checkLowPrinterCapacity();
-        assertTrue(receipt.getInkUsed() == (selfCheckoutStation.printer.MAXIMUM_INK*9)/10);
+        assertTrue(receipt.getInkUsed() == 0);
     }
     
     @Test
@@ -265,8 +265,8 @@ public class ReceiptTest
         selfCheckoutStation.printer.addInk(100);
         receipt.printReceipt();
         selfCheckoutStation.printer.addPaper(3);
-        receipt.updatePaperUsed(3);
-        assertTrue(receipt.getPaperUsed() == 3);
+        receipt.resetPaperUsed();
+        assertTrue(receipt.getPaperUsed() == 0);
         }
     
     @Test
@@ -284,8 +284,8 @@ public class ReceiptTest
         receipt.printReceipt();
         System.out.println(receipt.getInkUsed());
         selfCheckoutStation.printer.addInk(42);
-        receipt.updateInkUsed(42);
-        assertTrue(receipt.getInkUsed() == 60);
+        receipt.resetInkUsed();
+        assertTrue(receipt.getInkUsed() == 0);
         }
     
     @Test
