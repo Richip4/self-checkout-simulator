@@ -24,8 +24,10 @@ public class CustomerTest
     final String membershipID = "1234";
     final BarcodedProduct product1 = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.one, Numeral.two, Numeral.three, Numeral.four}), "N/A", new BigDecimal("5.00"), 17.5);
     final PLUCodedProduct product2 = new PLUCodedProduct(new PriceLookupCode("1000"), "N/A", new BigDecimal("10.00"));
+    final BarcodedProduct plasticBagProduct = new BarcodedProduct(new Barcode(new Numeral[] {Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero}), "Plastic Bag", new BigDecimal("0.1"), 1);
     final double product2Weight = 22.5;
     final BigDecimal product2ExpectedPrice = product2.getPrice().divide(new BigDecimal("1000.00")).multiply(BigDecimal.valueOf(product2Weight));
+    final int plasticBags = 10;
 
     Customer customer;
 
@@ -88,9 +90,9 @@ public class CustomerTest
     {
         assertEquals(0, customer.getPlasticBags());
 
-        customer.setPlasticBags(10);
+        customer.setPlasticBags(plasticBags);
 
-        assertEquals(10, customer.getPlasticBags());
+        assertEquals(plasticBags, customer.getPlasticBags());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -145,6 +147,27 @@ public class CustomerTest
 
         customer.removeProduct(1);
         customer.removeProduct(customer.getCartEntries().get(0));
+
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
+    }
+
+    @Test
+    public void cartTest2()
+    {
+        assertTrue(customer.getCart().isEmpty());
+        assertTrue(customer.getCartEntries().isEmpty());
+        assertEquals(BigDecimal.ZERO, customer.getCartSubtotal());
+
+        Inventory.addProduct(plasticBagProduct);
+        customer.setPlasticBags(10);
+
+        assertEquals(plasticBags, customer.getCart().size());
+        assertEquals(plasticBags, customer.getCartEntries().size());
+        assertEquals(0, customer.getCartSubtotal().compareTo(plasticBagProduct.getPrice().multiply(new BigDecimal(plasticBags))));
+
+        customer.setPlasticBags(0);
 
         assertTrue(customer.getCart().isEmpty());
         assertTrue(customer.getCartEntries().isEmpty());
