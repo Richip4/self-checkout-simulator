@@ -1011,9 +1011,9 @@ public class Scenes {
 			} else if (e.getSource() == refillCoinDispensers) {
 				GUI.refillCoinDispenser();
 			} else if (e.getSource() == addPaper) {
-				GUI.addPaper(currentStation, 100);
+				GUI.addPaper(currentStation);
 			} else if (e.getSource() == addInk) {
-				GUI.addInk(currentStation, 100);
+				GUI.addInk(currentStation);
 			} else if (e.getSource() == bnEmptyStorage) {
 				GUI.emptyBanknoteStorage();
 			} else if (e.getSource() == coinEmptyStorage) {

@@ -238,14 +238,14 @@ public final class Main {
 
             // Add ink to the station
             try {
-                station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
+            	station.printer.addInk(ReceiptPrinter.MAXIMUM_INK);
             } catch (OverloadException e) {
                 e.printStackTrace();
             }
 
             // Add paper to the station
             try {
-                station.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
+            	station.printer.addPaper(ReceiptPrinter.MAXIMUM_PAPER);
             } catch (OverloadException e) {
                 e.printStackTrace();
             }

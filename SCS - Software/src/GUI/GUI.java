@@ -443,22 +443,37 @@ public class GUI {
 		
 	}
 
-	public static void addPaper(int currentStation, int amount) {
+	public static void addPaper(int currentStation) {
 		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+			SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 			try {
-				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addPaper(amount);
+				if (scss.getPaperUsed() == 0) {
+					Scenes.errorMsg("The paper cartridge is already full");
+				} else {
+					// refill the printer to max capacity
+					scs.printer.addPaper(scss.getPaperUsed());
+					scss.resetPaperUsed();
+				}
 			} catch (OverloadException e) {
-				Scenes.errorMsg("The paper cartridge is already full");
+				// overload exception should never be thrown
 			}
 		}
 	}
 
-	public static void addInk(int currentStation, int amount) {
+	public static void addInk(int currentStation) {
 		if (ac.getActiveUser().getUserType() == AppControl.ATTENDANT) {
+			SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);
+			SelfCheckoutStation scs = scss.getSelfCheckoutStation();
 			try {
-				ac.getSelfCheckoutSoftware(currentStation).getSelfCheckoutStation().printer.addInk(amount);
+				if (scss.getInkUsed() == 0) {
+					Scenes.errorMsg("The ink cartridge is already full");
+				} else {
+					scs.printer.addInk(scss.getInkUsed());
+					scss.resetInkUsed();
+				}
 			} catch (OverloadException e) {
-				Scenes.errorMsg("The ink cartridge is already full");
+				// overload exception should never be thrown
 			}
 		}
 	}
