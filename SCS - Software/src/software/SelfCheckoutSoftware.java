@@ -57,10 +57,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private SupervisionSoftware svs;
     private Customer customer;
     private Attendant attendant;
-    
+
     private boolean coinInTray = false;
     private boolean banknoteDangling = false;
-    
+
     private BanknoteHandler banknoteHandler;
     private CardHandler cardHandler;
     private CoinHandler coinHandler;
@@ -130,19 +130,19 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     public Customer getCustomer() {
         return this.customer;
     }
-    
+
     public int getPaperUsed() {
-    	return this.receipt.getPaperUsed();
+        return this.receipt.getPaperUsed();
     }
-    
+
     public void resetPaperUsed() {
         this.receipt.resetPaperUsed();
     }
-    
+
     public int getInkUsed() {
-    	return this.receipt.getInkUsed();
+        return this.receipt.getInkUsed();
     }
-    
+
     public void resetInkUsed() {
         this.receipt.resetInkUsed();
     }

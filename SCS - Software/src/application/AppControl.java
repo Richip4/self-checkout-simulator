@@ -57,7 +57,7 @@ public class AppControl {
 
 	private Item lastCheckedOutItem; // for bagging
 	private Map<User, List<Item>> inventories = new HashMap<>();
-	private Map<Integer, List<Item>> baggingArea = new HashMap<>();			//stationNumber -> List<Item>
+	private Map<Integer, List<Item>> baggingArea = new HashMap<>(); // stationNumber -> List<Item>
 
 	// the type of user combination at each station
 	private int[] stationsUserType;
@@ -311,7 +311,7 @@ public class AppControl {
 	 * @return
 	 */
 	public Phase getStationPhase(int station) {
-		return selfStationSoftwares.get(station-1).getPhase();
+		return selfStationSoftwares.get(station - 1).getPhase();
 	}
 
 	/**
@@ -379,7 +379,7 @@ public class AppControl {
 		}
 
 	}
-  
+
 	public boolean customerTapsMembershipCard(int index) {
 		SelfCheckoutSoftware scs = this.getSelfCheckoutSoftware(index);
 		try {
@@ -575,24 +575,20 @@ public class AppControl {
 	public Map<User, List<Item>> getInventories() {
 		return inventories;
 	}
-	
-	
-	 public static void errorMsg(String msg)
-	    {
-	        JOptionPane errorMessagePopupParent = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
-	        final JDialog errorMessagePopup = errorMessagePopupParent.createDialog("Attention!");
-	        errorMessagePopup.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-	        new Thread(() -> {
-	            try
-	            {
-	                Thread.sleep(3000);
-	            } catch (InterruptedException ignored)
-	            {
-	            }
-	            errorMessagePopup.setVisible(false);
-	        }).start();
-	        errorMessagePopup.setVisible(true);
-	    }
+
+	public static void errorMsg(String msg) {
+		JOptionPane errorMessagePopupParent = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
+		final JDialog errorMessagePopup = errorMessagePopupParent.createDialog("Attention!");
+		errorMessagePopup.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		new Thread(() -> {
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException ignored) {
+			}
+			errorMessagePopup.setVisible(false);
+		}).start();
+		errorMessagePopup.setVisible(true);
+	}
 
 	public void skipBagging(int station) {
 		if (stationsUserType[station] == ATTENDANT ||
