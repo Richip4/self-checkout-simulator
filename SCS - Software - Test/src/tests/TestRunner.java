@@ -7,7 +7,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         // All tests under tests.application
-        tests.application.AppControlTest.class,
+        tests.application.AppControlTest.class, tests.application.MainTest.class,
         // All tests under tests.bank
         tests.bank.BankTest.class,
         // All tests under tests.checkout
