@@ -52,7 +52,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
     private boolean isError;
-   
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
@@ -317,15 +316,14 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.setPhase(Phase.SCANNING_ITEM);
     }
 
-    public void addPLUItem()
-    {
+    public void addPLUItem() {
         this.disableHardware();
         this.cardHandler.enableHardware();
         this.processItemHandler.enableHardware();
 
         this.setPhase(Phase.WEIGHING_PLU_ITEM);
     }
-    
+
     /**
      * When customer added a product to their cart, and now they need to bag the
      * item.
@@ -385,8 +383,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
             throw new IllegalStateException("Cannot checkout when the system is not scanning item");
         }
 
-        // No devices enabled
-        this.disableHardware();
+        // keep hardware enabled so they can go back to adding products
+        this.enableHardware();
         this.cardHandler.enableHardware();
         this.setPhase(Phase.CHOOSING_PAYMENT_METHOD);
     }
@@ -466,7 +464,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         this.notifyObservers(observer -> observer.touchScreenUnblocked());
     }
-    
+
     public boolean hasPendingChanges() {
         return this.checkout.hasPendingChange();
     }
@@ -479,27 +477,23 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.phaseChanged(Phase.ERROR));
         this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
-    
-    public void setCoinInTray(boolean coinInTray)
-    {
-    	this.coinInTray = coinInTray;
-    }
-    
-    public boolean getCoinInTray()
-    {
-    	return this.coinInTray;
+
+    public void setCoinInTray(boolean coinInTray) {
+        this.coinInTray = coinInTray;
     }
 
-    public void setBanknoteDangling(boolean banknoteDangling)
-    {
-    	this.banknoteDangling = banknoteDangling;
+    public boolean getCoinInTray() {
+        return this.coinInTray;
     }
-    
-    public boolean getBanknoteDangling()
-    {
-    	return this.banknoteDangling;
+
+    public void setBanknoteDangling(boolean banknoteDangling) {
+        this.banknoteDangling = banknoteDangling;
     }
-    
+
+    public boolean getBanknoteDangling() {
+        return this.banknoteDangling;
+    }
+
     protected void resolveError() {
         if (!this.isError) {
             throw new IllegalStateException("Cannot resolve error when the system is not in error");

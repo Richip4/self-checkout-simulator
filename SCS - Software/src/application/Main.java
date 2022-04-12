@@ -250,7 +250,8 @@ public final class Main {
                 e.printStackTrace();
             }
             
-            station.banknoteDispensers.forEach((value, dispenser) -> {
+            if(t != 5) {
+            	station.banknoteDispensers.forEach((value, dispenser) -> {
         		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY; i++) {
         			Banknote note = new Banknote(currency, value);
         			try {
@@ -260,9 +261,11 @@ public final class Main {
 						e.printStackTrace();
 					}
         		}
-    		});
+            });
+            }
             
-        	station.coinDispensers.forEach((value, dispenser) -> {
+            if(t != 5) {
+            	station.coinDispensers.forEach((value, dispenser) -> {
         		for(int i = 0; i < SelfCheckoutStation.COIN_DISPENSER_CAPACITY; i++) {
         			Coin coin = new Coin(currency, value);
         			try {
@@ -276,7 +279,6 @@ public final class Main {
 					}
         		}
     		});
-        	
         	if(t == 5) {
         		for(int i = 0; i < SelfCheckoutStation.COIN_STORAGE_CAPACITY-1; i++) {
         			Coin coin = new Coin(currency,new BigDecimal(1.00));
@@ -300,7 +302,6 @@ public final class Main {
 					}
         		}
         	}
-
             // Add this station to tangibles, and add this station to the supervision
             // station
             Tangibles.SELF_CHECKOUT_STATIONS.add(station);
