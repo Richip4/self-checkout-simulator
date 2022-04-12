@@ -5,7 +5,7 @@ import software.SelfCheckoutSoftware.Phase;
 import software.observers.SelfCheckoutObserver;
 import software.observers.SupervisionObserver;
 
-public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
+public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver {
 
     @Override
     public Void banknoteStorageFull(SelfCheckoutSoftware scs) {
@@ -51,7 +51,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void receiptPrinterPaperOverloaded(SelfCheckoutSoftware scs) {
-        //not needed
+        // not needed
         return null;
     }
 
@@ -106,19 +106,19 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
     @Override
     public Void customerDoesNotWantToBagItem(SelfCheckoutSoftware scs) {
         // not needed
-    	//Scenes.errorMsg("Customer Does Not Want to Bag Item");
+        // Scenes.errorMsg("Customer Does Not Want to Bag Item");
         return null;
     }
 
     @Override
     public Void invalidBanknoteDetected() {
-        // need other prompt method 
+        // need other prompt method
         return null;
     }
 
     @Override
     public Void banknoteAdded() {
-        // need other prompt method 
+        // need other prompt method
         return null;
     }
 
@@ -136,13 +136,13 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void invalidCoinDetected() {
-        // need other prompt method 
+        // need other prompt method
         return null;
     }
 
     @Override
     public Void coinAdded() {
-        // need other prompt method 
+        // need other prompt method
         return null;
     }
 
@@ -166,7 +166,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void cardTransactionSucceeded() {
-        // need other prompt method 
+        // need other prompt method
         return null;
     }
 
@@ -185,7 +185,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
     @Override
     public Void membershipCardDetected(String memberID) {
         // not needed
-		System.out.println("Membership id: " + memberID);
+        System.out.println("Membership id: " + memberID);
         return null;
     }
 
@@ -203,14 +203,14 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
 
     @Override
     public Void paymentCompleted() {
-        // need other prompt method 
+        // need other prompt method
         return null;
     }
 
     @Override
     public Void placeInBaggingAreaBlocked() {
         // not needed
-    	//Scenes.errorMsg("Place In Bagging Area Blocked");
+        // Scenes.errorMsg("Place In Bagging Area Blocked");
         return null;
     }
 
@@ -253,7 +253,7 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
     @Override
     public Void touchScreenBlocked() {
         // not needed
-    	//Scenes.errorMsg("Touch Screen Blocked");
+        // Scenes.errorMsg("Touch Screen Blocked");
         return null;
     }
 
@@ -269,10 +269,9 @@ public class GUIObserver implements SelfCheckoutObserver, SupervisionObserver{
         return null;
     }
 
-	@Override
-	public Void productCannotFound() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-    
+    @Override
+    public Void productCannotFound() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
