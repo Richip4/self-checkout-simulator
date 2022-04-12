@@ -121,6 +121,19 @@ public class CheckoutTest
         }
         
         @Test
+        public void readyToCheckoutNullTest()
+        {
+            Customer customer = new Customer();
+            Checkout checkout = new Checkout(scss);
+            checkout.setCustomer(customer);
+            checkout.enablePaymentHardware(null);
+    
+            assertTrue("Customer wish to checkout, main scanner should be disabled", scs.mainScanner.isDisabled());
+            assertTrue("Customer wish to checkout, handheld scanner should be disabled", scs.handheldScanner.isDisabled());
+            assertTrue("Customer wish to checkout, scanning area should be disabled", scs.scanningArea.isDisabled());
+        }
+        
+        @Test
         public void readyToCheckoutGCTest()
         {
             Customer customer = new Customer();
@@ -568,7 +581,7 @@ public class CheckoutTest
 
             scss.setUser(customer);
             sup.add(scss);
-    
+            customer.addCashBalance(new BigDecimal("0.76"));
             BigDecimal change = new BigDecimal("0.75");
             Coin.DEFAULT_CURRENCY = currency;
     
@@ -609,6 +622,8 @@ public class CheckoutTest
     
             assertEquals("Banknote output should have banknotes with sum of $5.00", change.doubleValue(), sum.doubleValue(), 0.01);
         }
+        
+
     
          @Test
          public void makeChangeSingleBanknote2() {
