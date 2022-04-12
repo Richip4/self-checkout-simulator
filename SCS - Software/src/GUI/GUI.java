@@ -281,7 +281,8 @@ public class GUI {
 	}
 
 	public static void userAccessTouchscreen(int currentStation) {
-		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM) {
+		if (ac.getStationPhase(currentStation) == Phase.SCANNING_ITEM 
+				|| ac.getStationPhase(currentStation) == Phase.BAGGING_ITEM) {
 			scenes.getScene(Scenes.SCS_TOUCH);
 		} else if (ac.getStationPhase(currentStation) == Phase.BLOCKING) { 
 			Scenes.errorMsg("Station is blocked.  Wait for an attendant.");
@@ -376,9 +377,13 @@ public class GUI {
 	}
 	
 	public static void userSkipsBagging() {
+		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(scenes.getCurrentStation());
+		scss.notBaggingItem();
 		ac.skipBagging(scenes.getCurrentStation());
 	}
 
+	
+	
 	public static void refillBanknoteDispensers() {
 		int currentStation = scenes.getCurrentStation();
 		SelfCheckoutSoftware scss = ac.getSelfCheckoutSoftware(currentStation);

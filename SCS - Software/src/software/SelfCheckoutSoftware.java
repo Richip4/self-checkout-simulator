@@ -52,9 +52,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
     private boolean isError;
-    
-    private boolean coinInTray = false;
-    private boolean banknoteDangling = false;
+   
 
     private final SelfCheckoutStation scs;
     private SupervisionSoftware svs;
