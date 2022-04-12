@@ -215,8 +215,12 @@ public class AppControl {
 		removeStationUserType(station, CUSTOMER);
 		for (int i = 0; i < users.length; i++) {
 			if (users[i] == activeUser) {
+				if (selfStationSoftwares.get(station-1).isShutdown()) {
+					
+				}else {
+					selfStationSoftwares.get(station - 1).removeUser(activeUser);
+				}
 				users[i] = null;
-				selfStationSoftwares.get(station - 1).removeUser(activeUser);
 				return;
 			}
 		}

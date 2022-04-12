@@ -52,6 +52,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private boolean isBlocked;
     private boolean isWeightDiscrepancy;
     private boolean isError;
+    private boolean isShutdown;
     
     private boolean coinInTray = false;
     private boolean banknoteDangling = false;
@@ -196,6 +197,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.screen.enableHardware();
 
         this.notifyObservers(observer -> observer.softwareStarted(this));
+        this.isShutdown = false;
     }
 
     /**
@@ -228,6 +230,9 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.screen = null;
 
         this.notifyObservers(observer -> observer.softwareStopped(this));
+        
+        this.setPhase(Phase.IDLE);
+        this.isShutdown = true;
     }
 
     public void blockSystem() {
@@ -283,6 +288,10 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.phase = phase;
         this.notifyObservers(observer -> observer.phaseChanged(this.phase));
         System.out.println("Set phase: " + this.phase);
+    }
+    
+    public boolean isShutdown() {
+    	return this.isShutdown;
     }
 
     /**

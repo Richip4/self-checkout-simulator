@@ -3,6 +3,8 @@ package GUI;
 import java.math.BigDecimal;
 import java.util.List;
 
+import javax.swing.JFrame;
+
 import org.lsmr.selfcheckout.Banknote;
 import org.lsmr.selfcheckout.BarcodedItem;
 import org.lsmr.selfcheckout.Coin;
@@ -333,6 +335,7 @@ public class GUI {
 	public static void startupStation(int station) {
 		try {
 			Store.getSupervisionSoftware().startUpStation(ac.getSelfCheckoutSoftware(station));
+			System.out.println("System started");
 		} catch (AuthorizationRequiredException e) {
 			e.printStackTrace();
 		}
@@ -603,6 +606,7 @@ public class GUI {
 	public static void shutdownStation(int stationNumber) throws AuthorizationRequiredException {
 
 		Store.getSupervisionSoftware().shutDownStation(ac.getSelfCheckoutSoftware(stationNumber));
+		System.out.println("System stopped");
 
 	}
 

@@ -694,7 +694,7 @@ public class Scenes {
 					station_status[i].setText(GUI.stationStatus(i)); 
 					station_light[i].setBackground(checkStationAttention(i));
 				} else if (e.getSource() == station_startup[i]) {
-					GUI.startupStation(i);
+					GUI.startupStation(i+1);
 					//station_status[i].setText(GUI.stationStatus(i)); 
 				}
 			}
