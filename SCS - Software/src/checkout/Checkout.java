@@ -295,10 +295,6 @@ public class Checkout {
 			type = "coin";
 			this.value = value;
 		}
-		Cash(Cash copy){
-			this.type = copy.type;
-			this.value = copy.value;
-		}
 
 		Cash(Cash copy) {
 			this.type = copy.type;
