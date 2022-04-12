@@ -244,7 +244,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
         this.notifyObservers(observer -> observer.touchScreenBlocked());
     }
 
-    protected void unblockSystem() {
+    public void unblockSystem() {
         // If unblocking:
         // 1. enable all hardware devices
         // 2. set isBlocked to false
