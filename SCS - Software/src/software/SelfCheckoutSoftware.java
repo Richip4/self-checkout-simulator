@@ -61,8 +61,7 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private Customer customer;
     private Attendant attendant;
     
-    private boolean coinInTray = false;
-    private boolean banknoteDangling = false;
+
     
     private BanknoteHandler banknoteHandler;
     private CardHandler cardHandler;
@@ -478,15 +477,8 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     {
     	this.coinInTray = coinInTray;
     }
-    
-    public boolean getCoinInTray()
-    {
-    	return this.coinInTray;
-    }
-
-    public void setCoinInTray(boolean coinInTray){
-    	this.coinInTray = coinInTray;
-    }
+ 
+ 
 
     public boolean getCoinInTray(){
     	return this.coinInTray;
