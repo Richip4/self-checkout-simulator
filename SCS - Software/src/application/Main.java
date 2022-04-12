@@ -305,16 +305,17 @@ public final class Main {
                         }
                     }
                 }
-                // Add this station to tangibles, and add this station to the supervision
-                // station
-                Tangibles.SELF_CHECKOUT_STATIONS.add(station);
-                Tangibles.SUPERVISION_STATION.add(station);
-
-                // Create SelfCheckoutSoftware for this station
-                // and add this softeare to supervision software
-                SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
-                Store.addSelfCheckoutSoftware(software);
             }
+            // Add this station to tangibles, and add this station to the supervision
+            // station
+            Tangibles.SELF_CHECKOUT_STATIONS.add(station);
+            Tangibles.SUPERVISION_STATION.add(station);
+
+            // Create SelfCheckoutSoftware for this station
+            // and add this softeare to supervision software
+            SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
+            Store.addSelfCheckoutSoftware(software);
+            
         }
     }
 

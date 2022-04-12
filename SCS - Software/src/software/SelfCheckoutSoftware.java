@@ -62,9 +62,6 @@ public class SelfCheckoutSoftware extends Software<SelfCheckoutObserver> {
     private Customer customer;
     private Attendant attendant;
 
-    private boolean coinInTray = false;
-    private boolean banknoteDangling = false;
-
     private BanknoteHandler banknoteHandler;
     private CardHandler cardHandler;
     private CoinHandler coinHandler;
