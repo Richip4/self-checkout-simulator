@@ -312,6 +312,7 @@ public final class Main {
             SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
             Store.addSelfCheckoutSoftware(software);
         }
+        }
     }
     
     /**
