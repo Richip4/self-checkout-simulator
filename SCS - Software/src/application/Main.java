@@ -1,4 +1,5 @@
 package application;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,7 +67,7 @@ public final class Main {
         Main.initializeStore();
         Main.initializeMembership();
         Main.initializeCredentialsSytem();
-        
+
         GUI.init(new AppControl());
     }
 
@@ -112,19 +113,19 @@ public final class Main {
         PriceLookupCode cornCode = new PriceLookupCode("4055");
         PLUCodedProduct corn = new PLUCodedProduct(cornCode, "Corn", new BigDecimal("2.00"));
         Inventory.addProduct(corn);
-        
+
         PriceLookupCode tomatoCode = new PriceLookupCode("4165");
         PLUCodedProduct tomato = new PLUCodedProduct(tomatoCode, "Tomato", new BigDecimal("1.99"));
         Inventory.addProduct(tomato);
-        
+
         PriceLookupCode beetCode = new PriceLookupCode("1055");
         PLUCodedProduct beet = new PLUCodedProduct(beetCode, "Beet", new BigDecimal("2.49"));
         Inventory.addProduct(beet);
-        
+
         PriceLookupCode gAppleCode = new PriceLookupCode("4066");
         PLUCodedProduct gApple = new PLUCodedProduct(gAppleCode, "Green Apple", new BigDecimal("1.68"));
         Inventory.addProduct(gApple);
-        
+
         PriceLookupCode avocadoCode = new PriceLookupCode("3945");
         PLUCodedProduct avocado = new PLUCodedProduct(avocadoCode, "Avocado", new BigDecimal("2.99"));
         Inventory.addProduct(avocado);
@@ -134,23 +135,26 @@ public final class Main {
         int coffeeWeight = 940;
         BarcodedProduct coffee = new BarcodedProduct(coffeeCode, "Coffee", new BigDecimal("13.80"), coffeeWeight);
         Inventory.addProduct(coffee);
-        
+
         Barcode fruitLoopsCode = randomBarcode();
         int fruitLoopsWeight = 400;
-        BarcodedProduct fruitLoops = new BarcodedProduct(fruitLoopsCode, "Fruit Loops", new BigDecimal("5.95"), fruitLoopsWeight);
+        BarcodedProduct fruitLoops = new BarcodedProduct(fruitLoopsCode, "Fruit Loops", new BigDecimal("5.95"),
+                fruitLoopsWeight);
         Inventory.addProduct(fruitLoops);
-        
+
         Barcode kraftDinnerCode = randomBarcode();
         int kraftDinnerWeight = 120;
-        BarcodedProduct kraftDinner = new BarcodedProduct(kraftDinnerCode, "Kraft Dinner", new BigDecimal("2.49"), kraftDinnerWeight);
+        BarcodedProduct kraftDinner = new BarcodedProduct(kraftDinnerCode, "Kraft Dinner", new BigDecimal("2.49"),
+                kraftDinnerWeight);
         Inventory.addProduct(kraftDinner);
 
         Barcode plasticBagCode = new Barcode(new Numeral[] { Numeral.zero, Numeral.zero, Numeral.zero, Numeral.zero });
         int plasticBagWeight = 1;
-        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.1"), plasticBagWeight);
+        BarcodedProduct plasticBag = new BarcodedProduct(plasticBagCode, "Plastic Bag", new BigDecimal("0.1"),
+                plasticBagWeight);
         Inventory.addProduct(plasticBag);
 
-        // Add 1 of each plu item 
+        // Add 1 of each plu item
         // they should be unique because of their weight
         Vector<PLUCodedItem> pItems = new Vector<>();
         pItems.add(new PLUCodedItem(cornCode, 194));
@@ -159,7 +163,7 @@ public final class Main {
         pItems.add(new PLUCodedItem(cornCode, 220));
         pItems.add(new PLUCodedItem(cornCode, 210));
         Inventory.setQuantity(corn, 5);
-        
+
         pItems.add(new PLUCodedItem(tomatoCode, 105));
         pItems.add(new PLUCodedItem(tomatoCode, 139));
         pItems.add(new PLUCodedItem(tomatoCode, 112));
@@ -170,7 +174,7 @@ public final class Main {
         pItems.add(new PLUCodedItem(beetCode, 144));
         pItems.add(new PLUCodedItem(beetCode, 136));
         Inventory.setQuantity(beet, 3);
-        
+
         pItems.add(new PLUCodedItem(gAppleCode, 240));
         pItems.add(new PLUCodedItem(gAppleCode, 230));
         pItems.add(new PLUCodedItem(gAppleCode, 233));
@@ -178,37 +182,36 @@ public final class Main {
         pItems.add(new PLUCodedItem(gAppleCode, 240));
         pItems.add(new PLUCodedItem(gAppleCode, 251));
         Inventory.setQuantity(gApple, 6);
-        
+
         // I don't envy data entry workers DX
-        
+
         pItems.add(new PLUCodedItem(avocadoCode, 290));
         pItems.add(new PLUCodedItem(avocadoCode, 301));
         pItems.add(new PLUCodedItem(avocadoCode, 299));
         pItems.add(new PLUCodedItem(avocadoCode, 300));
         Inventory.setQuantity(avocado, 4);
-        
+
         pItems.forEach(it -> Tangibles.ITEMS.add(it));
-        
+
         // add several barcoded items
         // no need for uniqueness as weight is not recorded per item
         Vector<BarcodedItem> bItems = new Vector<>();
-        
+
         int quantityOfEachBarcodedItem = 6;
         for (int i = 0; i < quantityOfEachBarcodedItem; i++) {
-        	bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
-        	bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
-        	bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
+            bItems.add(new BarcodedItem(coffeeCode, coffeeWeight));
+            bItems.add(new BarcodedItem(fruitLoopsCode, fruitLoopsWeight));
+            bItems.add(new BarcodedItem(kraftDinnerCode, kraftDinnerWeight));
         }
-        
-    	Inventory.setQuantity(coffee, quantityOfEachBarcodedItem); 
-    	Inventory.setQuantity(fruitLoops, quantityOfEachBarcodedItem); 
-    	Inventory.setQuantity(kraftDinner, quantityOfEachBarcodedItem); 
-    	
-    	bItems.forEach(bi -> Tangibles.ITEMS.add(bi));
-    	
+
+        Inventory.setQuantity(coffee, quantityOfEachBarcodedItem);
+        Inventory.setQuantity(fruitLoops, quantityOfEachBarcodedItem);
+        Inventory.setQuantity(kraftDinner, quantityOfEachBarcodedItem);
+
+        bItems.forEach(bi -> Tangibles.ITEMS.add(bi));
+
     }
 
-    
     // We assume we are working in Canadian denominations
     public static void initializeStore() {
         Currency currency = Configurations.currency;
@@ -249,34 +252,61 @@ public final class Main {
             } catch (OverloadException e) {
                 e.printStackTrace();
             }
-            
-            station.banknoteDispensers.forEach((value, dispenser) -> {
-        		for(int i = 0; i < SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY; i++) {
-        			Banknote note = new Banknote(currency, value);
-        			try {
-						dispenser.load(note);
-					} catch (OverloadException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-        		}
-    		});
-            
-        	station.coinDispensers.forEach((value, dispenser) -> {
-        		for(int i = 0; i < SelfCheckoutStation.COIN_DISPENSER_CAPACITY; i++) {
-        			Coin coin = new Coin(currency, value);
-        			try {
-						dispenser.load(coin);
-					} catch (SimulationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (OverloadException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-        		}
-    		});
 
+            if (t != 5) {
+                station.banknoteDispensers.forEach((value, dispenser) -> {
+                    for (int i = 0; i < SelfCheckoutStation.BANKNOTE_DISPENSER_CAPACITY; i++) {
+                        Banknote note = new Banknote(currency, value);
+                        try {
+                            dispenser.load(note);
+                        } catch (OverloadException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            if (t != 5) {
+                station.coinDispensers.forEach((value, dispenser) -> {
+                    for (int i = 0; i < SelfCheckoutStation.COIN_DISPENSER_CAPACITY; i++) {
+                        Coin coin = new Coin(currency, value);
+                        try {
+                            dispenser.load(coin);
+                        } catch (SimulationException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (OverloadException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+            if (t == 5) {
+                for (int i = 0; i < SelfCheckoutStation.COIN_STORAGE_CAPACITY - 1; i++) {
+                    Coin coin = new Coin(currency, new BigDecimal(1.00));
+                    try {
+                        station.coinStorage.load(coin);
+                    } catch (SimulationException e) {
+                        e.printStackTrace();
+                    } catch (OverloadException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                for (int i = 0; i < SelfCheckoutStation.BANKNOTE_STORAGE_CAPACITY - 1; i++) {
+                    Banknote note = new Banknote(currency, 10);
+                    try {
+                        station.banknoteStorage.load(note);
+                    } catch (SimulationException e) {
+                        e.printStackTrace();
+                    } catch (OverloadException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            
             // Add this station to tangibles, and add this station to the supervision
             // station
             Tangibles.SELF_CHECKOUT_STATIONS.add(station);
@@ -286,26 +316,28 @@ public final class Main {
             // and add this softeare to supervision software
             SelfCheckoutSoftware software = new SelfCheckoutSoftware(station);
             Store.addSelfCheckoutSoftware(software);
+            
         }
     }
-    
+
     /**
      * Generates a random barcode that does not exist yet.
-     * @return 
+     * 
+     * @return
      */
     private static Barcode randomBarcode() {
-    	Random rand = new Random();
-    	Barcode barcode;
+        Random rand = new Random();
+        Barcode barcode;
         Numeral[] nums = new Numeral[4];
-        
+
         do {
-	        nums[0] = Numeral.valueOf((byte)rand.nextInt(10));
-	        nums[1] = Numeral.valueOf((byte)rand.nextInt(10));
-	        nums[2] = Numeral.valueOf((byte)rand.nextInt(10));
-	        nums[3] = Numeral.valueOf((byte)rand.nextInt(10));
-	        barcode = new Barcode(nums);
+            nums[0] = Numeral.valueOf((byte) rand.nextInt(10));
+            nums[1] = Numeral.valueOf((byte) rand.nextInt(10));
+            nums[2] = Numeral.valueOf((byte) rand.nextInt(10));
+            nums[3] = Numeral.valueOf((byte) rand.nextInt(10));
+            barcode = new Barcode(nums);
         } while (Inventory.getBarcodedProducts().containsKey(barcode));
-    	return barcode;
+        return barcode;
     }
 
     public static void initializeMembership() {
@@ -333,23 +365,23 @@ public final class Main {
         String username2 = "Richi";
         String password2 = "123password";
         CredentialsSystem.addAccount(username2, password2);
-        
+
         Attendant a1 = new Attendant();
         a1.setLogin(username1, password1);
-        
+
         Attendant a2 = new Attendant();
         a2.setLogin(username2, password2);
-        
+
         // for ease of testing
         String username3 = "a";
         String password3 = "a";
         CredentialsSystem.addAccount(username3, password3);
         Attendant a3 = new Attendant();
         a3.setLogin(username3, password3);
-        
+
         Tangibles.ATTENDANTS.add(a1);
         Tangibles.ATTENDANTS.add(a2);
-        
+
         Tangibles.ATTENDANTS.add(a3);
     }
 
@@ -406,7 +438,7 @@ public final class Main {
         private Tangibles() {
         }
     }
-    
+
     /**
      * Just to keep track of some global variables
      * 
@@ -414,7 +446,7 @@ public final class Main {
      *
      */
     public static class Configurations {
-    	public static final Currency currency = Currency.getInstance("CAD");
-    	public static final int stations = 6;
+        public static final Currency currency = Currency.getInstance("CAD");
+        public static final int stations = 6;
     }
 }

@@ -172,7 +172,7 @@ public class Checkout {
 
 		// New pending changes list
 		List<Cash> newPendingChanges = new ArrayList<Cash>(this.pendingChanges);
-
+		
 		// There's change pending to be returned to customer
 		// start emitting change to slot devices
 		for (Cash cash : this.pendingChanges) {
